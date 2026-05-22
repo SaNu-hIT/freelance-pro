@@ -24,8 +24,10 @@ export default function RootLayout({
         <style>{`
           @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900&f[]=satoshi@400,500,700&display=swap');
         `}</style>
+        {/* Anti-flash: apply saved theme class before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('fp-theme')||'dark';document.documentElement.classList.toggle('light',t==='light');document.documentElement.classList.toggle('dark',t==='dark');})();` }} />
       </head>
-      <body className="min-h-full antialiased" style={{ background: '#0a0a0c', color: '#ffffff' }}>
+      <body className="min-h-full antialiased">
         {children}
       </body>
     </html>

@@ -2,28 +2,62 @@
 @import "tailwindcss";
 
 @layer base {
+  /* ── Dark theme (default) ──────────────────────────────── */
   :root {
-    /* Backgrounds — layered lightness so cards pop off the page */
     --bg-base:     #0a0a0c;
     --bg-surface:  #131316;
     --bg-elevated: #1c1c21;
     --bg-sidebar:  #0e0e11;
 
-    /* Borders */
     --border:         rgba(255,255,255,0.08);
     --border-strong:  rgba(255,255,255,0.14);
     --border-crimson: rgba(220,20,60,0.35);
 
-    /* Text tiers */
     --text-primary:   #f0f0f2;
     --text-secondary: rgba(240,240,242,0.6);
     --text-muted:     rgba(240,240,242,0.38);
     --text-label:     rgba(240,240,242,0.45);
 
-    /* Crimson */
-    --crimson:    #DC143C;
-    --crimson-dim: rgba(220,20,60,0.12);
+    --crimson:      #DC143C;
+    --crimson-dim:  rgba(220,20,60,0.12);
     --crimson-glow: rgba(220,20,60,0.4);
+
+    /* component tokens */
+    --input-bg:       rgba(255,255,255,0.05);
+    --input-bg-focus: rgba(255,255,255,0.07);
+    --nav-hover-bg:   rgba(255,255,255,0.06);
+    --row-hover-bg:   rgba(255,255,255,0.03);
+    --cell-border:    rgba(255,255,255,0.05);
+    --track-bg:       rgba(255,255,255,0.08);
+  }
+
+  /* ── Light theme ────────────────────────────────────────── */
+  html.light {
+    --bg-base:     #f5f5f8;
+    --bg-surface:  #ffffff;
+    --bg-elevated: #ededf2;
+    --bg-sidebar:  #f0f0f5;
+
+    --border:         rgba(0,0,0,0.08);
+    --border-strong:  rgba(0,0,0,0.14);
+    --border-crimson: rgba(220,20,60,0.25);
+
+    --text-primary:   #0e0e11;
+    --text-secondary: rgba(14,14,17,0.65);
+    --text-muted:     rgba(14,14,17,0.42);
+    --text-label:     rgba(14,14,17,0.5);
+
+    --crimson:      #DC143C;
+    --crimson-dim:  rgba(220,20,60,0.08);
+    --crimson-glow: rgba(220,20,60,0.3);
+
+    /* component tokens */
+    --input-bg:       rgba(0,0,0,0.04);
+    --input-bg-focus: rgba(0,0,0,0.06);
+    --nav-hover-bg:   rgba(0,0,0,0.05);
+    --row-hover-bg:   rgba(0,0,0,0.025);
+    --cell-border:    rgba(0,0,0,0.06);
+    --track-bg:       rgba(0,0,0,0.07);
   }
 
   * { box-sizing: border-box; }
@@ -34,6 +68,7 @@
     color: var(--text-primary);
     font-family: 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.2s ease;
   }
 
   ::-webkit-scrollbar { width: 4px; }
@@ -188,7 +223,7 @@
     letter-spacing: 0.01em;
   }
   .nav-item:hover {
-    background: rgba(255,255,255,0.06);
+    background: var(--nav-hover-bg);
     color: var(--text-primary);
   }
   .nav-item.active {
@@ -229,18 +264,18 @@
   }
   .data-table td {
     padding: 13px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--cell-border);
     color: var(--text-secondary);
     font-size: 13px;
     transition: background 0.15s;
   }
   .data-table td:first-child { color: var(--text-primary); font-weight: 500; }
-  .data-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .data-table tr:hover td { background: var(--row-hover-bg); }
 
   /* ─── Form inputs ────────────────────────────────── */
   .input-field {
     width: 100%;
-    background: rgba(255,255,255,0.05);
+    background: var(--input-bg);
     border: 1px solid var(--border-strong);
     border-radius: 7px;
     padding: 11px 14px;
@@ -252,7 +287,7 @@
   .input-field::placeholder { color: var(--text-muted); }
   .input-field:focus {
     border-color: #DC143C;
-    background: rgba(255,255,255,0.07);
+    background: var(--input-bg-focus);
     box-shadow: 0 0 0 3px rgba(220,20,60,0.12);
   }
 
@@ -269,7 +304,7 @@
   /* ─── Progress bar ───────────────────────────────── */
   .progress-bar {
     height: 4px;
-    background: rgba(255,255,255,0.08);
+    background: var(--track-bg);
     border-radius: 2px;
     overflow: hidden;
   }
@@ -327,6 +362,49 @@
   .text-muted-ui { color: var(--text-muted); }
   .glow-text { text-shadow: 0 0 20px rgba(220,20,60,0.5); }
   .surface { background: var(--bg-surface); border: 1px solid var(--border); }
+  .border-theme { border-color: var(--border); }
+}
+
+/* ─── Light-mode overrides ──────────────────────────── */
+html.light body {
+  background-color: var(--bg-base);
+}
+
+/* Status badges — darker text on light bg */
+html.light .status-new       { color: #2563eb; }
+html.light .status-assigned  { color: #7c3aed; }
+html.light .status-progress  { color: #be123c; }
+html.light .status-blocked   { color: #dc2626; }
+html.light .status-pending   { color: #b45309; }
+html.light .status-completed { color: #15803d; }
+html.light .status-delayed   { color: #c2410c; }
+
+/* Grid overlay — slightly more visible on light bg */
+html.light .grid-overlay {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(220,20,60,0.03) 80px),
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(220,20,60,0.03) 80px);
+}
+
+/* Blobs — less opacity on light */
+html.light .blob { opacity: 0.07; }
+
+/* glass-card-dark sidebar: use sidebar bg in light */
+html.light .glass-card-dark {
+  background: var(--bg-sidebar);
+}
+
+/* nav active label — darker crimson shade readable on light */
+html.light .nav-item.active {
+  color: #b01030;
+}
+
+/* text-gradient — richer on light */
+html.light .text-gradient {
+  background: linear-gradient(to bottom, #0e0e11 30%, #DC143C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ─── Animations ─────────────────────────────────── */

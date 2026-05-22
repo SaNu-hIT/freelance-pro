@@ -75,10 +75,10 @@ export function Sidebar({ role, pathname }: SidebarProps) {
 
   return (
     <aside
-      className="glass-card-dark flex flex-col border-r border-[rgba(255,255,255,0.08)] h-screen sticky top-0"
+      className="glass-card-dark flex flex-col border-r border-theme h-screen sticky top-0"
       style={{ width: 240, minWidth: 240 }}
     >
-      <Link href="/" className="flex items-center gap-3 px-5 py-6 border-b border-[rgba(255,255,255,0.08)] transition-opacity hover:opacity-80">
+      <Link href="/" className="flex items-center gap-3 px-5 py-6 border-b border-theme transition-opacity hover:opacity-80">
         <CrimsonCube size={28} />
         <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase leading-tight">
           FREELANCE_PRO
@@ -104,7 +104,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-[rgba(255,255,255,0.08)]">
+      <div className="px-4 py-4 border-t border-theme">
         {user && (
           <div className="mb-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#8B0000] flex items-center justify-center text-white text-xs font-bold uppercase shrink-0">
@@ -115,7 +115,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
               )}
             </div>
             <div className="overflow-hidden">
-              <p className="text-white text-xs font-semibold truncate">{user.name}</p>
+              <p className="text-primary-ui text-xs font-semibold truncate">{user.name}</p>
               <p className="text-xs uppercase tracking-widest truncate" style={{ color: 'rgba(220,20,60,0.65)', fontFamily: "'JetBrains Mono', monospace" }}>
                 {user.role}
               </p>
