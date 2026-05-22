@@ -367,6 +367,20 @@
   .border-theme { border-color: var(--border); }
 }
 
+/* ─── Hero gradient text ─────────────────────────────── */
+.text-gradient-hero {
+  background: linear-gradient(to bottom, #ffffff 20%, #DC143C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+html.light .text-gradient-hero {
+  background: linear-gradient(to bottom, #111114 20%, #DC143C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* ─── Light-mode overrides ──────────────────────────── */
 html.light body {
   background-color: var(--bg-base);
