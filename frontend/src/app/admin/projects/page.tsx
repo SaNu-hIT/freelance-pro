@@ -95,6 +95,8 @@ export default function AdminProjectsPage() {
   const [newTaskAssignee, setNewTaskAssignee] = useState<string>('')
   const [addingTask, setAddingTask] = useState(false)
   const [newSprintName, setNewSprintName] = useState('')
+  const [newSprintStart, setNewSprintStart] = useState('')
+  const [newSprintEnd, setNewSprintEnd] = useState('')
   const [addingSprint, setAddingSprint] = useState(false)
 
   useEffect(() => {
@@ -221,14 +223,25 @@ export default function AdminProjectsPage() {
   const handleAddSprint = async () => {
     if (!newSprintName.trim() || !selectedProject) return
     setAddingSprint(true)
+    const payload = {
+      projectId: selectedProject.id,
+      name: newSprintName.trim(),
+      order: sprints.length,
+      ...(newSprintStart && { startDate: newSprintStart }),
+      ...(newSprintEnd   && { endDate:   newSprintEnd }),
+    }
     try {
-      const res = await sprintsApi.create({ projectId: selectedProject.id, name: newSprintName.trim(), order: sprints.length })
+      const res = await sprintsApi.create(payload)
       setSprints(prev => [...prev, res.data])
     } catch {
-      const fake: ProjectSprint = { id: `tmp-${Date.now()}`, projectId: selectedProject.id, name: newSprintName.trim(), order: sprints.length, startDate: null, endDate: null, createdAt: new Date().toISOString() }
+      const fake: ProjectSprint = {
+        id: `tmp-${Date.now()}`, projectId: selectedProject.id, name: payload.name,
+        order: payload.order, startDate: newSprintStart || null, endDate: newSprintEnd || null,
+        createdAt: new Date().toISOString(),
+      }
       setSprints(prev => [...prev, fake])
     }
-    setNewSprintName('')
+    setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
     setAddingSprint(false)
   }
 
@@ -741,19 +754,40 @@ export default function AdminProjectsPage() {
                       <Plus size={15} />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input className="input-field flex-1 py-2 text-sm"
-                      placeholder="New sprint name… (e.g. Sprint 4 — Payments)"
+                  {/* Sprint creation — name + dates */}
+                  <div className="rounded-xl p-3 space-y-2" style={{ background: 'var(--bg-elevated)', border: '1px solid rgba(220,20,60,0.18)' }}>
+                    <p className="text-mono-label" style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>NEW SPRINT</p>
+                    <input className="input-field w-full py-2 text-sm"
+                      placeholder="Sprint name… (e.g. Sprint 4 — Payments)"
                       value={newSprintName}
                       onChange={e => setNewSprintName(e.target.value)}
                       onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddSprint() }}
                       disabled={addingSprint}
                       style={{ borderColor: 'rgba(220,20,60,0.2)' }} />
-                    <button onClick={handleAddSprint} disabled={!newSprintName.trim() || addingSprint}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-colors disabled:opacity-40 shrink-0"
-                      style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
-                      <Layers size={12} /> Sprint
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <label className="text-mono-label block mb-1" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>START DATE</label>
+                        <input type="date" className="input-field w-full py-1.5 text-xs"
+                          value={newSprintStart}
+                          onChange={e => setNewSprintStart(e.target.value)}
+                          disabled={addingSprint} />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-mono-label block mb-1" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>END DATE</label>
+                        <input type="date" className="input-field w-full py-1.5 text-xs"
+                          value={newSprintEnd}
+                          min={newSprintStart || undefined}
+                          onChange={e => setNewSprintEnd(e.target.value)}
+                          disabled={addingSprint} />
+                      </div>
+                      <div className="self-end">
+                        <button onClick={handleAddSprint} disabled={!newSprintName.trim() || addingSprint}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-colors disabled:opacity-40"
+                          style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
+                          <Layers size={12} /> Add Sprint
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
