@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { CrimsonCube } from '@/components/ui/CrimsonCube'
 import { MorphBlob } from '@/components/ui/MorphBlob'
+import { ParticleNetwork, WireframeCube, OrbitalRing, FloatingGlyph } from '@/components/ui/SceneBackground'
 import { useCurrencySymbol } from '@/lib/store'
 import { useTheme } from '@/lib/theme'
 
@@ -100,9 +101,35 @@ export default function HomePage() {
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="min-h-screen flex items-center pt-24 pb-20 relative overflow-hidden">
+        {/* base grid */}
         <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
+
+        {/* canvas particle network */}
+        <ParticleNetwork count={65} dotColor="220,20,60" lineColor="220,20,60" className="z-0" />
+
+        {/* depth blobs behind everything */}
         <MorphBlob color="#8B0000" size={700} top="-200px" right="-200px" />
         <MorphBlob color="#3D0000" size={450} bottom="-150px" left="-150px" delay="2s" />
+
+        {/* rotating wireframe cubes */}
+        <WireframeCube size={200} color="rgba(220,20,60,0.18)" duration={28} delay="0s"
+          style={{ top: '10%', right: '6%', zIndex: 1 }} />
+        <WireframeCube size={100} color="rgba(220,20,60,0.22)" duration={18} delay="-6s"
+          style={{ top: '55%', right: '22%', zIndex: 1 }} />
+        <WireframeCube size={60}  color="rgba(220,20,60,0.28)" duration={14} delay="-3s"
+          style={{ bottom: '12%', right: '40%', zIndex: 1 }} />
+
+        {/* orbital rings */}
+        <OrbitalRing size={520} color="rgba(220,20,60,0.08)" tiltX={70} duration={18} delay="0s"
+          style={{ top: '-80px', right: '-120px', zIndex: 1 }} />
+        <OrbitalRing size={300} color="rgba(139,0,0,0.12)" tiltX={60} duration={11} delay="-4s"
+          style={{ bottom: '5%', left: '-60px', zIndex: 1 }} />
+
+        {/* floating hex glyphs */}
+        <FloatingGlyph size={110} color="rgba(220,20,60,0.14)" duration={20} delay="0s"
+          style={{ top: '18%', right: '30%', zIndex: 1 }} />
+        <FloatingGlyph size={60}  color="rgba(220,20,60,0.18)" duration={14} delay="-5s" spin={false}
+          style={{ bottom: '20%', right: '10%', zIndex: 1 }} />
 
         <div className="max-w-7xl mx-auto px-8 md:px-12 w-full relative z-10">
           <div className="max-w-3xl">
@@ -261,6 +288,10 @@ export default function HomePage() {
       <section className="py-20 relative overflow-hidden border-y border-theme" style={{ background: 'var(--bg-elevated)' }}>
         <div className="absolute inset-0 grid-overlay opacity-40" />
         <MorphBlob color="#8B0000" size={500} top="-100px" right="-80px" />
+        <WireframeCube size={130} color="rgba(220,20,60,0.15)" duration={24} delay="-2s"
+          style={{ bottom: '-20px', left: '8%', zIndex: 1 }} />
+        <FloatingGlyph size={80} color="rgba(220,20,60,0.12)" duration={18} delay="-7s" spin
+          style={{ top: '10%', left: '2%', zIndex: 1 }} />
 
         <div className="max-w-3xl mx-auto px-8 md:px-12 text-center relative z-10">
           <p className="text-mono-label text-[#DC143C] mb-4 flex items-center justify-center gap-2">

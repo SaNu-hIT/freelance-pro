@@ -428,6 +428,26 @@ html.light .text-gradient {
   from { transform: rotateX(0deg) rotateY(0deg); }
   to   { transform: rotateX(360deg) rotateY(360deg); }
 }
+
+/* 3-D scene keyframes */
+@keyframes fp-spin3d {
+  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg); }
+  100% { transform: rotateX(360deg) rotateY(540deg) rotateZ(180deg); }
+}
+@keyframes fp-ring-spin {
+  from { transform: rotateZ(0deg); }
+  to   { transform: rotateZ(360deg); }
+}
+@keyframes fp-glyph-float {
+  0%,100% { transform: translateY(0px)   translateX(0px); }
+  25%     { transform: translateY(-18px) translateX(8px); }
+  50%     { transform: translateY(-8px)  translateX(-12px); }
+  75%     { transform: translateY(-24px) translateX(4px); }
+}
+@keyframes fp-glyph-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 @keyframes blobMorph {
   0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translate(0,0) rotate(0deg); }
   33%       { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; transform: translate(30px,-30px) rotate(120deg); }
