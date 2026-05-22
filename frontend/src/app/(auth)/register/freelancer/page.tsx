@@ -295,7 +295,7 @@ export default function FreelancerRegisterPage() {
       </div>
 
       {/* ── RIGHT PANEL: Form ── */}
-      <div className="flex-1 flex items-start justify-center px-6 py-12 relative z-10 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10 overflow-y-auto">
         <div className="w-full max-w-[620px]">
 
           {/* Mobile logo */}
