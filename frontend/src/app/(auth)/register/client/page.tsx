@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 import { MorphBlob } from '@/components/ui/MorphBlob'
+import { ParticleNetwork, WireframeCube, OrbitalRing, FloatingGlyph } from '@/components/ui/SceneBackground'
 import { useTheme } from '@/lib/theme'
 import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
@@ -104,8 +105,33 @@ export default function ClientRegisterPage() {
   return (
     <div className="min-h-screen flex relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
+
+      {/* canvas particle network */}
+      <ParticleNetwork count={60} dotColor="96,165,250" lineColor="96,165,250" className="z-0" />
+
+      {/* depth blobs */}
       <MorphBlob color="#0d2644" size={700} top="-200px" left="-200px" />
       <MorphBlob color="#1a1a4e" size={500} bottom="-150px" right="-100px" delay="4s" />
+
+      {/* rotating wireframe cubes */}
+      <WireframeCube size={180} color="rgba(96,165,250,0.18)" duration={26} delay="0s"
+        style={{ top: '8%', right: '5%', zIndex: 1 }} />
+      <WireframeCube size={90}  color="rgba(96,165,250,0.22)" duration={17} delay="-5s"
+        style={{ top: '52%', right: '20%', zIndex: 1 }} />
+      <WireframeCube size={55}  color="rgba(96,165,250,0.28)" duration={13} delay="-2s"
+        style={{ bottom: '10%', right: '38%', zIndex: 1 }} />
+
+      {/* orbital rings */}
+      <OrbitalRing size={500} color="rgba(96,165,250,0.08)" tiltX={68} duration={16} delay="0s"
+        style={{ top: '-100px', right: '-130px', zIndex: 1 }} />
+      <OrbitalRing size={280} color="rgba(129,140,248,0.12)" tiltX={62} duration={10} delay="-3s"
+        style={{ bottom: '4%', left: '-50px', zIndex: 1 }} />
+
+      {/* floating hex glyphs */}
+      <FloatingGlyph size={100} color="rgba(96,165,250,0.13)" duration={19} delay="0s"
+        style={{ top: '16%', right: '28%', zIndex: 1 }} />
+      <FloatingGlyph size={55}  color="rgba(96,165,250,0.18)" duration={13} delay="-4s" spin={false}
+        style={{ bottom: '18%', right: '8%', zIndex: 1 }} />
 
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex flex-col w-[40%] relative z-10 px-12 py-12 overflow-y-auto">
