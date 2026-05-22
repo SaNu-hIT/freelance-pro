@@ -162,7 +162,7 @@ export default function ClientDashboardPage() {
                     <span className="text-mono-label text-[10px]">{s.label}</span>
                     {s.icon}
                   </div>
-                  <p className="text-white text-3xl font-black text-display">{s.value}</p>
+                  <p className="text-primary-ui text-3xl font-black text-display">{s.value}</p>
                 </div>
               ))}
         </div>
@@ -177,7 +177,7 @@ export default function ClientDashboardPage() {
             {loading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-16 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                  <div key={i} className="h-16 bg-[var(--input-bg)] rounded animate-pulse" />
                 ))}
               </div>
             ) : activeList.length === 0 ? (
@@ -185,10 +185,10 @@ export default function ClientDashboardPage() {
             ) : (
               <ul className="space-y-4">
                 {activeList.map(p => (
-                  <li key={p.id} className="pb-4 border-b border-[rgba(255,255,255,0.08)] last:border-0">
+                  <li key={p.id} className="pb-4 border-b border-[var(--input-bg)] last:border-0">
                     <div className="flex items-center justify-between mb-2">
                       <div>
-                        <p className="text-white font-semibold text-sm">{p.title}</p>
+                        <p className="text-primary-ui font-semibold text-sm">{p.title}</p>
                         {p.assignedFreelancer && (
                           <p className="text-mono-label text-[10px]">
                             Assigned to {p.assignedFreelancer.user.name}
@@ -197,7 +197,7 @@ export default function ClientDashboardPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         <StatusBadge status={p.status} />
-                        <Link href="/client/projects" className="text-mono-label text-[10px] text-[rgba(240,240,242,0.4)] hover:text-[#DC143C]">Details →</Link>
+                        <Link href="/client/projects" className="text-mono-label text-[10px] text-[var(--text-muted)] hover:text-[#DC143C]">Details →</Link>
                       </div>
                     </div>
                     <div className="progress-bar mb-1">
@@ -205,7 +205,7 @@ export default function ClientDashboardPage() {
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-mono-label text-[10px]">{p.progress}% complete</span>
-                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
                         {isOverdue(p.deadline) && <AlertTriangle size={9} className="inline mr-1" />}
                         Due {fmtDate(p.deadline)}
                       </span>
@@ -225,9 +225,9 @@ export default function ClientDashboardPage() {
                 <li key={a.id} className="relative pl-6 pb-5 last:pb-0">
                   <span
                     className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a0c] shrink-0"
-                    style={{ background: activityColors[a.type] ?? 'rgba(240,240,242,0.3)' }}
+                    style={{ background: activityColors[a.type] ?? 'var(--text-muted)' }}
                   />
-                  <p className="text-white text-xs leading-snug">{a.event}</p>
+                  <p className="text-primary-ui text-xs leading-snug">{a.event}</p>
                   <p className="text-mono-label text-[10px] mt-0.5">{a.time}</p>
                 </li>
               ))}
@@ -243,7 +243,7 @@ export default function ClientDashboardPage() {
               {pendingProjects.map(p => (
                 <div key={p.id} className="flex items-center justify-between glass-card-dark rounded-lg p-4">
                   <div className="min-w-0 flex-1">
-                    <p className="text-white font-semibold">{p.title}</p>
+                    <p className="text-primary-ui font-semibold">{p.title}</p>
                     <p className="text-mono-label text-[10px] mt-0.5">
                       {p.assignedFreelancer?.user.name ?? 'Freelancer'} — submitted for review
                     </p>

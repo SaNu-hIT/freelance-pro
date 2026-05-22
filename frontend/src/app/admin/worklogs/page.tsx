@@ -121,7 +121,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
   const hasBlocker = !!w.blockers
   return (
     <div className="glass-card rounded-xl overflow-hidden transition-all hover:border-[rgba(220,20,60,0.3)]"
-      style={{ borderColor: hasBlocker ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)' }}>
+      style={{ borderColor: hasBlocker ? 'rgba(251,191,36,0.3)' : 'var(--input-bg)' }}>
       {/* Card header */}
       <div className="flex items-start justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-3">
@@ -130,8 +130,8 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
             {w.freelancer?.user.name.split(' ').map(n => n[0]).join('') ?? '??'}
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">{w.freelancer?.user.name ?? '—'}</p>
-            <p className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>
+            <p className="text-primary-ui font-semibold text-sm leading-tight">{w.freelancer?.user.name ?? '—'}</p>
+            <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
               {w.project?.title ?? `#${w.projectId}`}
             </p>
           </div>
@@ -157,7 +157,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
       {/* Progress bar */}
       <div className="px-5 pb-3">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.35)' }}>PROJECT PROGRESS</span>
+          <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECT PROGRESS</span>
           <span className="text-xs font-bold" style={{ color: '#DC143C' }}>{w.progress}%</span>
         </div>
         <div className="progress-bar" style={{ height: 3 }}>
@@ -165,14 +165,14 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
         </div>
       </div>
 
-      <div className="px-5 pb-4 space-y-3 border-t border-[rgba(255,255,255,0.05)] pt-3">
+      <div className="px-5 pb-4 space-y-3 border-t border-[var(--input-bg)] pt-3">
         {/* Tasks */}
         <div>
           <div className="flex items-center gap-1.5 mb-1">
             <CheckCircle2 size={11} style={{ color: '#4ade80' }} />
-            <span className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>TODAY'S WORK</span>
+            <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>TODAY'S WORK</span>
           </div>
-          <p className="text-sm leading-relaxed line-clamp-3" style={{ color: 'rgba(240,240,242,0.75)' }}>
+          <p className="text-sm leading-relaxed line-clamp-3" style={{ color: 'var(--text-primary)' }}>
             {w.tasksCompleted}
           </p>
         </div>
@@ -193,16 +193,16 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <ArrowRight size={11} style={{ color: '#60a5fa' }} />
-              <span className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>NEXT</span>
+              <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>NEXT</span>
             </div>
-            <p className="text-xs" style={{ color: 'rgba(240,240,242,0.55)' }}>{w.nextSteps}</p>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{w.nextSteps}</p>
           </div>
         )}
       </div>
 
       {/* Card footer */}
-      <div className="flex items-center justify-between px-5 py-3 border-t border-[rgba(255,255,255,0.06)]" style={{ background: 'rgba(0,0,0,0.2)' }}>
-        <span className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.3)' }}>
+      <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--input-bg)]" style={{ background: 'rgba(0,0,0,0.2)' }}>
+        <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
           {new Date(w.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           {w.fileUrls && w.fileUrls.length > 0 && (
             <span className="ml-3 inline-flex items-center gap-1">
@@ -274,8 +274,8 @@ export default function AdminWorklogsPage() {
       {/* Header */}
       <div className="mb-6">
         <p className="text-mono-label mb-1">DAILY ACTIVITY</p>
-        <h1 className="text-display text-4xl text-white">STANDUP</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>
+        <h1 className="text-display text-4xl text-primary-ui">STANDUP</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
         </p>
       </div>
@@ -292,8 +292,8 @@ export default function AdminWorklogsPage() {
               {icon}
             </div>
             <div>
-              <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>{label}</p>
-              <p className="font-bold text-xl text-white">{value}</p>
+              <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{label}</p>
+              <p className="font-bold text-xl text-primary-ui">{value}</p>
             </div>
           </div>
         ))}
@@ -302,7 +302,7 @@ export default function AdminWorklogsPage() {
       {/* Filters */}
       <div className="glass-card-dark rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[180px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input type="text" placeholder="Search logs..." value={search} onChange={e => setSearch(e.target.value)} className="input-field pl-9 py-2.5 text-sm" />
         </div>
         <div className="flex gap-1.5">
@@ -319,7 +319,7 @@ export default function AdminWorklogsPage() {
               <option key={p.id} value={p.id}>{p.title}</option>
             ))}
           </select>
-          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
         </div>
         <div className="relative">
           <select value={freelancerFilter} onChange={e => setFreelancerFilter(e.target.value)} className="input-field py-2.5 text-sm pr-8 appearance-none" style={{ width: 180 }}>
@@ -328,7 +328,7 @@ export default function AdminWorklogsPage() {
               <option key={f.id} value={f.id}>{f.user.name}</option>
             ))}
           </select>
-          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
         </div>
       </div>
 
@@ -340,22 +340,22 @@ export default function AdminWorklogsPage() {
               <div className="flex gap-3">
                 <div className="w-9 h-9 rounded-full" style={{ background: 'rgba(220,20,60,0.1)' }} />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 rounded" style={{ background: 'rgba(255,255,255,0.06)', width: '60%' }} />
-                  <div className="h-2 rounded" style={{ background: 'rgba(255,255,255,0.04)', width: '80%' }} />
+                  <div className="h-3 rounded" style={{ background: 'var(--input-bg)', width: '60%' }} />
+                  <div className="h-2 rounded" style={{ background: 'var(--input-bg)', width: '80%' }} />
                 </div>
               </div>
-              <div className="h-2 rounded" style={{ background: 'rgba(255,255,255,0.04)' }} />
-              <div className="h-12 rounded" style={{ background: 'rgba(255,255,255,0.04)' }} />
+              <div className="h-2 rounded" style={{ background: 'var(--input-bg)' }} />
+              <div className="h-12 rounded" style={{ background: 'var(--input-bg)' }} />
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass-card rounded-xl text-center py-20">
-          <TrendingUp size={32} className="mx-auto mb-3" style={{ color: 'rgba(240,240,242,0.2)' }} />
-          <p className="text-mono-label text-lg" style={{ color: 'rgba(240,240,242,0.35)' }}>
+          <TrendingUp size={32} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>
             {dateFilter === 'today' ? 'NO LOGS SUBMITTED TODAY' : 'NO WORKLOGS FOUND'}
           </p>
-          <p className="text-mono-label mt-2" style={{ fontSize: '11px', color: 'rgba(240,240,242,0.25)' }}>
+          <p className="text-mono-label mt-2" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
             {dateFilter === 'today' ? 'Freelancers haven\'t submitted their standup yet.' : 'Try adjusting your filters.'}
           </p>
         </div>
@@ -372,13 +372,13 @@ export default function AdminWorklogsPage() {
                   <div key={date} className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ background: isToday ? '#DC143C' : 'rgba(255,255,255,0.2)' }} />
-                        <span className="font-bold text-sm" style={{ color: isToday ? '#DC143C' : 'rgba(240,240,242,0.6)' }}>
+                        <div className="w-2 h-2 rounded-full" style={{ background: isToday ? '#DC143C' : 'var(--track-bg)' }} />
+                        <span className="font-bold text-sm" style={{ color: isToday ? '#DC143C' : 'var(--text-secondary)' }}>
                           {isToday ? 'TODAY — ' : ''}{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </span>
                       </div>
-                      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                      <span className="text-mono-label" style={{ fontSize: '11px', color: 'rgba(240,240,242,0.35)' }}>
+                      <div className="flex-1 h-px" style={{ background: 'var(--input-bg)' }} />
+                      <span className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                         {dayLogs.reduce((s, w) => s + Number(w.hoursWorked), 0)}h · {dayLogs.length} log{dayLogs.length > 1 ? 's' : ''}
                       </span>
                     </div>
@@ -422,7 +422,7 @@ export default function AdminWorklogsPage() {
                       </span>
                     </td>
                     <td>
-                      <p className="text-white text-sm font-medium">{w.freelancer?.user.name ?? `#${w.freelancerId}`}</p>
+                      <p className="text-primary-ui text-sm font-medium">{w.freelancer?.user.name ?? `#${w.freelancerId}`}</p>
                     </td>
                     <td>
                       <span className="text-sm max-w-[160px] truncate block" style={{ color: '#d1d5db' }}>
@@ -463,15 +463,15 @@ export default function AdminWorklogsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDetailLog(null)} />
           <div className="glass-card rounded-xl relative z-10 w-full max-w-2xl overflow-hidden" style={{ borderColor: 'rgba(220,20,60,0.4)' }}>
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[rgba(255,255,255,0.08)]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)]">
               <div>
-                <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>WORKLOG DETAIL</p>
-                <h2 className="text-white font-bold text-lg">
+                <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>WORKLOG DETAIL</p>
+                <h2 className="text-primary-ui font-bold text-lg">
                   {detailLog.freelancer?.user.name ?? 'Unknown'} — {new Date(detailLog.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </h2>
               </div>
               <button onClick={() => setDetailLog(null)} className="p-2 rounded glass-card-dark">
-                <X size={16} style={{ color: 'rgba(240,240,242,0.35)' }} />
+                <X size={16} style={{ color: 'var(--text-muted)' }} />
               </button>
             </div>
 
@@ -491,7 +491,7 @@ export default function AdminWorklogsPage() {
 
               <div>
                 <p className="label-field">Project</p>
-                <p className="text-white font-medium">{detailLog.project?.title ?? `#${detailLog.projectId}`}</p>
+                <p className="text-primary-ui font-medium">{detailLog.project?.title ?? `#${detailLog.projectId}`}</p>
               </div>
 
               <div>
@@ -531,7 +531,7 @@ export default function AdminWorklogsPage() {
               )}
             </div>
 
-            <div className="px-6 py-4 border-t border-[rgba(255,255,255,0.08)] flex justify-end">
+            <div className="px-6 py-4 border-t border-[var(--input-bg)] flex justify-end">
               <button onClick={() => setDetailLog(null)} className="btn-ghost rounded text-sm">Close</button>
             </div>
           </div>

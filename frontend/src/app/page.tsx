@@ -68,10 +68,10 @@ const specializations = [
 export default function HomePage() {
   const curr = useCurrencySymbol()
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0c', color: 'white' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'white' }}>
 
       {/* Header */}
-      <header className="glass-card-dark border-b border-[rgba(255,255,255,0.08)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
+      <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <CrimsonCube size={24} />
           <span className="text-display text-[#DC143C] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px #DC143C66' }}>
@@ -79,9 +79,9 @@ export default function HomePage() {
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#how-it-works" className="text-mono-label hover:text-white transition-colors text-xs tracking-widest">HOW IT WORKS</a>
-          <a href="#skills" className="text-mono-label hover:text-white transition-colors text-xs tracking-widest">SKILLS</a>
-          <Link href="/clients" className="text-mono-label hover:text-white transition-colors text-xs tracking-widest" style={{ color: '#DC143C' }}>FOR CLIENTS →</Link>
+          <a href="#how-it-works" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">HOW IT WORKS</a>
+          <a href="#skills" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">SKILLS</a>
+          <Link href="/clients" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest" style={{ color: '#DC143C' }}>FOR CLIENTS →</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/login"
@@ -109,10 +109,10 @@ export default function HomePage() {
             </p>
             <h1 className="text-display text-6xl md:text-7xl lg:text-8xl leading-none mb-6">
               <span className="block" style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>YOUR SKILLS.</span>
-              <span className="block text-white">YOUR TERMS.</span>
+              <span className="block text-primary-ui">YOUR TERMS.</span>
               <span className="block" style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>YOUR INCOME.</span>
             </h1>
-            <p className="text-lg leading-relaxed max-w-xl mb-10" style={{ color: 'rgba(240,240,242,0.55)' }}>
+            <p className="text-lg leading-relaxed max-w-xl mb-10" style={{ color: 'var(--text-secondary)' }}>
               Join a platform built for serious professionals. Get matched with premium clients, work on challenging projects, and get paid what you&apos;re worth — on time, every time.
             </p>
             <div className="flex items-center gap-4 mb-12">
@@ -126,8 +126,8 @@ export default function HomePage() {
             <div className="flex items-center gap-8">
               {[{ num: '100+', label: 'ACTIVE FREELANCERS' }, { num: `${curr}2.4M`, label: 'PAID OUT' }, { num: '94%', label: 'ON-TIME RATE' }].map(({ num, label }) => (
                 <div key={label}>
-                  <p className="text-white text-2xl font-bold text-display">{num}</p>
-                  <p className="text-mono-label text-xs tracking-widest" style={{ color: 'rgba(240,240,242,0.4)' }}>{label}</p>
+                  <p className="text-primary-ui text-2xl font-bold text-display">{num}</p>
+                  <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -136,14 +136,14 @@ export default function HomePage() {
       </section>
 
       {/* Specializations bar */}
-      <section className="py-8 border-y border-[rgba(255,255,255,0.06)]" style={{ background: '#0e0e11' }}>
+      <section className="py-8 border-y border-[var(--input-bg)]" style={{ background: 'var(--bg-sidebar)' }}>
         <div className="max-w-7xl mx-auto px-12">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-mono-label text-xs tracking-widest mr-4" style={{ color: 'rgba(240,240,242,0.35)' }}>WE HIRE FOR:</span>
+            <span className="text-mono-label text-xs tracking-widest mr-4" style={{ color: 'var(--text-muted)' }}>WE HIRE FOR:</span>
             {specializations.map(({ icon, label }) => (
               <div key={label} className="flex items-center gap-2 glass-card px-4 py-2 rounded-full">
                 <span className="text-[#DC143C]">{icon}</span>
-                <span className="text-sm font-medium text-white">{label}</span>
+                <span className="text-sm font-medium text-primary-ui">{label}</span>
               </div>
             ))}
           </div>
@@ -157,7 +157,7 @@ export default function HomePage() {
             <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[#DC143C]" />WHY JOIN<span className="w-8 h-px bg-[#DC143C]" />
             </p>
-            <h2 className="text-display text-white text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-5xl font-bold">
               BUILT FOR <span style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>PROFESSIONALS</span>
             </h2>
           </div>
@@ -167,8 +167,8 @@ export default function HomePage() {
                 <div className="w-11 h-11 rounded-lg bg-[rgba(220,20,60,0.1)] flex items-center justify-center text-[#DC143C] mb-5 group-hover:bg-[rgba(220,20,60,0.18)] transition-colors">
                   {icon}
                 </div>
-                <h3 className="text-white font-bold text-base mb-2">{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>{desc}</p>
+                <h3 className="text-primary-ui font-bold text-base mb-2">{title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -176,14 +176,14 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 relative" style={{ background: '#0e0e11' }}>
+      <section id="how-it-works" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
         <MorphBlob color="#4A0000" size={500} top="-100px" left="0px" delay="1s" />
         <div className="max-w-7xl mx-auto px-12 relative z-10">
           <div className="text-center mb-16">
             <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[#DC143C]" />PROCESS<span className="w-8 h-px bg-[#DC143C]" />
             </p>
-            <h2 className="text-display text-white text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-5xl font-bold">
               HOW IT <span style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>WORKS</span>
             </h2>
           </div>
@@ -195,8 +195,8 @@ export default function HomePage() {
                 )}
                 <div className="glass-card p-6 rounded-xl relative z-10">
                   <p className="text-display text-4xl font-bold mb-4" style={{ color: 'rgba(220,20,60,0.25)' }}>{step.num}</p>
-                  <h3 className="text-white font-bold text-base mb-2">{step.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>{step.desc}</p>
+                  <h3 className="text-primary-ui font-bold text-base mb-2">{step.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -212,10 +212,10 @@ export default function HomePage() {
               <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center gap-2">
                 <span className="w-8 h-px bg-[#DC143C]" />IN DEMAND
               </p>
-              <h2 className="text-display text-white text-5xl font-bold mb-6">
+              <h2 className="text-display text-primary-ui text-5xl font-bold mb-6">
                 SKILLS WE <span style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>NEED NOW</span>
               </h2>
-              <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(240,240,242,0.5)' }}>
+              <p className="text-lg leading-relaxed mb-8" style={{ color: 'var(--text-secondary)' }}>
                 We&apos;re actively matching clients with specialists across the full technology stack. If your skill is listed, there&apos;s a project waiting for you right now.
               </p>
               <Link href="/register/freelancer" className="btn-primary inline-flex items-center gap-2 rounded text-sm py-3 px-6">
@@ -229,7 +229,7 @@ export default function HomePage() {
                   className="glass-card px-4 py-2.5 rounded-lg flex items-center gap-2 hover:border-[rgba(220,20,60,0.4)] transition-all group cursor-default"
                 >
                   <CheckCircle size={14} className="text-[#DC143C] shrink-0" />
-                  <span className="text-sm font-medium text-white">{skill}</span>
+                  <span className="text-sm font-medium text-primary-ui">{skill}</span>
                 </div>
               ))}
             </div>
@@ -244,10 +244,10 @@ export default function HomePage() {
           <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-4 flex items-center justify-center gap-2">
             <span className="w-8 h-px bg-[#DC143C]" />START TODAY<span className="w-8 h-px bg-[#DC143C]" />
           </p>
-          <h2 className="text-display text-5xl md:text-6xl font-bold mb-6 text-white">
+          <h2 className="text-display text-5xl md:text-6xl font-bold mb-6 text-primary-ui">
             READY TO JOIN THE <span style={{ background: 'linear-gradient(to bottom, #ffffff 30%, #DC143C 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>NETWORK?</span>
           </h2>
-          <p className="text-lg mb-10" style={{ color: 'rgba(240,240,242,0.5)' }}>
+          <p className="text-lg mb-10" style={{ color: 'var(--text-secondary)' }}>
             Your profile takes 5 minutes to set up. Approval within 24 hours. Your next project is waiting.
           </p>
           <div className="flex items-center justify-center gap-4">
@@ -262,7 +262,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CLIENT CALLOUT ── */}
-      <section className="py-20 relative overflow-hidden border-t border-[rgba(255,255,255,0.06)]" style={{ background: '#0e0e11' }}>
+      <section className="py-20 relative overflow-hidden border-t border-[var(--input-bg)]" style={{ background: 'var(--bg-sidebar)' }}>
         <MorphBlob color="#1a3a6b" size={500} top="-80px" right="-80px" delay="1s" />
         <div className="max-w-7xl mx-auto px-12 relative z-10">
           <div className="glass-card rounded-2xl p-12 flex flex-col lg:flex-row items-center justify-between gap-10" style={{ borderColor: 'rgba(96,165,250,0.2)', background: 'rgba(96,165,250,0.04)' }}>
@@ -271,10 +271,10 @@ export default function HomePage() {
                 <span className="w-8 h-px inline-block" style={{ background: '#60a5fa' }} />
                 FOR CLIENTS
               </p>
-              <h2 className="text-display text-4xl font-bold text-white mb-4">
+              <h2 className="text-display text-4xl font-bold text-primary-ui mb-4">
                 LOOKING TO HIRE FREELANCERS?
               </h2>
-              <p className="text-base leading-relaxed" style={{ color: 'rgba(240,240,242,0.55)' }}>
+              <p className="text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 Have a project in mind? Submit your idea or request a callback — we&apos;ll match you with the right specialists from our vetted network within 48 hours.
               </p>
             </div>
@@ -299,23 +299,23 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="glass-card-dark border-t border-[rgba(255,255,255,0.08)]">
+      <footer className="glass-card-dark border-t border-[var(--input-bg)]">
         <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CrimsonCube size={20} />
             <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
           </div>
-          <div className="flex items-center gap-4" style={{ color: 'rgba(240,240,242,0.4)' }}>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><Globe size={18} /></a>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><X size={18} /></a>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><ExternalLink size={18} /></a>
+          <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><X size={18} /></a>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><ExternalLink size={18} /></a>
           </div>
         </div>
-        <div className="border-t border-[rgba(255,255,255,0.06)] px-12 py-4 flex items-center justify-between">
-          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'rgba(240,240,242,0.35)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
+        <div className="border-t border-[var(--input-bg)] px-12 py-4 flex items-center justify-between">
+          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
-            <Link href="/clients" className="text-mono-label text-xs tracking-widest hover:text-white transition-colors" style={{ color: 'rgba(240,240,242,0.35)' }}>FOR CLIENTS</Link>
-            <Link href="/login" className="text-mono-label text-xs tracking-widest hover:text-white transition-colors" style={{ color: 'rgba(240,240,242,0.35)' }}>LAUNCH APP</Link>
+            <Link href="/clients" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>FOR CLIENTS</Link>
+            <Link href="/login" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>LAUNCH APP</Link>
           </div>
         </div>
       </footer>

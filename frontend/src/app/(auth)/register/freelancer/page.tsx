@@ -125,7 +125,7 @@ export default function FreelancerRegisterPage() {
   const accentBorder = isIntern ? 'rgba(192,132,252,0.25)' : 'rgba(220,20,60,0.25)'
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden" style={{ background: '#0a0a0c' }}>
+    <div className="min-h-screen flex relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
       <MorphBlob color="#8B0000" size={700} top="-200px" left="-200px" />
       <MorphBlob color="#3b0764" size={500} bottom="-150px" right="-100px" delay="4s" />
@@ -140,17 +140,17 @@ export default function FreelancerRegisterPage() {
               background: '#DC143C',
               clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
             }} />
-            <span className="text-display text-white text-base tracking-widest">FREELANCE_PRO</span>
+            <span className="text-display text-primary-ui text-base tracking-widest">FREELANCE_PRO</span>
           </div>
-          <Link href="/register" className="flex items-center gap-1.5 text-xs transition-colors hover:text-white"
-            style={{ color: 'rgba(240,240,242,0.35)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
+          <Link href="/register" className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
+            style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
             <ArrowLeft size={12} /> BACK
           </Link>
         </div>
 
         {/* Headline */}
         <div className="mb-10">
-          <p className="text-mono-label mb-4" style={{ fontSize: 10, color: 'rgba(240,240,242,0.35)', letterSpacing: '0.4em' }}>
+          <p className="text-mono-label mb-4" style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.4em' }}>
             TALENT ONBOARDING
           </p>
           <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: '#fff' }}>
@@ -164,14 +164,14 @@ export default function FreelancerRegisterPage() {
             </span><br />
             NETWORK
           </h2>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.4)', maxWidth: 340 }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)', maxWidth: 340 }}>
             Join a vetted pool of professionals working on real projects. Your skills are reviewed — not just your resume.
           </p>
         </div>
 
         {/* How it works */}
         <div className="mb-10">
-          <p className="text-mono-label mb-5" style={{ fontSize: 9, color: 'rgba(240,240,242,0.3)', letterSpacing: '0.35em' }}>
+          <p className="text-mono-label mb-5" style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.35em' }}>
             HOW IT WORKS
           </p>
           <div className="space-y-0">
@@ -186,16 +186,16 @@ export default function FreelancerRegisterPage() {
                       <Icon size={14} style={{ color: s.color }} />
                     </div>
                     {i < ONBOARDING_STEPS.length - 1 && (
-                      <div className="w-px flex-1 my-1.5" style={{ background: 'rgba(255,255,255,0.07)', minHeight: 24 }} />
+                      <div className="w-px flex-1 my-1.5" style={{ background: 'var(--input-bg)', minHeight: 24 }} />
                     )}
                   </div>
                   {/* content */}
                   <div className="pb-5">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-mono-label" style={{ fontSize: 9, color: s.color, letterSpacing: '0.2em' }}>{s.num}</span>
-                      <span className="text-sm font-semibold text-white">{s.title}</span>
+                      <span className="text-sm font-semibold text-primary-ui">{s.title}</span>
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,240,242,0.4)' }}>{s.desc}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{s.desc}</p>
                   </div>
                 </div>
               )
@@ -205,7 +205,7 @@ export default function FreelancerRegisterPage() {
 
         {/* Track comparison cards */}
         <div className="mb-8">
-          <p className="text-mono-label mb-4" style={{ fontSize: 9, color: 'rgba(240,240,242,0.3)', letterSpacing: '0.35em' }}>
+          <p className="text-mono-label mb-4" style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.35em' }}>
             AVAILABLE TRACKS
           </p>
           <div className="space-y-3">
@@ -216,7 +216,7 @@ export default function FreelancerRegisterPage() {
                 <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: 'rgba(220,20,60,0.15)' }}>
                   <Briefcase size={12} style={{ color: '#DC143C' }} />
                 </div>
-                <span className="text-sm font-bold text-white">Professional Freelancer</span>
+                <span className="text-sm font-bold text-primary-ui">Professional Freelancer</span>
                 <span className="ml-auto text-mono-label px-2 py-0.5 rounded" style={{ fontSize: 9, background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>STANDARD</span>
               </div>
               <ul className="space-y-1">
@@ -225,7 +225,7 @@ export default function FreelancerRegisterPage() {
                   'Set your own hourly rate',
                   'Work on multiple projects simultaneously',
                 ].map(item => (
-                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'rgba(240,240,242,0.5)' }}>
+                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     <CheckCircle2 size={11} className="mt-0.5 shrink-0" style={{ color: 'rgba(220,20,60,0.6)' }} />
                     {item}
                   </li>
@@ -239,7 +239,7 @@ export default function FreelancerRegisterPage() {
                 <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: 'rgba(192,132,252,0.15)' }}>
                   <GraduationCap size={12} style={{ color: '#c084fc' }} />
                 </div>
-                <span className="text-sm font-bold text-white">Intern Programme</span>
+                <span className="text-sm font-bold text-primary-ui">Intern Programme</span>
                 <span className="ml-auto text-mono-label px-2 py-0.5 rounded" style={{ fontSize: 9, background: 'rgba(192,132,252,0.12)', border: '1px solid rgba(192,132,252,0.25)', color: '#c084fc' }}>6 MONTHS</span>
               </div>
               <ul className="space-y-1 mb-3">
@@ -248,7 +248,7 @@ export default function FreelancerRegisterPage() {
                   'Build a verified track record on real work',
                   '₹10,000 security deposit — fully refunded after 6 months',
                 ].map(item => (
-                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'rgba(240,240,242,0.5)' }}>
+                  <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     <CheckCircle2 size={11} className="mt-0.5 shrink-0" style={{ color: 'rgba(192,132,252,0.6)' }} />
                     {item}
                   </li>
@@ -256,7 +256,7 @@ export default function FreelancerRegisterPage() {
               </ul>
               <div className="flex items-start gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(192,132,252,0.08)', border: '1px solid rgba(192,132,252,0.15)' }}>
                 <Shield size={11} className="mt-0.5 shrink-0" style={{ color: '#c084fc' }} />
-                <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   The ₹10,000 deposit ensures commitment and is <span style={{ color: '#c084fc', fontWeight: 600 }}>100% refunded</span> upon successful completion of the 6-month programme.
                 </p>
               </div>
@@ -265,7 +265,7 @@ export default function FreelancerRegisterPage() {
         </div>
 
         {/* Bottom trust row */}
-        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--input-bg)' }}>
           {[
             { icon: Users, val: '100+', label: 'ACTIVE FREELANCERS' },
             { icon: Star, val: '4.9', label: 'AVG RATING' },
@@ -274,8 +274,8 @@ export default function FreelancerRegisterPage() {
             <div key={label} className="flex items-center gap-2">
               <Icon size={12} style={{ color: 'rgba(220,20,60,0.6)' }} />
               <div>
-                <div className="text-white text-xs font-bold" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>{val}</div>
-                <div className="text-mono-label" style={{ fontSize: 8, color: 'rgba(240,240,242,0.3)', letterSpacing: '0.1em' }}>{label}</div>
+                <div className="text-primary-ui text-xs font-bold" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>{val}</div>
+                <div className="text-mono-label" style={{ fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>{label}</div>
               </div>
             </div>
           ))}
@@ -290,9 +290,9 @@ export default function FreelancerRegisterPage() {
           <div className="flex items-center justify-between mb-8 lg:hidden">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-              <span className="text-display text-white text-sm tracking-widest">FREELANCE_PRO</span>
+              <span className="text-display text-primary-ui text-sm tracking-widest">FREELANCE_PRO</span>
             </div>
-            <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>
+            <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
               <ArrowLeft size={12} /> Back
             </Link>
           </div>
@@ -301,16 +301,16 @@ export default function FreelancerRegisterPage() {
 
             {/* Header */}
             <div className="mb-7">
-              <h1 className="text-white text-2xl font-bold mb-1" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>
+              <h1 className="text-primary-ui text-2xl font-bold mb-1" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>
                 {isIntern ? 'Intern Application' : 'Freelancer Registration'}
               </h1>
-              <p className="text-mono-label" style={{ color: 'rgba(240,240,242,0.35)', fontSize: 10 }}>
+              <p className="text-mono-label" style={{ color: 'var(--text-muted)', fontSize: 10 }}>
                 {isIntern ? 'START YOUR 6-MONTH PROGRAMME' : 'JOIN THE PROFESSIONAL NETWORK'}
               </p>
             </div>
 
             {/* Track switcher */}
-            <div className="flex gap-2 mb-7 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex gap-2 mb-7 p-1 rounded-xl" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
               {([
                 { value: 'freelancer', label: 'Professional', icon: Briefcase, color: '#DC143C' },
                 { value: 'intern', label: 'Intern', icon: GraduationCap, color: '#c084fc' },
@@ -326,13 +326,13 @@ export default function FreelancerRegisterPage() {
                     style={{
                       background: active ? `${opt.color}18` : 'transparent',
                       border: active ? `1px solid ${opt.color}50` : '1px solid transparent',
-                      color: active ? opt.color : 'rgba(240,240,242,0.4)',
+                      color: active ? opt.color : 'var(--text-muted)',
                     }}
                   >
                     <Icon size={13} />
                     {opt.label}
                     {opt.value === 'intern' && (
-                      <span className="text-mono-label px-1.5 py-0.5 rounded" style={{ fontSize: 8, background: active ? 'rgba(192,132,252,0.15)' : 'rgba(255,255,255,0.06)', color: active ? '#c084fc' : 'rgba(240,240,242,0.3)', letterSpacing: '0.1em' }}>
+                      <span className="text-mono-label px-1.5 py-0.5 rounded" style={{ fontSize: 8, background: active ? 'rgba(192,132,252,0.15)' : 'var(--input-bg)', color: active ? '#c084fc' : 'var(--text-muted)', letterSpacing: '0.1em' }}>
                         ₹10K
                       </span>
                     )}
@@ -347,21 +347,21 @@ export default function FreelancerRegisterPage() {
                 <div key={s} className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                     style={{
-                      background: step >= s ? accentColor : 'rgba(255,255,255,0.06)',
-                      color: step >= s ? '#fff' : 'rgba(240,240,242,0.4)',
-                      border: step >= s ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                      background: step >= s ? accentColor : 'var(--input-bg)',
+                      color: step >= s ? '#fff' : 'var(--text-muted)',
+                      border: step >= s ? 'none' : '1px solid var(--border)',
                     }}>
                     {step > s ? <CheckCircle2 size={14} /> : s}
                   </div>
-                  <span className="text-mono-label text-xs" style={{ color: step >= s ? 'rgba(240,240,242,0.7)' : 'rgba(240,240,242,0.3)' }}>
+                  <span className="text-mono-label text-xs" style={{ color: step >= s ? 'var(--text-secondary)' : 'var(--text-muted)' }}>
                     {s === 1 ? 'ACCOUNT' : 'PROFILE'}
                   </span>
                   {idx < 1 && (
-                    <div className="w-10 h-px mx-1 transition-all" style={{ background: step > s ? accentColor : 'rgba(255,255,255,0.1)' }} />
+                    <div className="w-10 h-px mx-1 transition-all" style={{ background: step > s ? accentColor : 'var(--track-bg)' }} />
                   )}
                 </div>
               ))}
-              <div className="ml-auto text-mono-label" style={{ fontSize: 9, color: 'rgba(240,240,242,0.3)' }}>
+              <div className="ml-auto text-mono-label" style={{ fontSize: 9, color: 'var(--text-muted)' }}>
                 STEP {step} / 2
               </div>
             </div>
@@ -373,8 +373,8 @@ export default function FreelancerRegisterPage() {
                 <Shield size={15} className="mt-0.5 shrink-0" style={{ color: '#c084fc' }} />
                 <div>
                   <p className="text-xs font-semibold mb-0.5" style={{ color: '#c084fc' }}>Intern Programme — ₹10,000 Security Deposit</p>
-                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>
-                    A refundable deposit is collected to ensure commitment. It is <strong style={{ color: 'rgba(240,240,242,0.75)' }}>100% returned</strong> after you successfully complete the 6-month internship.
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    A refundable deposit is collected to ensure commitment. It is <strong style={{ color: 'var(--text-primary)' }}>100% returned</strong> after you successfully complete the 6-month internship.
                   </p>
                 </div>
               </div>
@@ -402,7 +402,7 @@ export default function FreelancerRegisterPage() {
                 <div>
                   <label className="label-field">PASSWORD</label>
                   <input type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
-                  <p className="mt-1.5 text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>Minimum 6 characters</p>
+                  <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>Minimum 6 characters</p>
                 </div>
 
                 <button
@@ -435,7 +435,7 @@ export default function FreelancerRegisterPage() {
                       <span key={s} className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium"
                         style={{ background: accentFaint, border: `1px solid ${accentBorder}`, color: isIntern ? '#c084fc' : '#f87171' }}>
                         {s}
-                        <button type="button" onClick={() => removeSkill(s)} className="hover:text-white transition-colors"><X size={11} /></button>
+                        <button type="button" onClick={() => removeSkill(s)} className="hover:text-primary-ui transition-colors"><X size={11} /></button>
                       </span>
                     ))}
                     <input
@@ -444,14 +444,14 @@ export default function FreelancerRegisterPage() {
                       onChange={e => setSkillInput(e.target.value)}
                       onKeyDown={handleSkillKey}
                       placeholder="Add your own skill..."
-                      className="flex-1 min-w-[140px] bg-transparent outline-none text-sm text-white placeholder:text-[rgba(240,240,242,0.3)]"
+                      className="flex-1 min-w-[140px] bg-transparent outline-none text-sm text-primary-ui placeholder:text-[var(--text-muted)]"
                     />
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {SUGGESTED_SKILLS.filter(s => !skills.includes(s)).slice(0, 10).map(s => (
                       <button key={s} type="button" onClick={() => addSkill(s)}
-                        className="flex items-center gap-1 px-2 py-0.5 rounded text-xs transition-all hover:text-white"
-                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,242,0.4)' }}>
+                        className="flex items-center gap-1 px-2 py-0.5 rounded text-xs transition-all hover:text-primary-ui"
+                        style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                         <Plus size={10} /> {s}
                       </button>
                     ))}
@@ -463,14 +463,14 @@ export default function FreelancerRegisterPage() {
                     <label className="label-field">YEARS OF EXPERIENCE</label>
                     <div className="relative">
                       <input type="number" min="0" max="50" className="input-field pr-10" placeholder="0" value={experience} onChange={e => setExperience(e.target.value)} />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'rgba(240,240,242,0.35)' }}>yrs</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>yrs</span>
                     </div>
                   </div>
                   {!isIntern && (
                     <div>
                       <label className="label-field">HOURLY RATE (USD)</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'rgba(240,240,242,0.4)' }}>$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }}>$</span>
                         <input type="number" min="0" className="input-field pl-7" placeholder="75" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} />
                       </div>
                     </div>
@@ -488,7 +488,7 @@ export default function FreelancerRegisterPage() {
                   <label className="label-field flex items-center gap-1.5">
                     <Upload size={10} style={{ color: accentColor }} />
                     PORTFOLIO / PREVIOUS WORK
-                    <span style={{ color: 'rgba(240,240,242,0.3)' }}>(REVIEWED BY MANAGER)</span>
+                    <span style={{ color: 'var(--text-muted)' }}>(REVIEWED BY MANAGER)</span>
                   </label>
                   <input
                     type="url"
@@ -497,7 +497,7 @@ export default function FreelancerRegisterPage() {
                     value={portfolioUrl}
                     onChange={e => setPortfolioUrl(e.target.value)}
                   />
-                  <p className="mt-1.5 text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>
+                  <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                     Our managers review your work before approving your profile. GitHub, Dribbble, Behance, or a live site all work.
                   </p>
                 </div>
@@ -519,14 +519,14 @@ export default function FreelancerRegisterPage() {
                 {isIntern && (
                   <div
                     className="flex items-start gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all"
-                    style={{ background: depositAck ? 'rgba(192,132,252,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${depositAck ? 'rgba(192,132,252,0.35)' : 'rgba(255,255,255,0.08)'}` }}
+                    style={{ background: depositAck ? 'rgba(192,132,252,0.08)' : 'var(--row-hover-bg)', border: `1px solid ${depositAck ? 'rgba(192,132,252,0.35)' : 'var(--input-bg)'}` }}
                     onClick={() => setDepositAck(v => !v)}
                   >
                     <div className="w-5 h-5 rounded flex items-center justify-center mt-0.5 shrink-0 transition-all"
-                      style={{ background: depositAck ? '#c084fc' : 'rgba(255,255,255,0.06)', border: depositAck ? 'none' : '1px solid rgba(255,255,255,0.15)' }}>
-                      {depositAck && <CheckCircle2 size={13} style={{ color: '#0a0a0c' }} strokeWidth={2.5} />}
+                      style={{ background: depositAck ? '#c084fc' : 'var(--input-bg)', border: depositAck ? 'none' : '1px solid var(--border)' }}>
+                      {depositAck && <CheckCircle2 size={13} style={{ color: 'var(--bg-base)' }} strokeWidth={2.5} />}
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,240,242,0.6)' }}>
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       I understand that a <strong style={{ color: '#c084fc' }}>₹10,000 refundable security deposit</strong> is required to join the Intern Programme, and will be fully returned upon completing the 6-month internship.
                     </p>
                   </div>
@@ -535,7 +535,7 @@ export default function FreelancerRegisterPage() {
                 <div className="flex gap-3 pt-1">
                   <button type="button" onClick={() => setStep(1)}
                     className="flex items-center gap-1.5 px-5 py-3 rounded-lg text-sm font-semibold transition-all"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,240,242,0.6)' }}>
+                    style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                     <ArrowLeft size={13} /> Back
                   </button>
                   <button
@@ -555,7 +555,7 @@ export default function FreelancerRegisterPage() {
               </form>
             )}
 
-            <p className="mt-6 text-center text-mono-label" style={{ fontSize: 10, color: 'rgba(240,240,242,0.35)' }}>
+            <p className="mt-6 text-center text-mono-label" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
               ALREADY HAVE AN ACCOUNT?{' '}
               <Link href="/login" className="transition-colors" style={{ color: accentColor }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#fff')}

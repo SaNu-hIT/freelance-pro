@@ -66,7 +66,7 @@ export default function FreelancerProfilePage() {
           <div className="glass-card rounded-xl p-6 flex flex-col items-center gap-4">
             {/* Avatar */}
             <div
-              className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-black text-display relative"
+              className="w-20 h-20 rounded-full flex items-center justify-center text-primary-ui text-2xl font-black text-display relative"
               style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}
             >
               {initials}
@@ -74,8 +74,8 @@ export default function FreelancerProfilePage() {
             </div>
 
             <div className="text-center">
-              <h2 className="text-white font-bold text-xl">{user?.name ?? '—'}</h2>
-              <p className="text-[rgba(240,240,242,0.4)] text-sm mt-0.5">{user?.email ?? '—'}</p>
+              <h2 className="text-primary-ui font-bold text-xl">{user?.name ?? '—'}</h2>
+              <p className="text-[var(--text-muted)] text-sm mt-0.5">{user?.email ?? '—'}</p>
             </div>
 
             {/* Role badge */}
@@ -88,7 +88,7 @@ export default function FreelancerProfilePage() {
             <div className="w-full space-y-3 mt-2">
               <div className="glass-card-dark rounded-lg p-3 flex justify-between items-center">
                 <span className="text-mono-label text-[10px]">MEMBER SINCE</span>
-                <span className="text-white text-sm">{user?.createdAt ? fmtDate(user.createdAt) : 'May 2024'}</span>
+                <span className="text-primary-ui text-sm">{user?.createdAt ? fmtDate(user.createdAt) : 'May 2024'}</span>
               </div>
               <div className="glass-card-dark rounded-lg p-3 flex justify-between items-center">
                 <span className="text-mono-label text-[10px]">EXPERIENCE</span>
@@ -166,7 +166,7 @@ export default function FreelancerProfilePage() {
                       style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}
                     >
                       {skill}
-                      <button type="button" onClick={() => removeSkill(skill)} className="hover:text-white transition-colors">
+                      <button type="button" onClick={() => removeSkill(skill)} className="hover:text-primary-ui transition-colors">
                         <X size={11} />
                       </button>
                     </span>
@@ -216,8 +216,8 @@ export default function FreelancerProfilePage() {
         {/* About Me */}
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-mono-label text-xs tracking-widest mb-3">ABOUT ME</h2>
-          <p className="text-[rgba(255,255,255,0.75)] leading-relaxed text-sm">
-            {profile.bio || <span className="text-[rgba(240,240,242,0.4)] italic">No bio set yet. Edit your profile to add one.</span>}
+          <p className="text-[var(--track-bg)] leading-relaxed text-sm">
+            {profile.bio || <span className="text-[var(--text-muted)] italic">No bio set yet. Edit your profile to add one.</span>}
           </p>
         </div>
       </div>

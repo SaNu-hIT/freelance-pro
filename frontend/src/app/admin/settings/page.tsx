@@ -70,8 +70,8 @@ export default function AdminSettingsPage() {
         {/* Sidebar nav */}
         <div className="w-52 shrink-0">
           <div className="glass-card rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)]">
-              <p className="text-xs font-semibold" style={{ color: 'rgba(240,240,242,0.4)', letterSpacing: '0.1em' }}>SETTINGS</p>
+            <div className="px-4 py-3 border-b border-[var(--input-bg)]">
+              <p className="text-xs font-semibold" style={{ color: 'var(--text-muted)', letterSpacing: '0.1em' }}>SETTINGS</p>
             </div>
             <nav className="p-2 space-y-0.5">
               {SECTIONS.map(s => {
@@ -85,7 +85,7 @@ export default function AdminSettingsPage() {
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
                     style={{
                       background: isActive ? (isDanger ? 'rgba(220,20,60,0.1)' : 'rgba(220,20,60,0.1)') : 'transparent',
-                      color: isActive ? (isDanger ? '#f87171' : '#DC143C') : isDanger ? 'rgba(248,113,113,0.6)' : 'rgba(240,240,242,0.55)',
+                      color: isActive ? (isDanger ? '#f87171' : '#DC143C') : isDanger ? 'rgba(248,113,113,0.6)' : 'var(--text-secondary)',
                       border: isActive ? `1px solid ${isDanger ? 'rgba(248,113,113,0.25)' : 'rgba(220,20,60,0.25)'}` : '1px solid transparent',
                     }}
                   >
@@ -106,17 +106,17 @@ export default function AdminSettingsPage() {
           {active === 'profile' && (
             <>
               <div className="glass-card rounded-xl p-6">
-                <h2 className="text-white font-bold text-base mb-5 flex items-center gap-2">
+                <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <User size={16} style={{ color: '#DC143C' }} /> Profile Information
                 </h2>
-                <div className="flex items-center gap-5 mb-6 pb-6 border-b border-[rgba(255,255,255,0.07)]">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white shrink-0"
+                <div className="flex items-center gap-5 mb-6 pb-6 border-b border-[var(--input-bg)]">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-primary-ui shrink-0"
                     style={{ background: 'rgba(220,20,60,0.2)', border: '2px solid rgba(220,20,60,0.4)' }}>
                     {name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-white font-semibold">{name}</p>
-                    <p className="text-sm mb-2" style={{ color: 'rgba(240,240,242,0.4)' }}>Administrator</p>
+                    <p className="text-primary-ui font-semibold">{name}</p>
+                    <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>Administrator</p>
                     <button className="text-xs px-3 py-1.5 rounded-lg transition-all"
                       style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
                       Change Avatar
@@ -150,7 +150,7 @@ export default function AdminSettingsPage() {
           {active === 'security' && (
             <>
               <div className="glass-card rounded-xl p-6">
-                <h2 className="text-white font-bold text-base mb-5 flex items-center gap-2">
+                <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <Lock size={16} style={{ color: '#DC143C' }} /> Change Password
                 </h2>
                 <div className="space-y-4 max-w-md">
@@ -169,14 +169,14 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
               <div className="glass-card rounded-xl p-6">
-                <h2 className="text-white font-bold text-base mb-1 flex items-center gap-2">
+                <h2 className="text-primary-ui font-bold text-base mb-1 flex items-center gap-2">
                   <Shield size={16} style={{ color: '#DC143C' }} /> Two-Factor Authentication
                 </h2>
-                <p className="text-sm mb-4" style={{ color: 'rgba(240,240,242,0.4)' }}>Add an extra layer of security to your account.</p>
-                <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Add an extra layer of security to your account.</p>
+                <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
                   <div>
-                    <p className="text-sm font-medium text-white">Authenticator App</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>Use Google Authenticator or similar</p>
+                    <p className="text-sm font-medium text-primary-ui">Authenticator App</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Use Google Authenticator or similar</p>
                   </div>
                   <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(156,163,175,0.12)', border: '1px solid rgba(156,163,175,0.25)', color: '#9ca3af' }}>Not enabled</span>
                 </div>
@@ -189,7 +189,7 @@ export default function AdminSettingsPage() {
           {active === 'notifications' && (
             <>
               <div className="glass-card rounded-xl p-6">
-                <h2 className="text-white font-bold text-base mb-5 flex items-center gap-2">
+                <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <Bell size={16} style={{ color: '#DC143C' }} /> Notification Preferences
                 </h2>
                 <div className="space-y-3">
@@ -205,15 +205,15 @@ export default function AdminSettingsPage() {
                     const info = labels[key]
                     return (
                       <div key={key} className="flex items-center justify-between p-4 rounded-xl"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
                         <div>
-                          <p className="text-sm font-medium text-white">{info.title}</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>{info.desc}</p>
+                          <p className="text-sm font-medium text-primary-ui">{info.title}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{info.desc}</p>
                         </div>
                         <button
                           onClick={() => setNotifs(prev => ({ ...prev, [key]: !prev[key] }))}
                           className="relative w-10 h-5 rounded-full transition-all shrink-0"
-                          style={{ background: val ? '#DC143C' : 'rgba(255,255,255,0.1)' }}>
+                          style={{ background: val ? '#DC143C' : 'var(--track-bg)' }}>
                           <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
                             style={{ left: val ? '22px' : '2px' }} />
                         </button>
@@ -230,7 +230,7 @@ export default function AdminSettingsPage() {
           {active === 'platform' && (
             <>
               <div className="glass-card rounded-xl p-6">
-                <h2 className="text-white font-bold text-base mb-5 flex items-center gap-2">
+                <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <Globe size={16} style={{ color: '#DC143C' }} /> Platform Settings
                 </h2>
                 <div className="space-y-4">
@@ -243,15 +243,15 @@ export default function AdminSettingsPage() {
                     const isDanger = key === 'maintenanceMode'
                     return (
                       <div key={key} className="flex items-center justify-between p-4 rounded-xl"
-                        style={{ background: isDanger ? 'rgba(220,20,60,0.04)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isDanger ? 'rgba(220,20,60,0.15)' : 'rgba(255,255,255,0.07)'}` }}>
+                        style={{ background: isDanger ? 'rgba(220,20,60,0.04)' : 'var(--row-hover-bg)', border: `1px solid ${isDanger ? 'rgba(220,20,60,0.15)' : 'var(--input-bg)'}` }}>
                         <div>
                           <p className="text-sm font-medium" style={{ color: isDanger ? '#f87171' : '#fff' }}>{title}</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>{desc}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                         </div>
                         <button
                           onClick={() => setPlatformField(key, !val)}
                           className="relative w-10 h-5 rounded-full transition-all shrink-0"
-                          style={{ background: val ? '#DC143C' : 'rgba(255,255,255,0.1)' }}>
+                          style={{ background: val ? '#DC143C' : 'var(--track-bg)' }}>
                           <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
                             style={{ left: val ? '22px' : '2px' }} />
                         </button>
@@ -265,7 +265,7 @@ export default function AdminSettingsPage() {
                       <select className="input-field appearance-none" value={timezone}
                         onChange={e => setPlatformField('timezone', e.target.value)}>
                         {['UTC', 'UTC+5:30', 'UTC-5', 'UTC+1', 'UTC+8'].map(tz => (
-                          <option key={tz} value={tz} style={{ background: '#131316' }}>{tz}</option>
+                          <option key={tz} value={tz} style={{ background: 'var(--bg-surface)' }}>{tz}</option>
                         ))}
                       </select>
                     </div>
@@ -274,7 +274,7 @@ export default function AdminSettingsPage() {
                       <select className="input-field appearance-none" value={currency}
                         onChange={e => setPlatformField('currency', e.target.value)}>
                         {['USD', 'EUR', 'GBP', 'INR', 'AUD'].map(c => (
-                          <option key={c} value={c} style={{ background: '#131316' }}>{c}</option>
+                          <option key={c} value={c} style={{ background: 'var(--bg-surface)' }}>{c}</option>
                         ))}
                       </select>
                     </div>
@@ -291,7 +291,7 @@ export default function AdminSettingsPage() {
               <h2 className="text-base font-bold mb-1 flex items-center gap-2" style={{ color: '#f87171' }}>
                 <AlertTriangle size={16} /> Danger Zone
               </h2>
-              <p className="text-sm mb-6" style={{ color: 'rgba(240,240,242,0.4)' }}>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
                 These actions are irreversible. Proceed with caution.
               </p>
               <div className="space-y-3">
@@ -303,8 +303,8 @@ export default function AdminSettingsPage() {
                   <div key={title} className="flex items-center justify-between p-4 rounded-xl"
                     style={{ background: 'rgba(220,20,60,0.04)', border: '1px solid rgba(220,20,60,0.15)' }}>
                     <div>
-                      <p className="text-sm font-medium text-white">{title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>{desc}</p>
+                      <p className="text-sm font-medium text-primary-ui">{title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                     </div>
                     <button className="text-xs px-3 py-2 rounded-lg shrink-0 ml-4 transition-all"
                       style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.3)', color: '#f87171' }}
@@ -326,8 +326,8 @@ export default function AdminSettingsPage() {
 function SaveBar({ saved, onSave }: { saved: boolean; onSave: () => void }) {
   return (
     <div className="flex items-center justify-between px-5 py-3.5 rounded-xl"
-      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <p className="text-sm" style={{ color: 'rgba(240,240,242,0.4)' }}>
+      style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
+      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
         {saved ? 'Changes saved.' : 'You have unsaved changes.'}
       </p>
       <button

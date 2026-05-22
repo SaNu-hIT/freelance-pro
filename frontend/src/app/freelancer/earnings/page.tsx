@@ -74,7 +74,7 @@ export default function FreelancerEarningsPage() {
   const stats = [
     { label: 'Total Earned', value: `${curr}${totalEarned.toLocaleString()}`, icon: <TrendingUp size={20} className="text-[#DC143C]" />, color: '#DC143C' },
     { label: 'Pending', value: `${curr}${pending.toLocaleString()}`, icon: <Clock size={20} className="text-amber-400" />, color: '#fbbf24' },
-    { label: 'Total Deductions', value: `${curr}${totalDeductions.toLocaleString()}`, icon: <Minus size={20} className="text-[rgba(240,240,242,0.4)]" />, color: 'rgba(240,240,242,0.35)' },
+    { label: 'Total Deductions', value: `${curr}${totalDeductions.toLocaleString()}`, icon: <Minus size={20} className="text-[var(--text-muted)]" />, color: 'var(--text-muted)' },
     { label: 'Net This Month', value: `${curr}${thisMonth.toLocaleString()}`, icon: <DollarSign size={20} className="text-green-400" />, color: '#4ade80' },
   ]
 
@@ -111,7 +111,7 @@ export default function FreelancerEarningsPage() {
                     <span className="text-mono-label text-[10px]">{s.label}</span>
                     {s.icon}
                   </div>
-                  <p className="text-white text-2xl font-bold text-display" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-primary-ui text-2xl font-bold text-display" style={{ color: s.color }}>{s.value}</p>
                 </div>
               ))}
         </div>
@@ -124,12 +124,12 @@ export default function FreelancerEarningsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(220,20,60,0.1)" vertical={false} />
               <XAxis
                 dataKey="month"
-                tick={{ fill: 'rgba(240,240,242,0.3)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: 'rgba(240,240,242,0.3)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={v => `${curr}${v}`}
@@ -146,7 +146,7 @@ export default function FreelancerEarningsPage() {
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                <div key={i} className="h-12 bg-[var(--input-bg)] rounded animate-pulse" />
               ))}
             </div>
           ) : payments.length === 0 ? (
@@ -169,8 +169,8 @@ export default function FreelancerEarningsPage() {
                   const stat = paymentStatusMap[p.status] ?? { cls: 'status-new', label: p.status }
                   return (
                     <tr key={p.id}>
-                      <td className="text-white font-medium">{proj?.title ?? p.projectId}</td>
-                      <td className="text-white">{curr}{p.amount.toLocaleString()}</td>
+                      <td className="text-primary-ui font-medium">{proj?.title ?? p.projectId}</td>
+                      <td className="text-primary-ui">{curr}{p.amount.toLocaleString()}</td>
                       <td className="text-[#DC143C]">-{curr}{p.deductions.toLocaleString()}</td>
                       <td className="text-green-400 font-bold">{curr}{p.netAmount.toLocaleString()}</td>
                       <td>

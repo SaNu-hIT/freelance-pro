@@ -141,8 +141,8 @@ export default function FreelancerProjectsPage() {
               onClick={() => setFilter(f.value)}
               className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
                 filter === f.value
-                  ? 'bg-[#DC143C] border-[#DC143C] text-white'
-                  : 'border-[rgba(220,20,60,0.2)] text-[rgba(240,240,242,0.4)] hover:border-[#DC143C] hover:text-white'
+                  ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
+                  : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
               }`}
             >
               {f.label}
@@ -172,8 +172,8 @@ export default function FreelancerProjectsPage() {
                   {/* Title + status */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="text-white font-bold text-base leading-tight truncate">{p.title}</h3>
-                      <p className="text-mono-label text-[10px] mt-0.5 text-[rgba(240,240,242,0.4)] flex items-center gap-1">
+                      <h3 className="text-primary-ui font-bold text-base leading-tight truncate">{p.title}</h3>
+                      <p className="text-mono-label text-[10px] mt-0.5 text-[var(--text-muted)] flex items-center gap-1">
                         <User size={10} />
                         {p.client?.name ?? 'Client'}
                       </p>
@@ -182,10 +182,10 @@ export default function FreelancerProjectsPage() {
                   </div>
 
                   {/* Description */}
-                  <p className="text-[rgba(255,255,255,0.5)] text-sm line-clamp-2 leading-relaxed">{p.description}</p>
+                  <p className="text-[var(--track-bg)] text-sm line-clamp-2 leading-relaxed">{p.description}</p>
 
                   {/* Deadline */}
-                  <div className={`flex items-center gap-1.5 text-mono-label text-[10px] ${overdue ? 'text-[#DC143C]' : nearDeadline ? 'text-amber-400' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                  <div className={`flex items-center gap-1.5 text-mono-label text-[10px] ${overdue ? 'text-[#DC143C]' : nearDeadline ? 'text-amber-400' : 'text-[var(--text-muted)]'}`}>
                     {(overdue || nearDeadline) && <AlertTriangle size={11} />}
                     <Calendar size={10} />
                     {overdue
@@ -207,9 +207,9 @@ export default function FreelancerProjectsPage() {
                   </div>
 
                   {/* Budget */}
-                  <div className="flex items-center gap-1.5 text-[rgba(240,240,242,0.4)] text-mono-label text-[10px]">
+                  <div className="flex items-center gap-1.5 text-[var(--text-muted)] text-mono-label text-[10px]">
                     <DollarSign size={11} />
-                    BUDGET: <span className="text-white font-semibold">{curr}{p.budget.toLocaleString()}</span>
+                    BUDGET: <span className="text-primary-ui font-semibold">{curr}{p.budget.toLocaleString()}</span>
                   </div>
 
                   {/* Actions */}
@@ -244,15 +244,15 @@ export default function FreelancerProjectsPage() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-display text-xl text-white">{modal.title}</h2>
+                <h2 className="text-display text-xl text-primary-ui">{modal.title}</h2>
                 <p className="text-mono-label text-[10px] mt-1">{modal.client?.name ?? 'CLIENT'}</p>
               </div>
-              <button onClick={() => setModal(null)} className="text-[rgba(240,240,242,0.4)] hover:text-white transition-colors">
+              <button onClick={() => setModal(null)} className="text-[var(--text-muted)] hover:text-primary-ui transition-colors">
                 <X size={20} />
               </button>
             </div>
 
-            <p className="text-[rgba(255,255,255,0.7)] text-sm leading-relaxed">{modal.description}</p>
+            <p className="text-[var(--track-bg)] text-sm leading-relaxed">{modal.description}</p>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="glass-card-dark rounded p-3">
@@ -261,15 +261,15 @@ export default function FreelancerProjectsPage() {
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">PRIORITY</p>
-                <p className="text-white text-sm font-semibold uppercase">{modal.priority}</p>
+                <p className="text-primary-ui text-sm font-semibold uppercase">{modal.priority}</p>
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">BUDGET</p>
-                <p className="text-white font-semibold">{curr}{modal.budget.toLocaleString()}</p>
+                <p className="text-primary-ui font-semibold">{curr}{modal.budget.toLocaleString()}</p>
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">DEADLINE</p>
-                <p className={`text-sm font-semibold ${daysUntil(modal.deadline) < 0 ? 'text-[#DC143C]' : 'text-white'}`}>
+                <p className={`text-sm font-semibold ${daysUntil(modal.deadline) < 0 ? 'text-[#DC143C]' : 'text-primary-ui'}`}>
                   {fmtDate(modal.deadline)}
                 </p>
               </div>

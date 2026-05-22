@@ -100,11 +100,11 @@ export default function LoginPage() {
   const busy = loading || !!demoLoading
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#0a0a0c' }}>
+    <div className="min-h-screen flex" style={{ background: 'var(--bg-base)' }}>
 
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex flex-col w-[42%] relative overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.015)', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
+        style={{ background: 'var(--row-hover-bg)', borderRight: '1px solid var(--border)' }}>
 
         {/* Subtle top accent line */}
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(220,20,60,0.5), transparent)' }} />
@@ -117,7 +117,7 @@ export default function LoginPage() {
               background: '#DC143C',
               clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
             }} />
-            <span className="font-bold text-white tracking-widest text-sm" style={{ fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
+            <span className="font-bold text-primary-ui tracking-widest text-sm" style={{ fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
               FREELANCE_PRO
             </span>
           </Link>
@@ -127,10 +127,10 @@ export default function LoginPage() {
             <p className="text-xs mb-3 font-medium" style={{ color: 'rgba(220,20,60,0.7)', letterSpacing: '0.12em', fontFamily: 'JetBrains Mono, monospace' }}>
               FREELANCER MANAGEMENT PLATFORM
             </p>
-            <h2 className="text-3xl font-bold text-white mb-4 leading-snug">
+            <h2 className="text-3xl font-bold text-primary-ui mb-4 leading-snug">
               Manage your entire<br />freelance operation<br />in one place
             </h2>
-            <p className="text-sm leading-relaxed mb-10" style={{ color: 'rgba(240,240,242,0.45)', maxWidth: 320 }}>
+            <p className="text-sm leading-relaxed mb-10" style={{ color: 'var(--text-muted)', maxWidth: 320 }}>
               Projects, worklogs, payments, and team management — structured, transparent, and fully tracked.
             </p>
 
@@ -142,21 +142,21 @@ export default function LoginPage() {
                     style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.2)' }}>
                     <Icon size={13} style={{ color: '#DC143C' }} />
                   </div>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.55)' }}>{text}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{text}</p>
                 </div>
               ))}
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+            <div className="grid grid-cols-3 gap-4 pt-8 border-t" style={{ borderColor: 'var(--input-bg)' }}>
               {[
                 { val: '50+', label: 'Projects' },
                 { val: '100+', label: 'Freelancers' },
                 { val: '99%', label: 'Uptime' },
               ].map(({ val, label }) => (
                 <div key={label}>
-                  <div className="text-xl font-bold text-white mb-0.5">{val}</div>
-                  <div className="text-xs" style={{ color: 'rgba(240,240,242,0.35)' }}>{label}</div>
+                  <div className="text-xl font-bold text-primary-ui mb-0.5">{val}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#4ade80' }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#4ade80' }} />
             </span>
-            <span className="text-xs" style={{ color: 'rgba(240,240,242,0.3)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
+            <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
               All systems operational
             </span>
           </div>
@@ -188,13 +188,13 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <Link href="/" className="flex items-center gap-2.5 mb-10 lg:hidden hover:opacity-80 transition-opacity">
             <div className="w-6 h-6 shrink-0" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-            <span className="font-bold text-white text-sm tracking-widest" style={{ fontFamily: 'JetBrains Mono, monospace' }}>FREELANCE_PRO</span>
+            <span className="font-bold text-primary-ui text-sm tracking-widest" style={{ fontFamily: 'JetBrains Mono, monospace' }}>FREELANCE_PRO</span>
           </Link>
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white mb-1.5">Sign in to your account</h1>
-            <p className="text-sm" style={{ color: 'rgba(240,240,242,0.4)' }}>
+            <h1 className="text-2xl font-bold text-primary-ui mb-1.5">Sign in to your account</h1>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               Enter your credentials to access your dashboard
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 mb-6">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(240,240,242,0.5)', letterSpacing: '0.05em' }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
                 Email address
               </label>
               <input
@@ -227,7 +227,7 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium" style={{ color: 'rgba(240,240,242,0.5)', letterSpacing: '0.05em' }}>
+                <label className="block text-xs font-medium" style={{ color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>
                   Password
                 </label>
               </div>
@@ -257,11 +257,11 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-            <span className="text-xs" style={{ color: 'rgba(240,240,242,0.3)', whiteSpace: 'nowrap' }}>
+            <div className="flex-1 h-px" style={{ background: 'var(--input-bg)' }} />
+            <span className="text-xs" style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
               or try a demo account
             </span>
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div className="flex-1 h-px" style={{ background: 'var(--input-bg)' }} />
           </div>
 
           {/* Demo accounts */}
@@ -276,8 +276,8 @@ export default function LoginPage() {
                   disabled={busy}
                   className="flex flex-col items-center gap-2 rounded-lg py-4 px-2 text-left transition-all duration-150 disabled:cursor-not-allowed"
                   style={{
-                    background: isActive ? `${acc.color}12` : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${isActive ? `${acc.color}50` : 'rgba(255,255,255,0.07)'}`,
+                    background: isActive ? `${acc.color}12` : 'var(--row-hover-bg)',
+                    border: `1px solid ${isActive ? `${acc.color}50` : 'var(--input-bg)'}`,
                     opacity: demoLoading && !isActive ? 0.35 : 1,
                   }}
                   onMouseEnter={e => {
@@ -288,8 +288,8 @@ export default function LoginPage() {
                   }}
                   onMouseLeave={e => {
                     if (!isActive) {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+                      e.currentTarget.style.background = 'var(--row-hover-bg)'
+                      e.currentTarget.style.borderColor = 'var(--input-bg)'
                     }
                   }}
                 >
@@ -301,8 +301,8 @@ export default function LoginPage() {
                     }
                   </div>
                   <div className="text-center">
-                    <div className="text-xs font-semibold text-white mb-0.5">{acc.label}</div>
-                    <div className="text-xs leading-tight" style={{ color: 'rgba(240,240,242,0.35)', fontSize: 10 }}>
+                    <div className="text-xs font-semibold text-primary-ui mb-0.5">{acc.label}</div>
+                    <div className="text-xs leading-tight" style={{ color: 'var(--text-muted)', fontSize: 10 }}>
                       {acc.desc}
                     </div>
                   </div>
@@ -311,9 +311,9 @@ export default function LoginPage() {
             })}
           </div>
 
-          <p className="text-center text-sm" style={{ color: 'rgba(240,240,242,0.35)' }}>
+          <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
             Don't have an account?{' '}
-            <Link href="/register" className="font-medium transition-colors hover:text-white" style={{ color: '#DC143C' }}>
+            <Link href="/register" className="font-medium transition-colors hover:text-primary-ui" style={{ color: '#DC143C' }}>
               Register here
             </Link>
           </p>

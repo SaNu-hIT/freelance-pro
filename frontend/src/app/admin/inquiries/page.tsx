@@ -122,8 +122,8 @@ export default function AdminInquiriesPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">LEAD MANAGEMENT</p>
-        <h1 className="text-display text-4xl text-white">INQUIRIES</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>Client project ideas and callback requests</p>
+        <h1 className="text-display text-4xl text-primary-ui">INQUIRIES</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Client project ideas and callback requests</p>
       </div>
 
       {/* Stats */}
@@ -155,7 +155,7 @@ export default function AdminInquiriesPage() {
             </button>
           ))}
         </div>
-        <div className="w-px h-6 bg-[rgba(255,255,255,0.1)] mx-1" />
+        <div className="w-px h-6 bg-[var(--track-bg)] mx-1" />
         <div className="flex gap-2">
           {['all', 'new', 'contacted', 'converted', 'closed'].map(s => (
             <button
@@ -174,17 +174,17 @@ export default function AdminInquiriesPage() {
       {loading ? (
         <div className="glass-card rounded-xl overflow-hidden">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="p-4 border-b border-[rgba(255,255,255,0.05)] animate-pulse flex gap-4">
-              <div className="h-4 bg-[rgba(255,255,255,0.06)] rounded w-1/4" />
-              <div className="h-4 bg-[rgba(255,255,255,0.06)] rounded w-1/3" />
-              <div className="h-4 bg-[rgba(255,255,255,0.06)] rounded w-1/5" />
+            <div key={i} className="p-4 border-b border-[var(--input-bg)] animate-pulse flex gap-4">
+              <div className="h-4 bg-[var(--input-bg)] rounded w-1/4" />
+              <div className="h-4 bg-[var(--input-bg)] rounded w-1/3" />
+              <div className="h-4 bg-[var(--input-bg)] rounded w-1/5" />
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
-          <Mail size={32} className="mx-auto mb-4" style={{ color: 'rgba(240,240,242,0.2)' }} />
-          <p className="text-mono-label" style={{ color: 'rgba(240,240,242,0.35)' }}>NO INQUIRIES FOUND</p>
+          <Mail size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-mono-label" style={{ color: 'var(--text-muted)' }}>NO INQUIRIES FOUND</p>
         </div>
       ) : (
         <div className="glass-card rounded-xl overflow-hidden">
@@ -214,23 +214,23 @@ export default function AdminInquiriesPage() {
                     </span>
                   </td>
                   <td>
-                    <p className="font-medium text-white text-sm">{inq.name}</p>
+                    <p className="font-medium text-primary-ui text-sm">{inq.name}</p>
                   </td>
                   <td>
                     <div className="space-y-0.5">
-                      {inq.email && <p className="text-xs" style={{ color: 'rgba(240,240,242,0.5)' }}>{inq.email}</p>}
-                      {inq.phone && <p className="text-xs" style={{ color: 'rgba(240,240,242,0.5)' }}>{inq.phone}</p>}
+                      {inq.email && <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{inq.email}</p>}
+                      {inq.phone && <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{inq.phone}</p>}
                     </div>
                   </td>
                   <td>
-                    <p className="text-sm truncate max-w-[200px]" style={{ color: 'rgba(240,240,242,0.6)' }}>
+                    <p className="text-sm truncate max-w-[200px]" style={{ color: 'var(--text-secondary)' }}>
                       {inq.type === 'project_idea'
                         ? inq.projectTitle ?? '—'
                         : `Callback: ${inq.preferredCallbackTime ?? '—'}`}
                     </p>
                   </td>
                   <td>
-                    <p className="text-mono-label text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>
+                    <p className="text-mono-label text-xs" style={{ color: 'var(--text-muted)' }}>
                       {new Date(inq.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </td>
@@ -280,8 +280,8 @@ export default function AdminInquiriesPage() {
                     : <Phone size={20} style={{ color: '#60a5fa' }} />}
                 </div>
                 <div>
-                  <h2 className="text-white font-bold text-xl">{selected.name}</h2>
-                  <p className="text-mono-label text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>
+                  <h2 className="text-primary-ui font-bold text-xl">{selected.name}</h2>
+                  <p className="text-mono-label text-xs" style={{ color: 'var(--text-muted)' }}>
                     {selected.type === 'project_idea' ? 'Project Idea' : 'Callback Request'}
                     {' · '}
                     {new Date(selected.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -289,7 +289,7 @@ export default function AdminInquiriesPage() {
                 </div>
               </div>
               <button onClick={() => setSelected(null)} className="p-2 glass-card-dark rounded">
-                <XCircle size={16} style={{ color: 'rgba(240,240,242,0.4)' }} />
+                <XCircle size={16} style={{ color: 'var(--text-muted)' }} />
               </button>
             </div>
 
@@ -298,13 +298,13 @@ export default function AdminInquiriesPage() {
               {selected.email && (
                 <div className="glass-card-dark rounded-lg p-3 flex items-center gap-2">
                   <Mail size={14} className="text-[#DC143C] shrink-0" />
-                  <p className="text-sm text-white truncate">{selected.email}</p>
+                  <p className="text-sm text-primary-ui truncate">{selected.email}</p>
                 </div>
               )}
               {selected.phone && (
                 <div className="glass-card-dark rounded-lg p-3 flex items-center gap-2">
                   <Phone size={14} className="text-[#DC143C] shrink-0" />
-                  <p className="text-sm text-white">{selected.phone}</p>
+                  <p className="text-sm text-primary-ui">{selected.phone}</p>
                 </div>
               )}
             </div>
@@ -316,26 +316,26 @@ export default function AdminInquiriesPage() {
                   {selected.projectTitle && (
                     <div>
                       <p className="label-field flex items-center gap-1.5"><Sparkles size={9} />Project Title</p>
-                      <p className="text-white font-semibold text-lg">{selected.projectTitle}</p>
+                      <p className="text-primary-ui font-semibold text-lg">{selected.projectTitle}</p>
                     </div>
                   )}
                   {selected.description && (
                     <div>
                       <p className="label-field">Description</p>
-                      <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.7)' }}>{selected.description}</p>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selected.description}</p>
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-4">
                     {selected.budgetRange && (
                       <div>
                         <p className="label-field flex items-center gap-1.5"><DollarSign size={9} />Budget</p>
-                        <p className="text-white font-medium">{selected.budgetRange?.replace(/\$/g, curr)}</p>
+                        <p className="text-primary-ui font-medium">{selected.budgetRange?.replace(/\$/g, curr)}</p>
                       </div>
                     )}
                     {selected.timeline && (
                       <div>
                         <p className="label-field flex items-center gap-1.5"><Clock size={9} />Timeline</p>
-                        <p className="text-white font-medium">{selected.timeline}</p>
+                        <p className="text-primary-ui font-medium">{selected.timeline}</p>
                       </div>
                     )}
                   </div>
@@ -343,13 +343,13 @@ export default function AdminInquiriesPage() {
               ) : (
                 <div>
                   <p className="label-field flex items-center gap-1.5"><Calendar size={9} />Preferred Callback Time</p>
-                  <p className="text-white font-semibold text-lg">{selected.preferredCallbackTime}</p>
+                  <p className="text-primary-ui font-semibold text-lg">{selected.preferredCallbackTime}</p>
                 </div>
               )}
             </div>
 
             {/* Status & Actions */}
-            <div className="mt-6 pt-5 border-t border-[rgba(255,255,255,0.08)] space-y-4">
+            <div className="mt-6 pt-5 border-t border-[var(--input-bg)] space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="label-field mb-1">Current Status</p>

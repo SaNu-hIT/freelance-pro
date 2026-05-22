@@ -85,8 +85,8 @@ export default function AdminClientsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-white text-xl font-bold">Clients</h1>
-            <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>
+            <h1 className="text-primary-ui text-xl font-bold">Clients</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
               {clients.length} registered clients
             </p>
           </div>
@@ -99,7 +99,7 @@ export default function AdminClientsPage() {
               <div key={label} className="px-3 py-2 rounded-lg text-center"
                 style={{ background: `${color}10`, border: `1px solid ${color}25` }}>
                 <div className="text-sm font-bold" style={{ color }}>{val}</div>
-                <div className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{label}</div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -108,7 +108,7 @@ export default function AdminClientsPage() {
         {/* Search */}
         <div className="glass-card rounded-xl p-4">
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(240,240,242,0.3)' }} />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
             <input
               className="input-field pl-9 py-2 text-sm"
               placeholder="Search by name, email or company…"
@@ -120,8 +120,8 @@ export default function AdminClientsPage() {
 
         {/* Table */}
         <div className="glass-card rounded-xl overflow-hidden flex-1 flex flex-col">
-          <div className="grid text-xs font-semibold px-5 py-3 border-b border-[rgba(255,255,255,0.07)]"
-            style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px', color: 'rgba(240,240,242,0.4)', letterSpacing: '0.06em' }}>
+          <div className="grid text-xs font-semibold px-5 py-3 border-b border-[var(--input-bg)]"
+            style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
             <span>CLIENT</span>
             <span>EMAIL</span>
             <span>COMPANY</span>
@@ -130,26 +130,26 @@ export default function AdminClientsPage() {
             <span />
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-[rgba(255,255,255,0.05)]">
+          <div className="flex-1 overflow-y-auto divide-y divide-[var(--input-bg)]">
             {loading ? (
               [...Array(6)].map((_, i) => (
                 <div key={i} className="px-5 py-4 grid gap-4 animate-pulse"
                   style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px' }}>
                   {[...Array(5)].map((__, j) => (
-                    <div key={j} className="h-4 rounded" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                    <div key={j} className="h-4 rounded" style={{ background: 'var(--input-bg)' }} />
                   ))}
                 </div>
               ))
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
-                <Building2 size={32} style={{ color: 'rgba(240,240,242,0.1)', marginBottom: 12 }} />
-                <p className="text-sm" style={{ color: 'rgba(240,240,242,0.3)' }}>No clients found</p>
+                <Building2 size={32} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No clients found</p>
               </div>
             ) : filtered.map((c, i) => {
               const color = AVATAR_COLORS[i % AVATAR_COLORS.length]
               return (
                 <div key={c.id}
-                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors group"
+                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group"
                   style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px' }}>
                   {/* Client */}
                   <div className="flex items-center gap-3">
@@ -158,18 +158,18 @@ export default function AdminClientsPage() {
                       {getInitials(c.name)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{c.name}</p>
+                      <p className="text-sm font-medium text-primary-ui truncate">{c.name}</p>
                     </div>
                   </div>
                   {/* Email */}
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <Mail size={12} className="shrink-0" style={{ color: 'rgba(240,240,242,0.3)' }} />
-                    <span className="text-sm truncate" style={{ color: 'rgba(240,240,242,0.55)' }}>{c.email}</span>
+                    <Mail size={12} className="shrink-0" style={{ color: 'var(--text-muted)' }} />
+                    <span className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{c.email}</span>
                   </div>
                   {/* Company */}
                   <div className="flex items-center gap-1.5">
-                    <Building2 size={12} style={{ color: 'rgba(240,240,242,0.3)' }} />
-                    <span className="text-sm" style={{ color: 'rgba(240,240,242,0.55)' }}>{c.company ?? '—'}</span>
+                    <Building2 size={12} style={{ color: 'var(--text-muted)' }} />
+                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{c.company ?? '—'}</span>
                   </div>
                   {/* Projects */}
                   <div className="flex items-center gap-1.5">
@@ -178,14 +178,14 @@ export default function AdminClientsPage() {
                   </div>
                   {/* Joined */}
                   <div className="flex items-center gap-1.5">
-                    <Calendar size={11} style={{ color: 'rgba(240,240,242,0.25)' }} />
-                    <span className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{fmtDate(c.createdAt)}</span>
+                    <Calendar size={11} style={{ color: 'var(--text-muted)' }} />
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{fmtDate(c.createdAt)}</span>
                   </div>
                   {/* Actions */}
                   <button
                     onClick={() => setDetail(c)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-                    style={{ color: 'rgba(240,240,242,0.4)' }}>
+                    style={{ color: 'var(--text-muted)' }}>
                     <MoreHorizontal size={14} />
                   </button>
                 </div>
@@ -202,8 +202,8 @@ export default function AdminClientsPage() {
           onClick={() => setDetail(null)}>
           <div className="glass-card rounded-xl p-7 w-full max-w-sm space-y-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-base">Client Detail</h3>
-              <button onClick={() => setDetail(null)} style={{ color: 'rgba(240,240,242,0.35)' }}><X size={16} /></button>
+              <h3 className="text-primary-ui font-bold text-base">Client Detail</h3>
+              <button onClick={() => setDetail(null)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
             </div>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0"
@@ -211,8 +211,8 @@ export default function AdminClientsPage() {
                 {getInitials(detail.name)}
               </div>
               <div>
-                <p className="text-white font-semibold text-base">{detail.name}</p>
-                <p className="text-sm" style={{ color: 'rgba(240,240,242,0.4)' }}>{detail.company ?? 'Individual'}</p>
+                <p className="text-primary-ui font-semibold text-base">{detail.name}</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{detail.company ?? 'Individual'}</p>
               </div>
             </div>
             <div className="space-y-2.5">
@@ -223,10 +223,10 @@ export default function AdminClientsPage() {
                 { icon: Calendar, label: 'Joined', val: fmtDate(detail.createdAt) },
               ].map(({ icon: Icon, label, val }) => (
                 <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
                   <Icon size={13} style={{ color: '#60a5fa' }} />
-                  <span className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{label}</span>
-                  <span className="ml-auto text-sm text-white font-medium">{val}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                  <span className="ml-auto text-sm text-primary-ui font-medium">{val}</span>
                 </div>
               ))}
             </div>

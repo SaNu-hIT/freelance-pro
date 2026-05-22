@@ -95,8 +95,8 @@ export default function AdminPaymentsPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">FINANCIAL</p>
-        <h1 className="text-display text-4xl text-white">PAYMENTS</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>Manage disbursements and payment status</p>
+        <h1 className="text-display text-4xl text-primary-ui">PAYMENTS</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Manage disbursements and payment status</p>
       </div>
 
       {/* Summary Cards */}
@@ -165,7 +165,7 @@ export default function AdminPaymentsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-mono-label text-lg" style={{ color: 'rgba(240,240,242,0.35)' }}>NO PAYMENTS FOUND</p>
+            <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO PAYMENTS FOUND</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -188,7 +188,7 @@ export default function AdminPaymentsPage() {
                   return (
                     <tr key={p.id}>
                       <td>
-                        <p className="text-white text-sm font-medium">{p.freelancer?.user.name ?? `#${p.freelancerId}`}</p>
+                        <p className="text-primary-ui text-sm font-medium">{p.freelancer?.user.name ?? `#${p.freelancerId}`}</p>
                         <p className="text-mono-label" style={{ fontSize: '10px', color: '#9ca3af' }}>
                           {p.freelancer?.user.email ?? ''}
                         </p>
@@ -199,7 +199,7 @@ export default function AdminPaymentsPage() {
                         </span>
                       </td>
                       <td>
-                        <span className="text-white font-medium">{curr}{p.amount.toLocaleString()}</span>
+                        <span className="text-primary-ui font-medium">{curr}{p.amount.toLocaleString()}</span>
                       </td>
                       <td>
                         <span style={{ color: p.deductions > 0 ? '#f87171' : '#9ca3af' }}>
@@ -248,7 +248,7 @@ export default function AdminPaymentsPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-mono-label mb-0.5">EDIT PAYMENT</p>
-                <h2 className="text-white font-bold text-lg">
+                <h2 className="text-primary-ui font-bold text-lg">
                   {editingPayment.freelancer?.user.name}
                 </h2>
                 <p className="text-mono-label mt-0.5" style={{ fontSize: '11px', color: '#9ca3af' }}>
@@ -256,7 +256,7 @@ export default function AdminPaymentsPage() {
                 </p>
               </div>
               <button onClick={() => setEditingPayment(null)} className="p-2 rounded glass-card-dark">
-                <X size={16} style={{ color: 'rgba(240,240,242,0.35)' }} />
+                <X size={16} style={{ color: 'var(--text-muted)' }} />
               </button>
             </div>
 
@@ -304,7 +304,7 @@ export default function AdminPaymentsPage() {
                     <option value="paid">Paid</option>
                     <option value="partial">Partial</option>
                   </select>
-                  <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+                  <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                 </div>
               </div>
 

@@ -79,8 +79,8 @@ export default function ClientDocumentsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-white text-xl font-bold">Documents</h1>
-            <p className="text-sm mt-0.5" style={{ color: 'rgba(240,240,242,0.4)' }}>
+            <h1 className="text-primary-ui text-xl font-bold">Documents</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
               Deliverables, contracts, reports and invoices from your projects
             </p>
           </div>
@@ -100,8 +100,8 @@ export default function ClientDocumentsPage() {
                 <Icon size={15} style={{ color }} />
               </div>
               <div>
-                <div className="text-lg font-bold text-white">{val}</div>
-                <div className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{label}</div>
+                <div className="text-lg font-bold text-primary-ui">{val}</div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
               </div>
             </div>
           ))}
@@ -110,7 +110,7 @@ export default function ClientDocumentsPage() {
         {/* Filters */}
         <div className="glass-card rounded-xl p-4 flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-48">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(240,240,242,0.3)' }} />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
             <input
               className="input-field pl-9 py-2 text-sm w-full"
               placeholder="Search documents…"
@@ -120,15 +120,15 @@ export default function ClientDocumentsPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter size={12} style={{ color: 'rgba(240,240,242,0.35)' }} />
+            <Filter size={12} style={{ color: 'var(--text-muted)' }} />
             {(['all', 'deliverable', 'contract', 'report', 'invoice'] as const).map(t => (
               <button key={t}
                 onClick={() => setTypeFilter(t)}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize"
                 style={{
-                  background: typeFilter === t ? 'rgba(96,165,250,0.15)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${typeFilter === t ? 'rgba(96,165,250,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                  color: typeFilter === t ? '#60a5fa' : 'rgba(240,240,242,0.45)',
+                  background: typeFilter === t ? 'rgba(96,165,250,0.15)' : 'var(--input-bg)',
+                  border: `1px solid ${typeFilter === t ? 'rgba(96,165,250,0.4)' : 'var(--input-bg)'}`,
+                  color: typeFilter === t ? '#60a5fa' : 'var(--text-muted)',
                 }}>
                 {t === 'all' ? 'All Types' : t}
               </button>
@@ -141,9 +141,9 @@ export default function ClientDocumentsPage() {
                 onClick={() => setStatusFilter(s)}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                 style={{
-                  background: statusFilter === s ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${statusFilter === s ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  color: statusFilter === s ? '#4ade80' : 'rgba(240,240,242,0.45)',
+                  background: statusFilter === s ? 'rgba(74,222,128,0.12)' : 'var(--input-bg)',
+                  border: `1px solid ${statusFilter === s ? 'rgba(74,222,128,0.3)' : 'var(--input-bg)'}`,
+                  color: statusFilter === s ? '#4ade80' : 'var(--text-muted)',
                 }}>
                 {s === 'all' ? 'All Status' : s === 'in-review' ? 'In Review' : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -153,8 +153,8 @@ export default function ClientDocumentsPage() {
 
         {/* Document list */}
         <div className="glass-card rounded-xl overflow-hidden flex-1 flex flex-col">
-          <div className="grid text-xs font-semibold px-5 py-3 border-b border-[rgba(255,255,255,0.07)]"
-            style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 80px 80px', color: 'rgba(240,240,242,0.4)', letterSpacing: '0.06em' }}>
+          <div className="grid text-xs font-semibold px-5 py-3 border-b border-[var(--input-bg)]"
+            style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 80px 80px', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
             <span>DOCUMENT</span>
             <span>PROJECT</span>
             <span>TYPE</span>
@@ -163,11 +163,11 @@ export default function ClientDocumentsPage() {
             <span>DATE</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-[rgba(255,255,255,0.05)]">
+          <div className="flex-1 overflow-y-auto divide-y divide-[var(--input-bg)]">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
-                <FolderOpen size={32} style={{ color: 'rgba(240,240,242,0.1)', marginBottom: 12 }} />
-                <p className="text-sm" style={{ color: 'rgba(240,240,242,0.3)' }}>No documents found</p>
+                <FolderOpen size={32} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No documents found</p>
               </div>
             ) : filtered.map(doc => {
               const type = TYPE_META[doc.type]
@@ -176,7 +176,7 @@ export default function ClientDocumentsPage() {
               const StatusIcon = status.icon
               return (
                 <div key={doc.id}
-                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors group"
+                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group"
                   style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 80px 80px', opacity: doc.status === 'pending' ? 0.65 : 1 }}>
                   {/* Name */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -185,11 +185,11 @@ export default function ClientDocumentsPage() {
                       <TypeIcon size={14} style={{ color: type.color }} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{doc.name}</p>
+                      <p className="text-sm font-medium text-primary-ui truncate">{doc.name}</p>
                     </div>
                   </div>
                   {/* Project */}
-                  <p className="text-sm truncate" style={{ color: 'rgba(240,240,242,0.55)' }}>{doc.project}</p>
+                  <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{doc.project}</p>
                   {/* Type badge */}
                   <span className="text-xs px-2 py-1 rounded-md w-fit"
                     style={{ background: `${type.color}12`, border: `1px solid ${type.color}25`, color: type.color }}>
@@ -201,16 +201,16 @@ export default function ClientDocumentsPage() {
                     <span className="text-xs" style={{ color: status.color }}>{status.label}</span>
                   </div>
                   {/* Size */}
-                  <span className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{doc.size}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{doc.size}</span>
                   {/* Date + actions */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>{fmtDate(doc.date)}</span>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{fmtDate(doc.date)}</span>
                     {doc.status === 'delivered' && (
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                        <button onClick={() => setPreview(doc)} className="p-1.5 rounded" style={{ color: 'rgba(240,240,242,0.5)' }} title="Preview">
+                        <button onClick={() => setPreview(doc)} className="p-1.5 rounded" style={{ color: 'var(--text-secondary)' }} title="Preview">
                           <Eye size={13} />
                         </button>
-                        <button className="p-1.5 rounded" style={{ color: 'rgba(240,240,242,0.5)' }} title="Download"
+                        <button className="p-1.5 rounded" style={{ color: 'var(--text-secondary)' }} title="Download"
                           onClick={() => alert('Download is disabled in demo mode.')}>
                           <Download size={13} />
                         </button>
@@ -231,8 +231,8 @@ export default function ClientDocumentsPage() {
           onClick={() => setPreview(null)}>
           <div className="glass-card rounded-xl p-7 w-full max-w-md space-y-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-base">Document Details</h3>
-              <button onClick={() => setPreview(null)} style={{ color: 'rgba(240,240,242,0.35)' }}><X size={16} /></button>
+              <h3 className="text-primary-ui font-bold text-base">Document Details</h3>
+              <button onClick={() => setPreview(null)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
             </div>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
@@ -240,11 +240,11 @@ export default function ClientDocumentsPage() {
                 {(() => { const Icon = TYPE_META[preview.type].icon; return <Icon size={20} style={{ color: TYPE_META[preview.type].color }} /> })()}
               </div>
               <div>
-                <p className="text-white font-semibold text-sm leading-snug">{preview.name}</p>
-                <p className="text-xs mt-1" style={{ color: 'rgba(240,240,242,0.4)' }}>{preview.project}</p>
+                <p className="text-primary-ui font-semibold text-sm leading-snug">{preview.name}</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{preview.project}</p>
               </div>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.6)' }}>{preview.description}</p>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{preview.description}</p>
             <div className="grid grid-cols-2 gap-2.5">
               {[
                 { label: 'Type', val: TYPE_META[preview.type].label },
@@ -253,9 +253,9 @@ export default function ClientDocumentsPage() {
                 { label: 'Date', val: fmtDate(preview.date) },
               ].map(({ label, val }) => (
                 <div key={label} className="px-3 py-2.5 rounded-lg"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-xs mb-0.5" style={{ color: 'rgba(240,240,242,0.35)' }}>{label}</p>
-                  <p className="text-sm font-medium text-white">{val}</p>
+                  style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
+                  <p className="text-xs mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
+                  <p className="text-sm font-medium text-primary-ui">{val}</p>
                 </div>
               ))}
             </div>

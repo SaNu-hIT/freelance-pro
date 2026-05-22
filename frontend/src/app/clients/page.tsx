@@ -88,10 +88,10 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0c', color: 'white' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'white' }}>
 
       {/* Header */}
-      <header className="glass-card-dark border-b border-[rgba(255,255,255,0.08)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
+      <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <CrimsonCube size={24} />
           <span className="text-display text-[#DC143C] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px #DC143C66' }}>
@@ -99,8 +99,8 @@ export default function ClientsPage() {
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-mono-label hover:text-white transition-colors text-xs tracking-widest">HOME</Link>
-          <Link href="/freelancers" className="text-mono-label hover:text-white transition-colors text-xs tracking-widest">FOR FREELANCERS</Link>
+          <Link href="/" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">HOME</Link>
+          <Link href="/freelancers" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">FOR FREELANCERS</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/login"
@@ -127,11 +127,11 @@ export default function ClientsPage() {
               FOR AMBITIOUS CLIENTS
             </p>
             <h1 className="text-display text-6xl md:text-7xl leading-none mb-6">
-              <span className="block text-white">TURN YOUR</span>
+              <span className="block text-primary-ui">TURN YOUR</span>
               <span className="block text-gradient">IDEA INTO</span>
-              <span className="block text-white">REALITY.</span>
+              <span className="block text-primary-ui">REALITY.</span>
             </h1>
-            <p className="text-lg leading-relaxed max-w-lg mb-10" style={{ color: 'rgba(240,240,242,0.55)' }}>
+            <p className="text-lg leading-relaxed max-w-lg mb-10" style={{ color: 'var(--text-secondary)' }}>
               Tell us what you want to build. We&apos;ll match you with the right specialists, manage the execution, and deliver on time — with full transparency at every step.
             </p>
             <div className="flex items-center gap-4">
@@ -154,7 +154,7 @@ export default function ClientsPage() {
             ].map(({ value, label, color }) => (
               <div key={label} className="glass-card metric-card rounded-xl text-center">
                 <p className="text-3xl font-bold text-display mb-1" style={{ color }}>{value}</p>
-                <p className="text-mono-label text-xs tracking-widest" style={{ color: 'rgba(240,240,242,0.4)' }}>{label}</p>
+                <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</p>
               </div>
             ))}
           </div>
@@ -162,13 +162,13 @@ export default function ClientsPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 relative" style={{ background: '#0e0e11' }}>
+      <section id="how-it-works" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
         <div className="max-w-7xl mx-auto px-12">
           <div className="text-center mb-16">
             <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[#DC143C]" />PROCESS<span className="w-8 h-px bg-[#DC143C]" />
             </p>
-            <h2 className="text-display text-white text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-5xl font-bold">
               FROM IDEA TO <span className="text-gradient">DELIVERY</span>
             </h2>
           </div>
@@ -183,8 +183,8 @@ export default function ClientsPage() {
                     <span className="text-display text-2xl font-bold" style={{ color: 'rgba(220,20,60,0.25)' }}>{step.num}</span>
                     <span className="text-[#DC143C]">{step.icon}</span>
                   </div>
-                  <h3 className="text-white font-bold text-base mb-2">{step.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>{step.desc}</p>
+                  <h3 className="text-primary-ui font-bold text-base mb-2">{step.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -199,7 +199,7 @@ export default function ClientsPage() {
             <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[#DC143C]" />WHY US<span className="w-8 h-px bg-[#DC143C]" />
             </p>
-            <h2 className="text-display text-white text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-5xl font-bold">
               THE <span className="text-gradient">DIFFERENCE</span>
             </h2>
           </div>
@@ -209,8 +209,8 @@ export default function ClientsPage() {
                 <div className="w-11 h-11 rounded-lg bg-[rgba(220,20,60,0.1)] flex items-center justify-center text-[#DC143C] mb-5 group-hover:bg-[rgba(220,20,60,0.18)] transition-colors">
                   {icon}
                 </div>
-                <h3 className="text-white font-bold text-base mb-2">{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.5)' }}>{desc}</p>
+                <h3 className="text-primary-ui font-bold text-base mb-2">{title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -218,29 +218,29 @@ export default function ClientsPage() {
       </section>
 
       {/* ─── GET STARTED SECTION — Tabbed Forms ─── */}
-      <section id="get-started" className="py-24 relative" style={{ background: '#0e0e11' }}>
+      <section id="get-started" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
         <MorphBlob color="#8B0000" size={500} top="-100px" right="-100px" />
         <div className="max-w-3xl mx-auto px-12 relative z-10">
           <div className="text-center mb-12">
             <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[#DC143C]" />REACH OUT<span className="w-8 h-px bg-[#DC143C]" />
             </p>
-            <h2 className="text-display text-white text-5xl font-bold mb-4">
+            <h2 className="text-display text-primary-ui text-5xl font-bold mb-4">
               LET&apos;S <span className="text-gradient">TALK</span>
             </h2>
-            <p className="text-base" style={{ color: 'rgba(240,240,242,0.5)' }}>
+            <p className="text-base" style={{ color: 'var(--text-secondary)' }}>
               Submit your project idea or request a callback — we&apos;ll get back to you within hours.
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="flex rounded-xl overflow-hidden border border-[rgba(255,255,255,0.08)] mb-8">
+          <div className="flex rounded-xl overflow-hidden border border-[var(--input-bg)] mb-8">
             <button
               onClick={() => { setActiveTab('idea'); setSubmitted(null) }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'idea'
-                  ? 'bg-[#DC143C] text-white'
-                  : 'text-[rgba(240,240,242,0.5)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]'
+                  ? 'bg-[#DC143C] text-primary-ui'
+                  : 'text-[var(--text-secondary)] hover:text-primary-ui hover:bg-[var(--input-bg)]'
               }`}
             >
               <Sparkles size={16} />
@@ -250,8 +250,8 @@ export default function ClientsPage() {
               onClick={() => { setActiveTab('callback'); setSubmitted(null) }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'callback'
-                  ? 'bg-[#DC143C] text-white'
-                  : 'text-[rgba(240,240,242,0.5)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]'
+                  ? 'bg-[#DC143C] text-primary-ui'
+                  : 'text-[var(--text-secondary)] hover:text-primary-ui hover:bg-[var(--input-bg)]'
               }`}
             >
               <Phone size={16} />
@@ -266,9 +266,9 @@ export default function ClientsPage() {
                 <div className="w-16 h-16 rounded-full bg-[rgba(74,222,128,0.1)] flex items-center justify-center mx-auto mb-6">
                   <CheckCircle size={32} className="text-[#4ade80]" />
                 </div>
-                <h3 className="text-white font-bold text-2xl mb-3">Idea Received!</h3>
-                <p className="text-base mb-6" style={{ color: 'rgba(240,240,242,0.55)' }}>
-                  We&apos;ve logged your project idea. Our team will review it and reach out within <strong className="text-white">24 hours</strong>.
+                <h3 className="text-primary-ui font-bold text-2xl mb-3">Idea Received!</h3>
+                <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  We&apos;ve logged your project idea. Our team will review it and reach out within <strong className="text-primary-ui">24 hours</strong>.
                 </p>
                 <button
                   onClick={() => { setSubmitted(null); setIdeaForm({ name: '', email: '', phone: '', projectTitle: '', description: '', budgetRange: '', timeline: '' }) }}
@@ -350,12 +350,12 @@ export default function ClientsPage() {
                         required
                         value={ideaForm.budgetRange}
                         onChange={e => setIdeaForm(f => ({ ...f, budgetRange: e.target.value }))}
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: 'var(--input-bg)' }}
                       >
-                        <option value="" style={{ background: '#131316' }}>Select range</option>
-                        {budgetRanges.map(r => <option key={r} value={r} style={{ background: '#131316' }}>{r}</option>)}
+                        <option value="" style={{ background: 'var(--bg-surface)' }}>Select range</option>
+                        {budgetRanges.map(r => <option key={r} value={r} style={{ background: 'var(--bg-surface)' }}>{r}</option>)}
                       </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.4)' }}>▾</div>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }}>▾</div>
                     </div>
                   </div>
                   <div>
@@ -366,12 +366,12 @@ export default function ClientsPage() {
                         required
                         value={ideaForm.timeline}
                         onChange={e => setIdeaForm(f => ({ ...f, timeline: e.target.value }))}
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: 'var(--input-bg)' }}
                       >
-                        <option value="" style={{ background: '#131316' }}>Select timeline</option>
-                        {timelines.map(t => <option key={t} value={t} style={{ background: '#131316' }}>{t}</option>)}
+                        <option value="" style={{ background: 'var(--bg-surface)' }}>Select timeline</option>
+                        {timelines.map(t => <option key={t} value={t} style={{ background: 'var(--bg-surface)' }}>{t}</option>)}
                       </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.4)' }}>▾</div>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }}>▾</div>
                     </div>
                   </div>
                 </div>
@@ -394,7 +394,7 @@ export default function ClientsPage() {
                   )}
                 </button>
 
-                <p className="text-center text-xs" style={{ color: 'rgba(240,240,242,0.35)' }}>
+                <p className="text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   Your information is kept confidential. We&apos;ll respond within 24 hours.
                 </p>
               </form>
@@ -408,9 +408,9 @@ export default function ClientsPage() {
                 <div className="w-16 h-16 rounded-full bg-[rgba(74,222,128,0.1)] flex items-center justify-center mx-auto mb-6">
                   <Phone size={32} className="text-[#4ade80]" />
                 </div>
-                <h3 className="text-white font-bold text-2xl mb-3">Callback Scheduled!</h3>
-                <p className="text-base mb-6" style={{ color: 'rgba(240,240,242,0.55)' }}>
-                  We&apos;ve noted your preferred time. Expect a call from our team <strong className="text-white">within 2 business hours</strong>.
+                <h3 className="text-primary-ui font-bold text-2xl mb-3">Callback Scheduled!</h3>
+                <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  We&apos;ve noted your preferred time. Expect a call from our team <strong className="text-primary-ui">within 2 business hours</strong>.
                 </p>
                 <button
                   onClick={() => { setSubmitted(null); setCallbackForm({ name: '', phone: '', email: '', preferredCallbackTime: '' }) }}
@@ -425,7 +425,7 @@ export default function ClientsPage() {
                   <div className="w-14 h-14 rounded-full bg-[rgba(220,20,60,0.1)] flex items-center justify-center mx-auto mb-4">
                     <Phone size={28} className="text-[#DC143C]" />
                   </div>
-                  <p className="text-sm" style={{ color: 'rgba(240,240,242,0.5)' }}>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                     Prefer to talk? Leave your number and we&apos;ll call you back at your preferred time.
                   </p>
                 </div>
@@ -474,8 +474,8 @@ export default function ClientsPage() {
                         onClick={() => setCallbackForm(f => ({ ...f, preferredCallbackTime: time }))}
                         className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
                           callbackForm.preferredCallbackTime === time
-                            ? 'border-[#DC143C] bg-[rgba(220,20,60,0.12)] text-white'
-                            : 'border-[rgba(255,255,255,0.1)] text-[rgba(240,240,242,0.5)] hover:border-[rgba(220,20,60,0.3)] hover:text-white'
+                            ? 'border-[#DC143C] bg-[rgba(220,20,60,0.12)] text-primary-ui'
+                            : 'border-[var(--track-bg)] text-[var(--text-secondary)] hover:border-[rgba(220,20,60,0.3)] hover:text-primary-ui'
                         }`}
                       >
                         {time}
@@ -502,7 +502,7 @@ export default function ClientsPage() {
                   )}
                 </button>
 
-                <p className="text-center text-xs" style={{ color: 'rgba(240,240,242,0.35)' }}>
+                <p className="text-center text-xs" style={{ color: 'var(--text-muted)' }}>
                   We typically call back within 2 business hours during working days.
                 </p>
               </form>
@@ -512,23 +512,23 @@ export default function ClientsPage() {
       </section>
 
       {/* Footer */}
-      <footer className="glass-card-dark border-t border-[rgba(255,255,255,0.08)]">
+      <footer className="glass-card-dark border-t border-[var(--input-bg)]">
         <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CrimsonCube size={20} />
             <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
           </div>
-          <div className="flex items-center gap-4" style={{ color: 'rgba(240,240,242,0.4)' }}>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><Globe size={18} /></a>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><X size={18} /></a>
-            <a href="#" className="hover:text-white transition-colors p-1.5"><ExternalLink size={18} /></a>
+          <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><X size={18} /></a>
+            <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><ExternalLink size={18} /></a>
           </div>
         </div>
-        <div className="border-t border-[rgba(255,255,255,0.06)] px-12 py-4 flex items-center justify-between">
-          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'rgba(240,240,242,0.35)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
+        <div className="border-t border-[var(--input-bg)] px-12 py-4 flex items-center justify-between">
+          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-mono-label text-xs tracking-widest hover:text-white transition-colors" style={{ color: 'rgba(240,240,242,0.35)' }}>HOME</Link>
-            <Link href="/freelancers" className="text-mono-label text-xs tracking-widest hover:text-white transition-colors" style={{ color: 'rgba(240,240,242,0.35)' }}>FOR FREELANCERS</Link>
+            <Link href="/" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>HOME</Link>
+            <Link href="/freelancers" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>FOR FREELANCERS</Link>
           </div>
         </div>
       </footer>

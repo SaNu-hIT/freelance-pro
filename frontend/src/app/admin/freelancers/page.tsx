@@ -82,8 +82,8 @@ export default function AdminFreelancersPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">TALENT POOL</p>
-        <h1 className="text-display text-4xl text-white">FREELANCERS</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>Manage your freelancer network</p>
+        <h1 className="text-display text-4xl text-primary-ui">FREELANCERS</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Manage your freelancer network</p>
       </div>
 
       {/* Stats Row */}
@@ -104,7 +104,7 @@ export default function AdminFreelancersPage() {
       {/* Filters */}
       <div className="glass-card-dark rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="Search by name, email, or skill..."
@@ -150,8 +150,8 @@ export default function AdminFreelancersPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
-          <User size={32} className="mx-auto mb-4" style={{ color: 'rgba(240,240,242,0.35)' }} />
-          <p className="text-mono-label text-lg" style={{ color: 'rgba(240,240,242,0.35)' }}>NO FREELANCERS FOUND</p>
+          <User size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO FREELANCERS FOUND</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -162,13 +162,13 @@ export default function AdminFreelancersPage() {
                 {/* Avatar + Name */}
                 <div className="flex items-start gap-4">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-sm"
+                    className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-primary-ui font-bold text-sm"
                     style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}
                   >
                     {getInitials(f.user.name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-bold text-base truncate">{f.user.name}</p>
+                    <p className="text-primary-ui font-bold text-base truncate">{f.user.name}</p>
                     <p className="text-mono-label truncate" style={{ fontSize: '11px', color: '#9ca3af' }}>
                       {f.user.email}
                     </p>
@@ -198,7 +198,7 @@ export default function AdminFreelancersPage() {
                     </span>
                   ))}
                   {f.skills.length > 5 && (
-                    <span className="text-mono-label px-2 py-0.5 rounded" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.35)' }}>
+                    <span className="text-mono-label px-2 py-0.5 rounded" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                       +{f.skills.length - 5}
                     </span>
                   )}
@@ -211,7 +211,7 @@ export default function AdminFreelancersPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 pt-2 border-t border-[rgba(255,255,255,0.08)]">
+                <div className="flex gap-2 pt-2 border-t border-[var(--input-bg)]">
                   {f.status === 'pending' && (
                     <button
                       onClick={() => handleApprove(f.id)}
@@ -244,13 +244,13 @@ export default function AdminFreelancersPage() {
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-4">
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                  className="w-16 h-16 rounded-full flex items-center justify-center text-primary-ui font-bold text-xl"
                   style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}
                 >
                   {getInitials(detailFreelancer.user.name)}
                 </div>
                 <div>
-                  <h2 className="text-white font-bold text-xl">{detailFreelancer.user.name}</h2>
+                  <h2 className="text-primary-ui font-bold text-xl">{detailFreelancer.user.name}</h2>
                   <p className="text-mono-label" style={{ fontSize: '11px', color: '#9ca3af' }}>
                     {detailFreelancer.user.email}
                   </p>
@@ -260,7 +260,7 @@ export default function AdminFreelancersPage() {
                 onClick={() => setDetailFreelancer(null)}
                 className="p-2 rounded glass-card-dark"
               >
-                <Search size={14} style={{ color: 'rgba(240,240,242,0.35)' }} />
+                <Search size={14} style={{ color: 'var(--text-muted)' }} />
               </button>
             </div>
 
@@ -274,7 +274,7 @@ export default function AdminFreelancersPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="label-field">Experience</p>
-                  <p className="text-white font-bold">{detailFreelancer.experience} years</p>
+                  <p className="text-primary-ui font-bold">{detailFreelancer.experience} years</p>
                 </div>
                 <div>
                   <p className="label-field">Hourly Rate</p>
@@ -299,7 +299,7 @@ export default function AdminFreelancersPage() {
               </div>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-[rgba(255,255,255,0.08)] flex justify-end gap-3">
+            <div className="mt-6 pt-5 border-t border-[var(--input-bg)] flex justify-end gap-3">
               {detailFreelancer.status === 'pending' && (
                 <button
                   onClick={() => { handleApprove(detailFreelancer.id); setDetailFreelancer(null) }}

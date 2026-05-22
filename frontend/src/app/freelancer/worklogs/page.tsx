@@ -303,7 +303,7 @@ export default function FreelancerWorklogsPage() {
               <AlertCircle size={15} className="mt-0.5 shrink-0" style={{ color: '#fb923c' }} />
               <div>
                 <p className="text-sm font-semibold" style={{ color: '#fb923c' }}>Session auto-paused at 8 hours</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.5)' }}>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                   Sessions are capped at 8 hours. Review your hours and submit.
                 </p>
               </div>
@@ -313,7 +313,7 @@ export default function FreelancerWorklogsPage() {
           {/* ── Session Clock Card ── */}
           <div className="glass-card rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold" style={{ color: 'rgba(240,240,242,0.4)', letterSpacing: '0.1em' }}>TODAY'S SESSION</p>
+              <p className="text-xs font-semibold" style={{ color: 'var(--text-muted)', letterSpacing: '0.1em' }}>TODAY'S SESSION</p>
               {timerRunning && (
                 <button onClick={stopTimer}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
@@ -323,7 +323,7 @@ export default function FreelancerWorklogsPage() {
               )}
               {timerSecs > 0 && !timerRunning && (
                 <button onClick={resetTimer} className="p-1.5 rounded-lg transition-all"
-                  style={{ color: 'rgba(240,240,242,0.3)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
                   title="Reset timer">
                   <X size={13} />
                 </button>
@@ -340,10 +340,10 @@ export default function FreelancerWorklogsPage() {
                 style={{ opacity: timerRunning ? 0.6 : 1, cursor: timerRunning ? 'not-allowed' : 'default' }}
               >
                 <option value="" disabled>Select project…</option>
-                {projects.map(p => <option key={p.id} value={p.id} style={{ background: '#131316' }}>{p.title}</option>)}
+                {projects.map(p => <option key={p.id} value={p.id} style={{ background: 'var(--bg-surface)' }}>{p.title}</option>)}
               </select>
               <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: 'rgba(240,240,242,0.35)' }} />
+                style={{ color: 'var(--text-muted)' }} />
               {timerRunning && (
                 <span className="absolute -top-2 right-6 text-xs px-1.5 py-0.5 rounded"
                   style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C', fontSize: 9, letterSpacing: '0.08em' }}>
@@ -354,13 +354,13 @@ export default function FreelancerWorklogsPage() {
 
             {/* Clock + progress */}
             <div className="px-4 py-3.5 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${timerRunning ? `${timerColor}40` : autoPaused ? 'rgba(251,146,60,0.3)' : 'rgba(255,255,255,0.07)'}`, transition: 'border-color 0.4s' }}>
+              style={{ background: 'var(--row-hover-bg)', border: `1px solid ${timerRunning ? `${timerColor}40` : autoPaused ? 'rgba(251,146,60,0.3)' : 'var(--input-bg)'}`, transition: 'border-color 0.4s' }}>
 
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2.5">
-                  <Clock size={14} style={{ color: timerRunning ? timerColor : 'rgba(240,240,242,0.2)' }} />
+                  <Clock size={14} style={{ color: timerRunning ? timerColor : 'var(--text-muted)' }} />
                   <span className="font-mono text-2xl font-bold tracking-widest"
-                    style={{ color: timerRunning ? '#fff' : timerSecs > 0 ? 'rgba(240,240,242,0.65)' : 'rgba(240,240,242,0.2)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    style={{ color: timerRunning ? '#fff' : timerSecs > 0 ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                     {fmtDuration(timerSecs)}
                   </span>
                   {timerRunning && <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: timerColor }} />}
@@ -374,21 +374,21 @@ export default function FreelancerWorklogsPage() {
               </div>
 
               {/* 8h progress bar */}
-              <div className="w-full rounded-full mb-2.5" style={{ height: 3, background: 'rgba(255,255,255,0.07)' }}>
+              <div className="w-full rounded-full mb-2.5" style={{ height: 3, background: 'var(--input-bg)' }}>
                 <div className="h-full rounded-full transition-all duration-1000"
                   style={{ width: `${Math.min(100, pct * 100)}%`, background: timerColor }} />
               </div>
 
               {/* Start time row */}
-              <div className="flex items-center justify-between text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>
+              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                 <div className="flex items-center gap-1.5">
                   <LogIn size={11} />
                   {startISO
-                    ? <span>Started <strong style={{ color: 'rgba(240,240,242,0.6)' }}>{fmtTime(startISO)}</strong></span>
+                    ? <span>Started <strong style={{ color: 'var(--text-secondary)' }}>{fmtTime(startISO)}</strong></span>
                     : <span>Not started — tap ▶ on a task below</span>}
                 </div>
                 {endISO && !timerRunning && (
-                  <span>Ended <strong style={{ color: 'rgba(240,240,242,0.6)' }}>{fmtTime(endISO)}</strong></span>
+                  <span>Ended <strong style={{ color: 'var(--text-secondary)' }}>{fmtTime(endISO)}</strong></span>
                 )}
               </div>
 
@@ -397,7 +397,7 @@ export default function FreelancerWorklogsPage() {
                 <div className="mt-2.5 flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
                   style={{ background: `${timerColor}10`, border: `1px solid ${timerColor}30` }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: timerColor }} />
-                  <span className="text-xs font-medium truncate" style={{ color: 'rgba(240,240,242,0.75)' }}>
+                  <span className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                     {activeTask.title}
                   </span>
                 </div>
@@ -427,7 +427,7 @@ export default function FreelancerWorklogsPage() {
                 value={hoursWorked}
                 onChange={e => setHoursWorked(e.target.value === '' ? '' : parseFloat(e.target.value))}
               />
-              <span className="text-xs shrink-0" style={{ color: 'rgba(240,240,242,0.3)' }}>manual</span>
+              <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>manual</span>
             </div>
           </div>
 
@@ -436,7 +436,7 @@ export default function FreelancerWorklogsPage() {
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <CheckSquare size={13} style={{ color: '#DC143C' }} />
-                <p className="text-xs font-semibold" style={{ color: 'rgba(240,240,242,0.5)', letterSpacing: '0.1em' }}>TASKS</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>TASKS</p>
               </div>
               {workedCount > 0 && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded"
@@ -445,20 +445,20 @@ export default function FreelancerWorklogsPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs mb-4" style={{ color: 'rgba(240,240,242,0.3)' }}>
+            <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
               Press ▶ on a task to start the timer for it. Tap ✓ to mark it complete on submit.
             </p>
 
             {tasksLoading ? (
               <div className="space-y-2">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                  <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--input-bg)' }} />
                 ))}
               </div>
             ) : tasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10">
-                <Layers size={24} style={{ color: 'rgba(240,240,242,0.08)', marginBottom: 8 }} />
-                <p className="text-xs" style={{ color: 'rgba(240,240,242,0.25)' }}>No tasks for this project</p>
+                <Layers size={24} style={{ color: 'var(--text-muted)', marginBottom: 8 }} />
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No tasks for this project</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
@@ -468,19 +468,19 @@ export default function FreelancerWorklogsPage() {
                   const isCollapsed = collapsedSprints.has(sprint.id)
                   return (
                     <div key={sprint.id} className="rounded-xl overflow-hidden"
-                      style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                      style={{ border: '1px solid var(--border)' }}>
                       {/* Sprint header */}
                       <button
                         className="w-full flex items-center gap-2 px-3 py-2.5 transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.03)' }}
+                        style={{ background: 'var(--row-hover-bg)' }}
                         onClick={() => toggleSprintCollapse(sprint.id)}>
                         <Layers size={11} style={{ color: '#DC143C' }} />
                         <span className="flex-1 text-left text-xs font-semibold"
-                          style={{ color: 'rgba(240,240,242,0.65)', letterSpacing: '0.04em' }}>
+                          style={{ color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>
                           {sprint.name}
                         </span>
                         <span className="text-xs px-1.5 py-0.5 rounded"
-                          style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,242,0.3)' }}>
+                          style={{ background: 'var(--input-bg)', color: 'var(--text-muted)' }}>
                           {sprintTasks.length}
                         </span>
                         {/* Sprint mini progress */}
@@ -489,14 +489,14 @@ export default function FreelancerWorklogsPage() {
                           const pct  = sprintTasks.length > 0 ? Math.round((done / sprintTasks.length) * 100) : 0
                           return (
                             <div className="flex items-center gap-1.5 shrink-0">
-                              <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'rgba(255,255,255,0.08)' }}>
+                              <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--input-bg)' }}>
                                 <div style={{ width: `${pct}%`, height: '100%', background: pct === 100 ? '#4ade80' : '#DC143C', borderRadius: 99 }} />
                               </div>
-                              <span style={{ fontSize: 10, color: 'rgba(240,240,242,0.35)' }}>{pct}%</span>
+                              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{pct}%</span>
                             </div>
                           )
                         })()}
-                        <ChevronDown size={12} style={{ color: 'rgba(240,240,242,0.3)', transform: isCollapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
+                        <ChevronDown size={12} style={{ color: 'var(--text-muted)', transform: isCollapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
                       </button>
 
                       {!isCollapsed && (
@@ -522,16 +522,16 @@ export default function FreelancerWorklogsPage() {
 
                 {/* Backlog */}
                 {backlogTasks.length > 0 && (
-                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
                     <div className="flex items-center gap-2 px-3 py-2.5"
-                      style={{ background: 'rgba(255,255,255,0.03)' }}>
-                      <Layers size={11} style={{ color: 'rgba(240,240,242,0.25)' }} />
+                      style={{ background: 'var(--row-hover-bg)' }}>
+                      <Layers size={11} style={{ color: 'var(--text-muted)' }} />
                       <span className="flex-1 text-xs font-semibold"
-                        style={{ color: 'rgba(240,240,242,0.4)', letterSpacing: '0.04em' }}>
+                        style={{ color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
                         BACKLOG
                       </span>
                       <span className="text-xs px-1.5 py-0.5 rounded"
-                        style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,242,0.3)' }}>
+                        style={{ background: 'var(--input-bg)', color: 'var(--text-muted)' }}>
                         {backlogTasks.length}
                       </span>
                     </div>
@@ -562,7 +562,7 @@ export default function FreelancerWorklogsPage() {
                 <p className="text-xs font-semibold mb-1" style={{ color: 'rgba(74,222,128,0.6)', letterSpacing: '0.08em' }}>
                   AUTO SUMMARY
                 </p>
-                <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,240,242,0.6)' }}>{tasksCompleted}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{tasksCompleted}</p>
               </div>
             )}
           </div>
@@ -583,9 +583,9 @@ export default function FreelancerWorklogsPage() {
                 <AlertCircle size={14} className="shrink-0 mt-0.5" style={{ color: '#f87171' }} />
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#f87171' }}>Submission failed</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'rgba(240,240,242,0.5)' }}>{submitError}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{submitError}</p>
                 </div>
-                <button onClick={() => setSubmitError('')} className="ml-auto shrink-0" style={{ color: 'rgba(240,240,242,0.3)' }}>
+                <button onClick={() => setSubmitError('')} className="ml-auto shrink-0" style={{ color: 'var(--text-muted)' }}>
                   <X size={13} />
                 </button>
               </div>
@@ -593,17 +593,17 @@ export default function FreelancerWorklogsPage() {
 
             {/* Auto-calculated progress */}
             <div className="flex items-center justify-between px-4 py-3 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2">
                 <CheckCircle size={13} style={{ color: '#4ade80' }} />
-                <span className="text-sm font-medium text-white">Project Progress</span>
+                <span className="text-sm font-medium text-primary-ui">Project Progress</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-24 rounded-full overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.08)' }}>
+                <div className="w-24 rounded-full overflow-hidden" style={{ height: 4, background: 'var(--input-bg)' }}>
                   <div style={{ width: `${progress}%`, height: '100%', background: progress === 100 ? '#4ade80' : '#DC143C', borderRadius: 99, transition: 'width 0.3s' }} />
                 </div>
                 <span className="text-sm font-bold" style={{ color: progress === 100 ? '#4ade80' : '#DC143C' }}>{progress}%</span>
-                <span className="text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {alreadyDone + newlyDone}/{totalTasks} tasks
                 </span>
               </div>
@@ -612,7 +612,7 @@ export default function FreelancerWorklogsPage() {
             <div>
               <label className="label-field flex items-center gap-1.5">
                 <AlertTriangle size={10} style={{ color: '#fb923c' }} />
-                Blockers <span style={{ color: 'rgba(240,240,242,0.25)' }}>optional</span>
+                Blockers <span style={{ color: 'var(--text-muted)' }}>optional</span>
               </label>
               <textarea className="input-field resize-none text-sm" rows={2}
                 placeholder="Any blockers preventing progress?"
@@ -621,7 +621,7 @@ export default function FreelancerWorklogsPage() {
 
             <div>
               <label className="label-field">
-                Next Steps <span style={{ color: 'rgba(240,240,242,0.25)' }}>optional</span>
+                Next Steps <span style={{ color: 'var(--text-muted)' }}>optional</span>
               </label>
               <textarea className="input-field resize-none text-sm" rows={2}
                 placeholder="What's planned for next session?"
@@ -637,7 +637,7 @@ export default function FreelancerWorklogsPage() {
                 : timerRunning ? 'STOP WORK FIRST'
                 : `SUBMIT WORKLOG${hoursWorked ? ` · ${hoursWorked}h` : ''}`}
             </button>
-            <p className="text-center text-xs" style={{ color: 'rgba(240,240,242,0.2)' }}>
+            <p className="text-center text-xs" style={{ color: 'var(--text-muted)' }}>
               {timerRunning ? 'Stop the timer on the task to enable submit'
                 : !hoursWorked ? 'Start a task or enter hours manually to submit'
                 : ''}
@@ -648,18 +648,18 @@ export default function FreelancerWorklogsPage() {
         {/* ── RIGHT: History ── */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <div className="glass-card rounded-xl flex flex-col overflow-hidden h-full">
-            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.07)] flex items-center justify-between shrink-0">
+            <div className="px-5 py-4 border-b border-[var(--input-bg)] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <Timer size={14} style={{ color: '#DC143C' }} />
-                <h2 className="text-white font-bold text-base">My Worklogs</h2>
+                <h2 className="text-primary-ui font-bold text-base">My Worklogs</h2>
               </div>
               <div className="flex items-center gap-2">
                 <select className="input-field text-xs py-1.5 appearance-none"
                   value={filterProject} onChange={e => setFilterProject(e.target.value)} style={{ width: 160 }}>
-                  <option value="" style={{ background: '#131316' }}>All Projects</option>
-                  {projects.map(p => <option key={p.id} value={p.id} style={{ background: '#131316' }}>{p.title}</option>)}
+                  <option value="" style={{ background: 'var(--bg-surface)' }}>All Projects</option>
+                  {projects.map(p => <option key={p.id} value={p.id} style={{ background: 'var(--bg-surface)' }}>{p.title}</option>)}
                 </select>
-                <span className="text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>{filteredLogs.length} logs</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{filteredLogs.length} logs</span>
               </div>
             </div>
 
@@ -667,45 +667,45 @@ export default function FreelancerWorklogsPage() {
               {loading ? (
                 <div className="p-5 space-y-3">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-16 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                    <div key={i} className="h-16 rounded animate-pulse" style={{ background: 'var(--input-bg)' }} />
                   ))}
                 </div>
               ) : filteredLogs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full py-16">
-                  <Clock size={32} style={{ color: 'rgba(240,240,242,0.1)', marginBottom: 12 }} />
-                  <p className="text-sm font-medium" style={{ color: 'rgba(240,240,242,0.25)' }}>No worklogs yet</p>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(240,240,242,0.15)' }}>Start a task and submit your first log</p>
+                  <Clock size={32} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>No worklogs yet</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Start a task and submit your first log</p>
                 </div>
               ) : (
-                <div className="divide-y divide-[rgba(255,255,255,0.05)]">
+                <div className="divide-y divide-[var(--input-bg)]">
                   {filteredLogs.map(w => {
                     const p = projects.find(x => x.id === w.projectId)
                     return (
                       <div key={w.id}
-                        className="px-5 py-3.5 flex items-center gap-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors group">
+                        className="px-5 py-3.5 flex items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group">
                         <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-bold text-sm"
                           style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
                           {w.hoursWorked}h
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <p className="text-sm font-semibold text-white truncate">{p?.title ?? 'Project'}</p>
+                            <p className="text-sm font-semibold text-primary-ui truncate">{p?.title ?? 'Project'}</p>
                             {w.blockers && <AlertTriangle size={11} style={{ color: '#fb923c' }} />}
                           </div>
-                          <p className="text-xs truncate" style={{ color: 'rgba(240,240,242,0.4)' }}>{w.tasksCompleted}</p>
+                          <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{w.tasksCompleted}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs mb-1" style={{ color: 'rgba(240,240,242,0.35)' }}>{fmtDate(w.date)}</p>
+                          <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{fmtDate(w.date)}</p>
                           <div className="flex items-center gap-1.5">
-                            <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'rgba(255,255,255,0.08)' }}>
+                            <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--input-bg)' }}>
                               <div style={{ width: `${w.progress}%`, height: '100%', background: '#DC143C', borderRadius: 99 }} />
                             </div>
-                            <span className="text-xs" style={{ color: 'rgba(240,240,242,0.3)' }}>{w.progress}%</span>
+                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{w.progress}%</span>
                           </div>
                         </div>
                         <button onClick={() => setViewLog(w)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded"
-                          style={{ color: 'rgba(240,240,242,0.4)' }}>
+                          style={{ color: 'var(--text-muted)' }}>
                           <Eye size={14} />
                         </button>
                       </div>
@@ -725,8 +725,8 @@ export default function FreelancerWorklogsPage() {
           onClick={() => setViewLog(null)}>
           <div className="glass-card rounded-xl p-6 max-w-md w-full space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-bold text-base">Worklog Detail</h3>
-              <button onClick={() => setViewLog(null)} style={{ color: 'rgba(240,240,242,0.3)' }}><X size={16} /></button>
+              <h3 className="text-primary-ui font-bold text-base">Worklog Detail</h3>
+              <button onClick={() => setViewLog(null)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
@@ -735,15 +735,15 @@ export default function FreelancerWorklogsPage() {
                 { label: 'DATE', value: fmtDate(viewLog.date), color: '#fbbf24' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="rounded-lg px-3 py-2.5 text-center"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-mono-label mb-1" style={{ fontSize: 9, color: 'rgba(240,240,242,0.4)' }}>{label}</p>
+                  style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
+                  <p className="text-mono-label mb-1" style={{ fontSize: 9, color: 'var(--text-muted)' }}>{label}</p>
                   <p className="font-bold text-sm" style={{ color }}>{value}</p>
                 </div>
               ))}
             </div>
             <div>
               <p className="label-field mb-1">Tasks Completed</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.75)' }}>{viewLog.tasksCompleted}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{viewLog.tasksCompleted}</p>
             </div>
             {viewLog.blockers && (
               <div className="px-3 py-2.5 rounded-lg"
@@ -751,13 +751,13 @@ export default function FreelancerWorklogsPage() {
                 <p className="label-field mb-1 flex items-center gap-1">
                   <AlertTriangle size={10} style={{ color: '#fb923c' }} /> Blocker
                 </p>
-                <p className="text-sm" style={{ color: 'rgba(240,240,242,0.7)' }}>{viewLog.blockers}</p>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{viewLog.blockers}</p>
               </div>
             )}
             {viewLog.nextSteps && (
               <div>
                 <p className="label-field mb-1">Next Steps</p>
-                <p className="text-sm" style={{ color: 'rgba(240,240,242,0.7)' }}>{viewLog.nextSteps}</p>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{viewLog.nextSteps}</p>
               </div>
             )}
           </div>
@@ -790,10 +790,10 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
       style={{
         background: isActive
           ? 'rgba(220,20,60,0.07)'
-          : worked ? 'rgba(255,255,255,0.03)' : 'transparent',
+          : worked ? 'var(--row-hover-bg)' : 'transparent',
         border: isActive
           ? '1px solid rgba(220,20,60,0.3)'
-          : worked ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          : worked ? '1px solid var(--border)' : '1px solid transparent',
         opacity: isDone && !worked ? 0.4 : 1,
       }}>
 
@@ -804,13 +804,13 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
         title="Mark as worked on this session">
         {worked
           ? <CheckSquare size={14} style={{ color: isActive ? '#DC143C' : 'rgba(220,20,60,0.6)' }} />
-          : <SquareIcon size={14} style={{ color: 'rgba(240,240,242,0.2)' }} />}
+          : <SquareIcon size={14} style={{ color: 'var(--text-muted)' }} />}
       </button>
 
       {/* Task title */}
       <span className="flex-1 text-sm leading-snug"
         style={{
-          color: isActive ? '#fff' : worked ? 'rgba(240,240,242,0.8)' : 'rgba(240,240,242,0.55)',
+          color: isActive ? '#fff' : worked ? 'var(--text-primary)' : 'var(--text-secondary)',
           textDecoration: isDone ? 'line-through' : 'none',
           fontWeight: isActive ? 500 : 400,
         }}>
@@ -827,9 +827,9 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
             className="px-1.5 py-0.5 rounded text-xs transition-all"
             style={{
               fontSize: 10,
-              background: markDone ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${markDone ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.1)'}`,
-              color: markDone ? '#4ade80' : 'rgba(240,240,242,0.35)',
+              background: markDone ? 'rgba(74,222,128,0.15)' : 'var(--input-bg)',
+              border: `1px solid ${markDone ? 'rgba(74,222,128,0.4)' : 'var(--track-bg)'}`,
+              color: markDone ? '#4ade80' : 'var(--text-muted)',
             }}>
             {markDone ? '✓' : 'DONE'}
           </button>
@@ -870,9 +870,9 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
             onClick={onStart}
             className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={{
-              background: timerRunning ? 'rgba(255,255,255,0.03)' : 'rgba(220,20,60,0.1)',
-              border: `1px solid ${timerRunning ? 'rgba(255,255,255,0.08)' : 'rgba(220,20,60,0.3)'}`,
-              color: timerRunning ? 'rgba(240,240,242,0.35)' : '#DC143C',
+              background: timerRunning ? 'var(--row-hover-bg)' : 'rgba(220,20,60,0.1)',
+              border: `1px solid ${timerRunning ? 'var(--input-bg)' : 'rgba(220,20,60,0.3)'}`,
+              color: timerRunning ? 'var(--text-muted)' : '#DC143C',
             }}
             title={timerRunning ? 'Switch to this task' : 'Start timer for this task'}>
             <Play size={10} fill="currentColor" />

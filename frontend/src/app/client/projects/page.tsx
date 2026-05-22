@@ -230,7 +230,7 @@ export default function ClientProjectsPage() {
                 onDragLeave={() => setDragging(false)}
                 onDrop={e => { e.preventDefault(); setDragging(false) }}
               >
-                <Upload size={22} className="mx-auto mb-2 text-[rgba(240,240,242,0.4)]" />
+                <Upload size={22} className="mx-auto mb-2 text-[var(--text-muted)]" />
                 <p className="text-mono-label text-[10px]">DRAG & DROP FILES</p>
                 <p className="text-[#3d0000] text-[11px] mt-1">PDFs, images, design files</p>
               </div>
@@ -254,7 +254,7 @@ export default function ClientProjectsPage() {
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                <div key={i} className="h-12 bg-[var(--input-bg)] rounded animate-pulse" />
               ))}
             </div>
           ) : projects.length === 0 ? (
@@ -275,13 +275,13 @@ export default function ClientProjectsPage() {
               <tbody>
                 {projects.map(p => (
                   <tr key={p.id}>
-                    <td className="text-white font-semibold max-w-[180px] truncate">{p.title}</td>
+                    <td className="text-primary-ui font-semibold max-w-[180px] truncate">{p.title}</td>
                     <td className="text-mono-label text-[11px]">{fmtDate(p.createdAt)}</td>
                     <td className={`text-mono-label text-[11px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : ''}`}>
                       {isOverdue(p.deadline) && <AlertTriangle size={10} className="inline mr-1" />}
                       {fmtDate(p.deadline)}
                     </td>
-                    <td className="text-white">{curr}{p.budget.toLocaleString()}</td>
+                    <td className="text-primary-ui">{curr}{p.budget.toLocaleString()}</td>
                     <td><StatusBadge status={p.status} /></td>
                     <td>
                       <div className="flex items-center gap-2">
@@ -320,26 +320,26 @@ export default function ClientProjectsPage() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-display text-xl text-white">{modal.title}</h2>
+                <h2 className="text-display text-xl text-primary-ui">{modal.title}</h2>
                 <p className="text-mono-label text-[10px] mt-1">PROJECT DETAILS</p>
               </div>
-              <button onClick={() => setModal(null)} className="text-[rgba(240,240,242,0.4)] hover:text-white transition-colors">
+              <button onClick={() => setModal(null)} className="text-[var(--text-muted)] hover:text-primary-ui transition-colors">
                 <X size={20} />
               </button>
             </div>
 
-            <p className="text-[rgba(255,255,255,0.7)] text-sm">{modal.description}</p>
+            <p className="text-[var(--track-bg)] text-sm">{modal.description}</p>
 
             {modal.assignedFreelancer && (
               <div className="glass-card-dark rounded-lg p-3">
                 <p className="text-mono-label text-[10px] mb-1">ASSIGNED FREELANCER</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#8B0000] flex items-center justify-center text-white text-xs font-bold uppercase">
+                  <div className="w-8 h-8 rounded-full bg-[#8B0000] flex items-center justify-center text-primary-ui text-xs font-bold uppercase">
                     {modal.assignedFreelancer.user.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-white text-sm font-semibold">{modal.assignedFreelancer.user.name}</p>
-                    <p className="text-[rgba(240,240,242,0.4)] text-xs">{modal.assignedFreelancer.user.email}</p>
+                    <p className="text-primary-ui text-sm font-semibold">{modal.assignedFreelancer.user.name}</p>
+                    <p className="text-[var(--text-muted)] text-xs">{modal.assignedFreelancer.user.email}</p>
                   </div>
                   <div className="ml-auto text-right">
                     <p className="text-[#DC143C] text-sm font-bold">{curr}{modal.assignedFreelancer.hourlyRate}/hr</p>
@@ -361,15 +361,15 @@ export default function ClientProjectsPage() {
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">PRIORITY</p>
-                <p className="text-white text-sm font-semibold uppercase">{modal.priority}</p>
+                <p className="text-primary-ui text-sm font-semibold uppercase">{modal.priority}</p>
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">BUDGET</p>
-                <p className="text-white font-semibold">{curr}{modal.budget.toLocaleString()}</p>
+                <p className="text-primary-ui font-semibold">{curr}{modal.budget.toLocaleString()}</p>
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">DEADLINE</p>
-                <p className={`text-sm font-semibold ${isOverdue(modal.deadline) ? 'text-[#DC143C]' : 'text-white'}`}>
+                <p className={`text-sm font-semibold ${isOverdue(modal.deadline) ? 'text-[#DC143C]' : 'text-primary-ui'}`}>
                   {fmtDate(modal.deadline)}
                 </p>
               </div>
@@ -388,7 +388,7 @@ export default function ClientProjectsPage() {
             {/* Worklogs Summary */}
             <div className="glass-card-dark rounded-lg p-3">
               <p className="text-mono-label text-[10px] mb-2">WORKLOGS SUMMARY</p>
-              <p className="text-[rgba(255,255,255,0.5)] text-sm">Total logs submitted for this project appear here.</p>
+              <p className="text-[var(--track-bg)] text-sm">Total logs submitted for this project appear here.</p>
             </div>
 
             <button onClick={() => setModal(null)} className="btn-ghost w-full text-xs py-2.5 rounded">CLOSE</button>

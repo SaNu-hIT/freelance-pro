@@ -270,7 +270,7 @@ function formatShortDate(iso: string): string {
 function AvatarCircle({ initials, color, size = 44 }: { initials: string; color: string; size?: number }) {
   return (
     <div
-      className="flex items-center justify-center rounded-full shrink-0 font-bold text-white"
+      className="flex items-center justify-center rounded-full shrink-0 font-bold text-primary-ui"
       style={{
         width: size,
         height: size,
@@ -394,7 +394,7 @@ function MemberCard({
       <div className="flex items-start gap-3">
         <AvatarCircle initials={resource.avatar} color={resource.avatarColor} size={44} />
         <div className="flex-1 min-w-0">
-          <p className="text-white font-bold text-sm truncate leading-tight">{resource.name}</p>
+          <p className="text-primary-ui font-bold text-sm truncate leading-tight">{resource.name}</p>
           <p className="text-mono-label truncate" style={{ fontSize: '10px', color: '#9ca3af' }}>
             {resource.email}
           </p>
@@ -435,7 +435,7 @@ function MemberCard({
         {resource.skills.length > MAX_SKILLS && (
           <span
             className="text-mono-label px-2 py-0.5 rounded"
-            style={{ fontSize: '10px', color: 'rgba(240,240,242,0.35)' }}
+            style={{ fontSize: '10px', color: 'var(--text-muted)' }}
           >
             +{resource.skills.length - MAX_SKILLS} more
           </span>
@@ -448,7 +448,7 @@ function MemberCard({
       </p>
 
       {/* Bottom: exp + rate + availability */}
-      <div className="flex items-center justify-between pt-2 border-t border-[rgba(255,255,255,0.07)]">
+      <div className="flex items-center justify-between pt-2 border-t border-[var(--input-bg)]">
         <div className="flex items-center gap-3">
           <span className="text-mono-label" style={{ fontSize: '11px', color: '#9ca3af' }}>
             {resource.experience} yr exp
@@ -487,14 +487,14 @@ function MemberChip({
       style={{
         background: highlighted
           ? 'rgba(220,20,60,0.1)'
-          : 'rgba(255,255,255,0.04)',
+          : 'var(--input-bg)',
         border: highlighted
           ? '1px solid rgba(220,20,60,0.4)'
-          : '1px solid rgba(255,255,255,0.08)',
+          : '1px solid var(--border)',
       }}
     >
       <AvatarCircle initials={resource.avatar} color={resource.avatarColor} size={28} />
-      <span className="text-white text-xs font-medium whitespace-nowrap">{resource.name}</span>
+      <span className="text-primary-ui text-xs font-medium whitespace-nowrap">{resource.name}</span>
       <span
         className="w-2 h-2 rounded-full shrink-0"
         style={{ background: dotColor, boxShadow: `0 0 4px ${dotColor}` }}
@@ -532,12 +532,12 @@ function DomainSection({
   return (
     <div
       className="glass-card rounded-xl overflow-hidden"
-      style={{ borderColor: collapsed ? 'rgba(255,255,255,0.08)' : `${color}25` }}
+      style={{ borderColor: collapsed ? 'var(--input-bg)' : `${color}25` }}
     >
       {/* Domain header */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-5 py-4 transition-colors hover:bg-[rgba(255,255,255,0.02)]"
+        className="w-full flex items-center justify-between px-5 py-4 transition-colors hover:bg-[var(--row-hover-bg)]"
       >
         <div className="flex items-center gap-3">
           <div
@@ -546,7 +546,7 @@ function DomainSection({
           >
             <Icon size={15} color={color} />
           </div>
-          <span className="text-white font-bold text-sm">{domain}</span>
+          <span className="text-primary-ui font-bold text-sm">{domain}</span>
           <span
             className="text-mono-label px-2 py-0.5 rounded-full"
             style={{
@@ -559,7 +559,7 @@ function DomainSection({
             {resources.length} members
           </span>
         </div>
-        <div style={{ color: 'rgba(240,240,242,0.35)' }}>
+        <div style={{ color: 'var(--text-muted)' }}>
           {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </div>
       </button>
@@ -583,7 +583,7 @@ function DomainSection({
           <div>
             <p
               className="text-mono-label mb-2"
-              style={{ fontSize: '9px', color: 'rgba(240,240,242,0.35)', letterSpacing: '0.1em' }}
+              style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.1em' }}
             >
               SKILLS IN THIS DOMAIN
             </p>
@@ -594,7 +594,7 @@ function DomainSection({
                   className="text-mono-label px-2.5 py-1 rounded transition-all"
                   style={{
                     fontSize: '10px',
-                    background: selectedSkill === skill ? 'rgba(220,20,60,0.12)' : 'rgba(255,255,255,0.04)',
+                    background: selectedSkill === skill ? 'rgba(220,20,60,0.12)' : 'var(--input-bg)',
                     border: selectedSkill === skill
                       ? '1px solid rgba(220,20,60,0.45)'
                       : `1px solid ${color}22`,
@@ -708,8 +708,8 @@ export default function AdminResourcesPage() {
       {/* ── Page Header ───────────────────────────────────────────────────── */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">TALENT MANAGEMENT</p>
-        <h1 className="text-display text-4xl text-white">RESOURCES</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>
+        <h1 className="text-display text-4xl text-primary-ui">RESOURCES</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>
           Unassigned &amp; upcoming availability across your team
         </p>
       </div>
@@ -748,9 +748,9 @@ export default function AdminResourcesPage() {
                     letterSpacing: '0.06em',
                   }
                 : {
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'rgba(240,240,242,0.5)',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'var(--input-bg)',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border)',
                     fontFamily: 'JetBrains Mono, monospace',
                     letterSpacing: '0.06em',
                   }
@@ -768,7 +768,7 @@ export default function AdminResourcesPage() {
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: 'rgba(240,240,242,0.35)' }}
+            style={{ color: 'var(--text-muted)' }}
           />
           <input
             type="text"
@@ -788,12 +788,12 @@ export default function AdminResourcesPage() {
               className="shrink-0 text-mono-label px-2.5 py-1 rounded transition-all"
               style={{
                 fontSize: '10px',
-                background: selectedSkill === skill ? '#DC143C' : 'rgba(255,255,255,0.05)',
+                background: selectedSkill === skill ? '#DC143C' : 'var(--input-bg)',
                 border:
                   selectedSkill === skill
                     ? '1px solid #DC143C'
-                    : '1px solid rgba(255,255,255,0.1)',
-                color: selectedSkill === skill ? '#fff' : 'rgba(240,240,242,0.55)',
+                    : '1px solid var(--border)',
+                color: selectedSkill === skill ? '#fff' : 'var(--text-secondary)',
               }}
             >
               {skill}
@@ -815,7 +815,7 @@ export default function AdminResourcesPage() {
             className="text-mono-label"
             style={{ fontSize: '11px', color: '#DC143C', letterSpacing: '0.06em' }}
           >
-            <span className="font-bold text-white">{skillInfoBar.count}</span> developers have{' '}
+            <span className="font-bold text-primary-ui">{skillInfoBar.count}</span> developers have{' '}
             <span className="font-bold" style={{ color: '#DC143C' }}>
               {selectedSkill}
             </span>
@@ -847,7 +847,7 @@ export default function AdminResourcesPage() {
           <button
             onClick={() => setSelectedSkill(null)}
             className="ml-auto text-mono-label text-xs"
-            style={{ color: 'rgba(240,240,242,0.35)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             ✕ Clear
           </button>
@@ -859,10 +859,10 @@ export default function AdminResourcesPage() {
         <>
           {filteredResources.length === 0 ? (
             <div className="text-center py-20">
-              <Users size={32} className="mx-auto mb-4" style={{ color: 'rgba(240,240,242,0.35)' }} />
+              <Users size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
               <p
                 className="text-mono-label text-lg"
-                style={{ color: 'rgba(240,240,242,0.35)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 NO RESOURCES FOUND
               </p>
@@ -902,8 +902,8 @@ export default function AdminResourcesPage() {
 
           {Object.keys(domainGroups).length === 0 && (
             <div className="text-center py-20">
-              <Layers size={32} className="mx-auto mb-4" style={{ color: 'rgba(240,240,242,0.35)' }} />
-              <p className="text-mono-label text-lg" style={{ color: 'rgba(240,240,242,0.35)' }}>
+              <Layers size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+              <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>
                 NO DOMAINS TO DISPLAY
               </p>
             </div>

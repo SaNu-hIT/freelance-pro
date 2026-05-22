@@ -105,7 +105,7 @@ function MetricCard({ label, value, trend = 'neutral', loading, highlight }: Met
       style={highlight ? { borderColor: 'rgba(220,20,60,0.5)' } : {}}
     >
       <p className="text-mono-label mb-3">{label}</p>
-      <p className="text-2xl font-bold text-white mb-2">{value}</p>
+      <p className="text-2xl font-bold text-primary-ui mb-2">{value}</p>
       <div className="flex items-center gap-1.5">
         <TrendIcon size={12} style={{ color: trendColor }} />
         <span className="text-mono-label" style={{ color: trendColor, fontSize: '9px' }}>
@@ -154,8 +154,8 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">ADMIN PANEL</p>
-        <h1 className="text-display text-4xl text-white">DASHBOARD</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>Command Center — Real-time project intelligence</p>
+        <h1 className="text-display text-4xl text-primary-ui">DASHBOARD</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Command Center — Real-time project intelligence</p>
       </div>
 
       {/* Metrics Row */}
@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <p className="text-mono-label mb-1">OVERVIEW</p>
-              <h2 className="text-white font-bold text-lg">Recent Projects</h2>
+              <h2 className="text-primary-ui font-bold text-lg">Recent Projects</h2>
             </div>
             <a href="/admin/projects" className="btn-ghost text-xs py-2 px-4 rounded">View All</a>
           </div>
@@ -208,7 +208,7 @@ export default function AdminDashboardPage() {
                   {projects.map(p => (
                     <tr key={p.id}>
                       <td>
-                        <p className="font-medium text-white text-sm truncate max-w-[180px]">{p.title}</p>
+                        <p className="font-medium text-primary-ui text-sm truncate max-w-[180px]">{p.title}</p>
                       </td>
                       <td>
                         <span className="text-mono-label" style={{ color: '#aaa', fontSize: '11px' }}>
@@ -243,7 +243,7 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 glass-card rounded-xl p-6">
           <div className="mb-5">
             <p className="text-mono-label mb-1">ACTIVITY FEED</p>
-            <h2 className="text-white font-bold text-lg">Recent Worklogs</h2>
+            <h2 className="text-primary-ui font-bold text-lg">Recent Worklogs</h2>
           </div>
 
           {loading ? (
@@ -263,7 +263,7 @@ export default function AdminDashboardPage() {
                 <div key={w.id} className="glass-card-dark rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <p className="text-white text-sm font-semibold">{w.freelancer?.user.name ?? 'Unknown'}</p>
+                      <p className="text-primary-ui text-sm font-semibold">{w.freelancer?.user.name ?? 'Unknown'}</p>
                       <p className="text-mono-label mt-0.5" style={{ fontSize: '10px', color: '#9ca3af' }}>
                         {w.project?.title ?? `Project #${w.projectId}`}
                       </p>
@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-mono-label mb-0.5">ATTENTION REQUIRED</p>
-              <h2 className="text-white font-bold">Delayed &amp; Blocked Projects</h2>
+              <h2 className="text-primary-ui font-bold">Delayed &amp; Blocked Projects</h2>
             </div>
           </div>
 
@@ -318,7 +318,7 @@ export default function AdminDashboardPage() {
                   style={{ borderColor: p.status === 'blocked' ? 'rgba(239,68,68,0.3)' : 'rgba(249,115,22,0.3)' }}
                 >
                   <div>
-                    <p className="text-white text-sm font-medium">{p.title}</p>
+                    <p className="text-primary-ui text-sm font-medium">{p.title}</p>
                     <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: '#9ca3af' }}>
                       Client: {p.client?.name ?? '—'} · Due: {new Date(p.deadline).toLocaleDateString()}
                     </p>
@@ -338,12 +338,12 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-mono-label mb-0.5">REVIEW QUEUE</p>
-              <h2 className="text-white font-bold">Pending Approvals</h2>
+              <h2 className="text-primary-ui font-bold">Pending Approvals</h2>
             </div>
           </div>
 
           {pending.length === 0 ? (
-            <p className="text-mono-label text-center py-4" style={{ color: 'rgba(240,240,242,0.35)' }}>
+            <p className="text-mono-label text-center py-4" style={{ color: 'var(--text-muted)' }}>
               No items pending approval
             </p>
           ) : (
@@ -351,7 +351,7 @@ export default function AdminDashboardPage() {
               {pending.map(p => (
                 <div key={p.id} className="glass-card-dark rounded-lg p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-white text-sm font-medium">{p.title}</p>
+                    <p className="text-primary-ui text-sm font-medium">{p.title}</p>
                     <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: '#9ca3af' }}>
                       {p.client?.name ?? '—'} · {p.progress}% complete
                     </p>

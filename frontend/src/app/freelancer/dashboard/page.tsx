@@ -177,7 +177,7 @@ export default function FreelancerDashboardPage() {
               {user?.name?.toUpperCase() ?? 'FREELANCER'}
             </h1>
           </div>
-          <span className="text-mono-label text-xs text-[rgba(240,240,242,0.4)]">{today}</span>
+          <span className="text-mono-label text-xs text-[var(--text-muted)]">{today}</span>
         </div>
 
         {/* Stats */}
@@ -192,7 +192,7 @@ export default function FreelancerDashboardPage() {
                     <span className="text-mono-label text-[10px]">{s.label}</span>
                     {s.icon}
                   </div>
-                  <p className="text-white text-2xl font-bold text-display">{s.value}</p>
+                  <p className="text-primary-ui text-2xl font-bold text-display">{s.value}</p>
                 </div>
               ))}
         </div>
@@ -205,7 +205,7 @@ export default function FreelancerDashboardPage() {
               {loading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-8 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                    <div key={i} className="h-8 bg-[var(--input-bg)] rounded animate-pulse" />
                   ))}
                 </div>
               ) : TASKS.length === 0 ? (
@@ -216,16 +216,16 @@ export default function FreelancerDashboardPage() {
                     const proj = projects.find(p => p.id === task.projectId)
                     const overdue = proj ? isOverdue(proj.deadline) : false
                     return (
-                      <li key={task.id} className="flex items-start gap-3 py-2 border-b border-[rgba(255,255,255,0.08)] last:border-0">
-                        <span className={`mt-0.5 shrink-0 ${task.done ? 'text-[#DC143C]' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                      <li key={task.id} className="flex items-start gap-3 py-2 border-b border-[var(--input-bg)] last:border-0">
+                        <span className={`mt-0.5 shrink-0 ${task.done ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
                           {task.done ? <CheckSquare size={15} /> : <Square size={15} />}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${task.done ? 'line-through text-[rgba(240,240,242,0.4)]' : 'text-white'}`}>
+                          <p className={`text-sm ${task.done ? 'line-through text-[var(--text-muted)]' : 'text-primary-ui'}`}>
                             {task.label}
                           </p>
                           {proj && (
-                            <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[#DC143C]' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                            <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
                               {overdue && <AlertTriangle size={10} className="inline mr-1" />}
                               {proj.title} — Due {fmtDate(proj.deadline)}
                             </p>
@@ -244,8 +244,8 @@ export default function FreelancerDashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-mono-label text-[10px] mb-1">REMINDER</p>
-                    <p className="text-white font-semibold text-sm">Submit today's worklog</p>
-                    <p className="text-[rgba(240,240,242,0.4)] text-xs mt-1">Don't forget to log your hours before EOD.</p>
+                    <p className="text-primary-ui font-semibold text-sm">Submit today's worklog</p>
+                    <p className="text-[var(--text-muted)] text-xs mt-1">Don't forget to log your hours before EOD.</p>
                   </div>
                   <Link href="/freelancer/worklogs">
                     <button className="btn-primary text-xs px-4 py-2 rounded">LOG NOW</button>
@@ -261,7 +261,7 @@ export default function FreelancerDashboardPage() {
             {loading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-16 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                  <div key={i} className="h-16 bg-[var(--input-bg)] rounded animate-pulse" />
                 ))}
               </div>
             ) : projects.length === 0 ? (
@@ -269,9 +269,9 @@ export default function FreelancerDashboardPage() {
             ) : (
               <ul className="space-y-4">
                 {projects.filter(p => p.status !== 'completed').map((p) => (
-                  <li key={p.id} className="pb-4 border-b border-[rgba(255,255,255,0.08)] last:border-0">
+                  <li key={p.id} className="pb-4 border-b border-[var(--input-bg)] last:border-0">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-white text-sm font-semibold truncate max-w-[180px]">{p.title}</p>
+                      <p className="text-primary-ui text-sm font-semibold truncate max-w-[180px]">{p.title}</p>
                       <StatusBadge status={p.status} />
                     </div>
                     <div className="progress-bar mb-1">
@@ -279,7 +279,7 @@ export default function FreelancerDashboardPage() {
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-mono-label text-[10px]">{p.progress}% complete</span>
-                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
                         {isOverdue(p.deadline) && <AlertTriangle size={9} className="inline mr-1" />}
                         Due {fmtDate(p.deadline)}
                       </span>
@@ -297,7 +297,7 @@ export default function FreelancerDashboardPage() {
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-10 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                <div key={i} className="h-10 bg-[var(--input-bg)] rounded animate-pulse" />
               ))}
             </div>
           ) : worklogs.length === 0 ? (
@@ -318,7 +318,7 @@ export default function FreelancerDashboardPage() {
                   return (
                     <tr key={w.id}>
                       <td className="text-mono-label text-[11px]">{fmtDate(w.date)}</td>
-                      <td className="text-white text-sm">{proj?.title ?? w.projectId}</td>
+                      <td className="text-primary-ui text-sm">{proj?.title ?? w.projectId}</td>
                       <td className="text-[#DC143C] font-semibold">{w.hoursWorked}h</td>
                       <td>
                         <div className="flex items-center gap-2">

@@ -94,8 +94,8 @@ export default function ClientMilestonesPage() {
             onClick={() => setSelectedProject('all')}
             className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
               selectedProject === 'all'
-                ? 'bg-[#DC143C] border-[#DC143C] text-white'
-                : 'border-[rgba(220,20,60,0.2)] text-[rgba(240,240,242,0.4)] hover:border-[#DC143C] hover:text-white'
+                ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
+                : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
             }`}
           >
             All Projects
@@ -106,8 +106,8 @@ export default function ClientMilestonesPage() {
               onClick={() => setSelectedProject(p.id)}
               className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
                 selectedProject === p.id
-                  ? 'bg-[#DC143C] border-[#DC143C] text-white'
-                  : 'border-[rgba(220,20,60,0.2)] text-[rgba(240,240,242,0.4)] hover:border-[#DC143C] hover:text-white'
+                  ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
+                  : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
               }`}
             >
               {p.title}
@@ -122,7 +122,7 @@ export default function ClientMilestonesPage() {
           {loading ? (
             <div className="space-y-5">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-20 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                <div key={i} className="h-20 bg-[var(--input-bg)] rounded animate-pulse" />
               ))}
             </div>
           ) : filteredMilestones.length === 0 ? (
@@ -152,7 +152,7 @@ export default function ClientMilestonesPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-white font-semibold text-sm">{m.name}</h3>
+                            <h3 className="text-primary-ui font-semibold text-sm">{m.name}</h3>
                             {isApproved && (
                               <span className="status-badge status-completed text-[10px]">
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-80" />
@@ -164,12 +164,12 @@ export default function ClientMilestonesPage() {
                             <p className="text-mono-label text-[10px] mt-0.5">{proj.title}</p>
                           )}
                           {m.description && (
-                            <p className="text-[rgba(255,255,255,0.5)] text-sm mt-1">{m.description}</p>
+                            <p className="text-[var(--track-bg)] text-sm mt-1">{m.description}</p>
                           )}
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className={`text-mono-label text-[10px] ${m.status === 'overdue' ? 'text-[#DC143C]' : 'text-[rgba(240,240,242,0.4)]'}`}>
+                          <p className={`text-mono-label text-[10px] ${m.status === 'overdue' ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
                             {m.status === 'overdue' && <AlertTriangle size={10} className="inline mr-1" />}
                             {fmtDate(m.dueDate)}
                           </p>
@@ -226,7 +226,7 @@ export default function ClientMilestonesPage() {
                 return (
                   <div key={m.id} className="glass-card-dark rounded-lg p-4 flex items-center justify-between">
                     <div>
-                      <p className="text-white font-semibold text-sm">{m.name}</p>
+                      <p className="text-primary-ui font-semibold text-sm">{m.name}</p>
                       <p className="text-mono-label text-[10px] mt-0.5">{proj?.title ?? 'Project'} — completed {fmtDate(m.dueDate)}</p>
                     </div>
                     <button

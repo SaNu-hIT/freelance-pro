@@ -266,8 +266,8 @@ export default function AdminProjectsPage() {
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-mono-label mb-1">MANAGEMENT</p>
-          <h1 className="text-display text-4xl text-white">PROJECTS</h1>
-          <p className="text-mono-label mt-1" style={{ color: 'rgba(240,240,242,0.35)' }}>{projects.length} total projects</p>
+          <h1 className="text-display text-4xl text-primary-ui">PROJECTS</h1>
+          <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>{projects.length} total projects</p>
         </div>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2 rounded text-sm"><Plus size={16} /> New Project</button>
       </div>
@@ -275,7 +275,7 @@ export default function AdminProjectsPage() {
       {/* Filters */}
       <div className="glass-card-dark rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input type="text" placeholder="Search projects or clients..." value={search} onChange={e => setSearch(e.target.value)} className="input-field pl-9 py-2.5 text-sm" />
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -291,7 +291,7 @@ export default function AdminProjectsPage() {
             <option value="all">All Priorities</option>
             {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
           </select>
-          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+          <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
         </div>
       </div>
 
@@ -300,7 +300,7 @@ export default function AdminProjectsPage() {
         {loading ? (
           <div className="p-6 space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="animate-pulse flex gap-4"><div className="h-4 rounded flex-1" style={{ background: 'rgba(220,20,60,0.1)' }} /></div>)}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16"><p className="text-mono-label text-lg" style={{ color: 'rgba(240,240,242,0.35)' }}>NO PROJECTS FOUND</p></div>
+          <div className="text-center py-16"><p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO PROJECTS FOUND</p></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -310,7 +310,7 @@ export default function AdminProjectsPage() {
               <tbody>
                 {filtered.map(p => (
                   <tr key={p.id}>
-                    <td><p className="font-semibold text-white text-sm max-w-[200px] truncate">{p.title}</p></td>
+                    <td><p className="font-semibold text-primary-ui text-sm max-w-[200px] truncate">{p.title}</p></td>
                     <td><span style={{ color: '#d1d5db', fontSize: '13px' }}>{p.client?.name ?? '—'}</span></td>
                     <td><span className="text-crimson font-bold">{curr}{Number(p.budget).toLocaleString()}</span></td>
                     <td>
@@ -338,7 +338,7 @@ export default function AdminProjectsPage() {
                             <MemberAvatar key={m.id} name={m.user?.name ?? '?'} size={22} />
                           ))}
                           {p.teamMembers.length > 4 && (
-                            <div className="rounded-full flex items-center justify-center text-xs font-bold" style={{ width: 22, height: 22, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: 'rgba(240,240,242,0.5)' }}>
+                            <div className="rounded-full flex items-center justify-center text-xs font-bold" style={{ width: 22, height: 22, background: 'var(--input-bg)', border: '1.5px solid var(--track-bg)', color: 'var(--text-secondary)' }}>
                               +{p.teamMembers.length - 4}
                             </div>
                           )}
@@ -369,14 +369,14 @@ export default function AdminProjectsPage() {
           <div className="glass-card h-full overflow-y-auto flex flex-col" style={{ width: panelMode === 'view' ? 620 : 520, borderLeft: '1px solid rgba(220,20,60,0.3)' }}>
 
             {/* Panel Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[rgba(255,255,255,0.08)] shrink-0">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)] shrink-0">
               <div className="flex-1 min-w-0 mr-4">
-                <p className="text-mono-label mb-0.5 text-xs" style={{ color: 'rgba(240,240,242,0.4)' }}>
+                <p className="text-mono-label mb-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
                   {panelMode === 'create' ? 'NEW PROJECT' : panelMode === 'edit' ? 'EDIT PROJECT' : 'PROJECT DETAIL'}
                 </p>
-                <h2 className="text-white font-bold text-lg leading-tight truncate">{panelMode === 'create' ? 'Create Project' : selectedProject?.title}</h2>
+                <h2 className="text-primary-ui font-bold text-lg leading-tight truncate">{panelMode === 'create' ? 'Create Project' : selectedProject?.title}</h2>
               </div>
-              <button onClick={() => setPanelMode(null)} className="p-2 rounded glass-card-dark hover:border-[#DC143C] transition-colors shrink-0"><X size={16} style={{ color: 'rgba(240,240,242,0.35)' }} /></button>
+              <button onClick={() => setPanelMode(null)} className="p-2 rounded glass-card-dark hover:border-[#DC143C] transition-colors shrink-0"><X size={16} style={{ color: 'var(--text-muted)' }} /></button>
             </div>
 
             {/* ── VIEW ── */}
@@ -398,18 +398,18 @@ export default function AdminProjectsPage() {
                 {viewTeam.length > 0 && (
                   <div className="px-6 mb-4">
                     <div className="flex items-center gap-1.5 mb-2">
-                      <Users size={11} style={{ color: 'rgba(240,240,242,0.4)' }} />
-                      <p className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>TEAM</p>
+                      <Users size={11} style={{ color: 'var(--text-muted)' }} />
+                      <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>TEAM</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {viewTeam.map(m => (
                         <div key={m.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+                          style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
                           <MemberAvatar name={m.user?.name ?? '?'} size={20} />
                           <div>
-                            <p className="text-xs font-medium" style={{ color: 'rgba(240,240,242,0.85)' }}>{m.user?.name}</p>
+                            <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{m.user?.name}</p>
                             {m.skills?.length > 0 && (
-                              <p className="text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>{m.skills.slice(0, 2).join(', ')}</p>
+                              <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{m.skills.slice(0, 2).join(', ')}</p>
                             )}
                           </div>
                         </div>
@@ -419,7 +419,7 @@ export default function AdminProjectsPage() {
                 )}
 
                 {/* Meta grid */}
-                <div className="grid grid-cols-2 gap-px mx-6 mb-4 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="grid grid-cols-2 gap-px mx-6 mb-4 rounded-xl overflow-hidden" style={{ background: 'var(--input-bg)' }}>
                   {[
                     { icon: <DollarSign size={12} />, label: 'BUDGET', value: `${curr}${Number(selectedProject.budget).toLocaleString()}`, color: '#DC143C' },
                     { icon: <Calendar size={12} />, label: 'END DATE', value: new Date(selectedProject.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), color: '#fbbf24' },
@@ -427,7 +427,7 @@ export default function AdminProjectsPage() {
                     { icon: <Clock size={12} />, label: 'PROGRESS', value: `${selectedProject.progress ?? 0}%`, color: '#4ade80' },
                   ].map(({ icon, label, value, color }) => (
                     <div key={label} className="px-4 py-3" style={{ background: '#0d0d0f' }}>
-                      <div className="flex items-center gap-1.5 mb-1" style={{ color: 'rgba(240,240,242,0.4)' }}>{icon}<span className="text-mono-label" style={{ fontSize: '10px' }}>{label}</span></div>
+                      <div className="flex items-center gap-1.5 mb-1" style={{ color: 'var(--text-muted)' }}>{icon}<span className="text-mono-label" style={{ fontSize: '10px' }}>{label}</span></div>
                       <p className="font-bold text-sm" style={{ color }}>{value}</p>
                     </div>
                   ))}
@@ -443,13 +443,13 @@ export default function AdminProjectsPage() {
                 {/* Links */}
                 {(selectedProject.repoUrl || selectedProject.liveUrl || selectedProject.correctionSheetUrl) && (
                   <div className="px-6 mb-4">
-                    <p className="text-mono-label mb-2" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>LINKS</p>
+                    <p className="text-mono-label mb-2" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>LINKS</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.repoUrl && (
                         <a href={selectedProject.repoUrl} target="_blank" rel="noopener noreferrer"
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all hover:border-[rgba(220,20,60,0.5)]"
-                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,240,242,0.7)' }}>
-                          <Code2 size={12} style={{ color: '#DC143C' }} /> Repository <ExternalLink size={10} style={{ color: 'rgba(240,240,242,0.3)' }} />
+                          style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                          <Code2 size={12} style={{ color: '#DC143C' }} /> Repository <ExternalLink size={10} style={{ color: 'var(--text-muted)' }} />
                         </a>
                       )}
                       {selectedProject.liveUrl && (
@@ -472,9 +472,9 @@ export default function AdminProjectsPage() {
 
                 {/* Description */}
                 {selectedProject.description && (
-                  <div className="px-6 mb-4 pb-4 border-b border-[rgba(255,255,255,0.06)]">
-                    <p className="text-mono-label mb-1.5" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.4)' }}>DESCRIPTION</p>
-                    <p className="text-sm leading-relaxed" style={{ color: 'rgba(240,240,242,0.7)' }}>{selectedProject.description}</p>
+                  <div className="px-6 mb-4 pb-4 border-b border-[var(--input-bg)]">
+                    <p className="text-mono-label mb-1.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>DESCRIPTION</p>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedProject.description}</p>
                   </div>
                 )}
 
@@ -483,7 +483,7 @@ export default function AdminProjectsPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <ListChecks size={14} style={{ color: '#DC143C' }} />
-                      <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'rgba(240,240,242,0.6)' }}>SPRINTS & TASKS</span>
+                      <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>SPRINTS & TASKS</span>
                     </div>
                     {tasks.length > 0 && (
                       <span className="text-mono-label px-2 py-0.5 rounded text-xs" style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#f87171' }}>
@@ -493,7 +493,7 @@ export default function AdminProjectsPage() {
                   </div>
 
                   {tasksLoading ? (
-                    <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="animate-pulse h-10 rounded" style={{ background: 'rgba(255,255,255,0.04)' }} />)}</div>
+                    <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="animate-pulse h-10 rounded" style={{ background: 'var(--input-bg)' }} />)}</div>
                   ) : (
                     <div className="space-y-3">
                       {/* Sprint groups */}
@@ -502,24 +502,24 @@ export default function AdminProjectsPage() {
                         const sprintDone = sprintTasks.filter(t => t.completed).length
                         const isCollapsed = collapsedSprints.has(sprint.id)
                         return (
-                          <div key={sprint.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                          <div key={sprint.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
                             {/* Sprint header */}
-                            <div className="flex items-center gap-2 px-3 py-2.5 cursor-pointer select-none" style={{ background: 'rgba(255,255,255,0.04)' }}
+                            <div className="flex items-center gap-2 px-3 py-2.5 cursor-pointer select-none" style={{ background: 'var(--input-bg)' }}
                               onClick={() => toggleSprintCollapse(sprint.id)}>
                               <button className="shrink-0 transition-transform" style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
-                                <ChevDown size={13} style={{ color: 'rgba(240,240,242,0.4)' }} />
+                                <ChevDown size={13} style={{ color: 'var(--text-muted)' }} />
                               </button>
                               <Layers size={12} style={{ color: '#DC143C' }} />
-                              <span className="flex-1 text-xs font-semibold" style={{ color: 'rgba(240,240,242,0.85)' }}>{sprint.name}</span>
-                              <span className="text-mono-label text-xs" style={{ color: 'rgba(240,240,242,0.35)' }}>{sprintDone}/{sprintTasks.length}</span>
+                              <span className="flex-1 text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{sprint.name}</span>
+                              <span className="text-mono-label text-xs" style={{ color: 'var(--text-muted)' }}>{sprintDone}/{sprintTasks.length}</span>
                               {sprint.endDate && (
-                                <span className="text-mono-label text-xs ml-2" style={{ color: 'rgba(240,240,242,0.3)', fontSize: '10px' }}>
+                                <span className="text-mono-label text-xs ml-2" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
                                   ends {new Date(sprint.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 </span>
                               )}
                               <button onClick={(e) => { e.stopPropagation(); handleDeleteSprint(sprint.id) }}
                                 className="ml-2 p-0.5 rounded hover:text-[#f87171] transition-colors"
-                                style={{ color: 'rgba(240,240,242,0.2)' }}>
+                                style={{ color: 'var(--text-muted)' }}>
                                 <X size={11} />
                               </button>
                             </div>
@@ -530,7 +530,7 @@ export default function AdminProjectsPage() {
                                   <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />
                                 ))}
                                 {sprintTasks.length === 0 && (
-                                  <p className="text-center py-2 text-mono-label" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.25)' }}>No tasks — add one below</p>
+                                  <p className="text-center py-2 text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>No tasks — add one below</p>
                                 )}
                               </div>
                             )}
@@ -540,11 +540,11 @@ export default function AdminProjectsPage() {
 
                       {/* Unassigned tasks */}
                       {unassignedTasks.length > 0 && (
-                        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                            <ChevronRight size={13} style={{ color: 'rgba(240,240,242,0.3)' }} />
-                            <span className="text-xs font-medium" style={{ color: 'rgba(240,240,242,0.5)' }}>Backlog / Unassigned</span>
-                            <span className="text-mono-label text-xs ml-auto" style={{ color: 'rgba(240,240,242,0.3)' }}>{unassignedTasks.filter(t => t.completed).length}/{unassignedTasks.length}</span>
+                        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: 'var(--row-hover-bg)' }}>
+                            <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+                            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Backlog / Unassigned</span>
+                            <span className="text-mono-label text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>{unassignedTasks.filter(t => t.completed).length}/{unassignedTasks.length}</span>
                           </div>
                           <div className="px-2 pb-2 pt-1 space-y-1">
                             {unassignedTasks.map(task => <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />)}
@@ -553,7 +553,7 @@ export default function AdminProjectsPage() {
                       )}
 
                       {tasks.length === 0 && sprints.length === 0 && (
-                        <p className="text-center py-6 text-mono-label" style={{ fontSize: '11px', color: 'rgba(240,240,242,0.3)' }}>No sprints yet — create one below</p>
+                        <p className="text-center py-6 text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No sprints yet — create one below</p>
                       )}
                     </div>
                   )}
@@ -632,7 +632,7 @@ export default function AdminProjectsPage() {
                         <select className="input-field appearance-none pr-8" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
                           {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                         </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                       </div>
                     </div>
                     <div>
@@ -641,7 +641,7 @@ export default function AdminProjectsPage() {
                         <select className="input-field appearance-none pr-8" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
                           {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
                         </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(240,240,242,0.35)' }} />
+                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                       </div>
                     </div>
                   </div>
@@ -650,9 +650,9 @@ export default function AdminProjectsPage() {
                   <div>
                     <label className="label-field flex items-center gap-1.5"><Users size={11} style={{ color: '#60a5fa' }} /> Team Members</label>
                     {freelancers.length === 0 ? (
-                      <p className="text-mono-label text-xs mt-1.5" style={{ color: 'rgba(240,240,242,0.35)' }}>No freelancers available</p>
+                      <p className="text-mono-label text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>No freelancers available</p>
                     ) : (
-                      <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl p-2" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
                         {freelancers.map(fl => {
                           const selected = form.teamMemberIds.includes(fl.id)
                           return (
@@ -660,15 +660,15 @@ export default function AdminProjectsPage() {
                               style={{ background: selected ? 'rgba(96,165,250,0.08)' : 'transparent', border: `1px solid ${selected ? 'rgba(96,165,250,0.25)' : 'transparent'}` }}>
                               <input type="checkbox" checked={selected} onChange={() => toggleTeamMember(fl.id)} className="hidden" />
                               <div className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
-                                style={{ background: selected ? '#60a5fa' : 'rgba(255,255,255,0.08)', border: `1.5px solid ${selected ? '#60a5fa' : 'rgba(255,255,255,0.2)'}` }}>
-                                {selected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#0a0a0c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                                style={{ background: selected ? '#60a5fa' : 'var(--input-bg)', border: `1.5px solid ${selected ? '#60a5fa' : 'var(--track-bg)'}` }}>
+                                {selected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="var(--bg-base)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                               </div>
                               <MemberAvatar name={fl.user?.name ?? '?'} size={22} />
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium leading-tight" style={{ color: selected ? '#e2e8f0' : 'rgba(240,240,242,0.7)' }}>{fl.user?.name}</p>
-                                {fl.skills?.length > 0 && <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.35)' }}>{fl.skills.slice(0, 3).join(' · ')}</p>}
+                                <p className="text-sm font-medium leading-tight" style={{ color: selected ? '#e2e8f0' : 'var(--text-secondary)' }}>{fl.user?.name}</p>
+                                {fl.skills?.length > 0 && <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{fl.skills.slice(0, 3).join(' · ')}</p>}
                               </div>
-                              <span className="text-mono-label shrink-0" style={{ fontSize: '10px', color: 'rgba(240,240,242,0.3)' }}>{curr}{fl.hourlyRate}/hr</span>
+                              <span className="text-mono-label shrink-0" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{curr}{fl.hourlyRate}/hr</span>
                             </label>
                           )
                         })}
@@ -680,8 +680,8 @@ export default function AdminProjectsPage() {
                   </div>
 
                   {/* Links */}
-                  <div className="pt-2 border-t border-[rgba(255,255,255,0.07)]">
-                    <p className="text-mono-label mb-3" style={{ fontSize: '11px', color: 'rgba(240,240,242,0.5)' }}>PROJECT LINKS</p>
+                  <div className="pt-2 border-t border-[var(--input-bg)]">
+                    <p className="text-mono-label mb-3" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PROJECT LINKS</p>
                     <div className="space-y-3">
                       <div>
                         <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: '#DC143C' }} /> Repository URL</label>
@@ -698,7 +698,7 @@ export default function AdminProjectsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="px-6 py-5 border-t border-[rgba(255,255,255,0.08)] flex gap-3 shrink-0">
+                <div className="px-6 py-5 border-t border-[var(--input-bg)] flex gap-3 shrink-0">
                   <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 rounded text-sm py-3">{saving ? 'Saving...' : panelMode === 'create' ? 'Create Project' : 'Save Changes'}</button>
                   <button onClick={() => setPanelMode(null)} className="btn-ghost rounded text-sm py-3 px-6">Cancel</button>
                 </div>
@@ -714,7 +714,7 @@ export default function AdminProjectsPage() {
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteId(null)} />
           <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-md text-center" style={{ borderColor: 'rgba(220,20,60,0.5)' }}>
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(220,20,60,0.1)' }}><Trash2 size={20} style={{ color: '#f87171' }} /></div>
-            <h3 className="text-white font-bold text-lg mb-2">Delete Project</h3>
+            <h3 className="text-primary-ui font-bold text-lg mb-2">Delete Project</h3>
             <p className="text-mono-label mb-6" style={{ color: '#9ca3af' }}>This action cannot be undone. The project and all associated data will be permanently removed.</p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => handleDelete(deleteId)} className="btn-primary rounded px-6" style={{ background: '#f87171' }}>Delete</button>
@@ -741,9 +741,9 @@ function TaskRow({ task, teamMembers, onToggle, onDelete }: {
     <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg group transition-all"
       style={{ background: task.completed ? 'rgba(74,222,128,0.03)' : 'transparent', border: `1px solid ${task.completed ? 'rgba(74,222,128,0.12)' : 'transparent'}` }}>
       <button onClick={() => onToggle(task)} className="shrink-0">
-        {task.completed ? <CheckSquare size={15} style={{ color: '#4ade80' }} /> : <Square size={15} style={{ color: 'rgba(240,240,242,0.25)' }} />}
+        {task.completed ? <CheckSquare size={15} style={{ color: '#4ade80' }} /> : <Square size={15} style={{ color: 'var(--text-muted)' }} />}
       </button>
-      <span className="flex-1 text-sm" style={{ color: task.completed ? 'rgba(240,240,242,0.35)' : 'rgba(240,240,242,0.8)', textDecoration: task.completed ? 'line-through' : 'none' }}>
+      <span className="flex-1 text-sm" style={{ color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none' }}>
         {task.title}
       </span>
       {task.completed && task.completedAt && (
@@ -756,7 +756,7 @@ function TaskRow({ task, teamMembers, onToggle, onDelete }: {
       {assignee && (
         <MemberAvatar name={assignee.user?.name ?? '?'} size={18} />
       )}
-      <button onClick={() => onDelete(task.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded" style={{ color: 'rgba(240,240,242,0.3)' }}>
+      <button onClick={() => onDelete(task.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded" style={{ color: 'var(--text-muted)' }}>
         <X size={11} />
       </button>
     </div>
