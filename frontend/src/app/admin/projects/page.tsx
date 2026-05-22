@@ -796,97 +796,214 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
-      {/* ── Create / Edit Panel (narrow slide-in) ── */}
+      {/* ── Create / Edit — full-width modal ── */}
       {(panelMode === 'create' || panelMode === 'edit') && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setPanelMode(null)} />
-          <div className="glass-card h-full overflow-y-auto flex flex-col" style={{ width: 520, borderLeft: '1px solid rgba(220,20,60,0.3)' }}>
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)] shrink-0">
-              <div>
-                <p className="text-mono-label mb-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>{panelMode === 'create' ? 'NEW PROJECT' : 'EDIT PROJECT'}</p>
-                <h2 className="text-primary-ui font-bold text-lg leading-tight">{panelMode === 'create' ? 'Create Project' : selectedProject?.title}</h2>
+        <div className="fixed inset-0 z-50 flex items-stretch">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPanelMode(null)} />
+          <div className="relative z-10 m-4 flex-1 rounded-2xl overflow-hidden flex flex-col"
+            style={{ background: 'var(--bg-surface)', border: '1px solid rgba(220,20,60,0.25)', maxHeight: 'calc(100vh - 32px)' }}>
+
+            {/* Header */}
+            <div className="flex items-center gap-4 px-8 py-5 shrink-0 border-b border-theme"
+              style={{ background: 'var(--bg-sidebar)' }}>
+              <div className="flex-1 min-w-0">
+                <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.2em' }}>
+                  {panelMode === 'create' ? 'NEW PROJECT' : 'EDIT PROJECT'}
+                </p>
+                <h2 className="text-primary-ui font-bold text-xl leading-tight truncate">
+                  {panelMode === 'create' ? 'Create a New Project' : selectedProject?.title}
+                </h2>
               </div>
-              <button onClick={() => setPanelMode(null)} className="p-2 rounded glass-card-dark hover:border-[#DC143C] transition-colors shrink-0"><X size={16} style={{ color: 'var(--text-muted)' }} /></button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={handleSave} disabled={saving}
+                  className="btn-primary flex items-center gap-2 px-5 py-2 rounded text-sm disabled:opacity-50">
+                  {saving ? <><Clock size={13} className="animate-spin" /> Saving…</> : panelMode === 'create' ? <><Plus size={13} /> Create Project</> : <><Pencil size={13} /> Save Changes</>}
+                </button>
+                <button onClick={() => setPanelMode(null)}
+                  className="p-2 rounded transition-colors"
+                  style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-            <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
-              <div><label className="label-field">Project Title</label><input className="input-field" placeholder="Enter project title..." value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-              <div><label className="label-field">Description</label><textarea className="input-field resize-none" rows={3} placeholder="Project description..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="label-field">Budget ({curr})</label><input type="number" className="input-field" placeholder="0" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} /></div>
-                <div><label className="label-field">End Date</label><input type="date" className="input-field" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+
+            {/* Two-column body */}
+            <div className="flex-1 overflow-hidden flex min-h-0">
+
+              {/* LEFT — core project details */}
+              <div className="w-[55%] shrink-0 border-r border-theme overflow-y-auto px-8 py-7 space-y-6">
+                <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PROJECT DETAILS</p>
+
+                {/* Title */}
                 <div>
-                  <label className="label-field">Status</label>
-                  <div className="relative">
-                    <select className="input-field appearance-none pr-8" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
-                      {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-                    </select>
-                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                  <label className="label-field">Project Title</label>
+                  <input className="input-field text-base" placeholder="Enter project title…"
+                    value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="label-field">Description</label>
+                  <textarea className="input-field resize-none" rows={4} placeholder="Describe the project scope, goals, and deliverables…"
+                    value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                </div>
+
+                {/* Budget + Deadline */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label-field flex items-center gap-1.5">
+                      <DollarSign size={11} style={{ color: '#DC143C' }} /> Budget ({curr})
+                    </label>
+                    <input type="number" className="input-field" placeholder="0"
+                      value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="label-field flex items-center gap-1.5">
+                      <Calendar size={11} style={{ color: '#fbbf24' }} /> End Date
+                    </label>
+                    <input type="date" className="input-field"
+                      value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
                   </div>
                 </div>
-                <div>
-                  <label className="label-field">Priority</label>
-                  <div className="relative">
-                    <select className="input-field appearance-none pr-8" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
-                      {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
-                    </select>
-                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+
+                {/* Status + Priority */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label-field">Status</label>
+                    <div className="relative">
+                      <select className="input-field appearance-none pr-8" value={form.status}
+                        onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
+                        {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="label-field">Priority</label>
+                    <div className="relative">
+                      <select className="input-field appearance-none pr-8" value={form.priority}
+                        onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
+                        {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Links */}
+                <div className="pt-2 border-t border-theme">
+                  <p className="text-mono-label mb-4" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PROJECT LINKS</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: '#DC143C' }} /> Repository URL</label>
+                      <input className="input-field" placeholder="https://github.com/org/repo"
+                        value={form.repoUrl} onChange={e => setForm(f => ({ ...f, repoUrl: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: '#4ade80' }} /> Live / Staging URL</label>
+                      <input className="input-field" placeholder="https://staging.yoursite.com"
+                        value={form.liveUrl} onChange={e => setForm(f => ({ ...f, liveUrl: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: '#fbbf24' }} /> Correction Sheet URL</label>
+                      <input className="input-field" placeholder="https://docs.google.com/spreadsheets/…"
+                        value={form.correctionSheetUrl} onChange={e => setForm(f => ({ ...f, correctionSheetUrl: e.target.value }))} />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="label-field flex items-center gap-1.5"><Users size={11} style={{ color: '#60a5fa' }} /> Team Members</label>
+
+              {/* RIGHT — team members */}
+              <div className="flex-1 overflow-y-auto px-8 py-7">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>ASSIGN EMPLOYEES</p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Select freelancers to add to this project</p>
+                  </div>
+                  {form.teamMemberIds.length > 0 && (
+                    <span className="text-mono-label px-2.5 py-1 rounded-full text-[10px] font-bold"
+                      style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.3)', color: '#60a5fa' }}>
+                      {form.teamMemberIds.length} selected
+                    </span>
+                  )}
+                </div>
+
                 {freelancers.length === 0 ? (
-                  <p className="text-mono-label text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>No freelancers available</p>
+                  <div className="rounded-xl px-4 py-10 text-center" style={{ background: 'var(--input-bg)', border: '1px dashed var(--border)' }}>
+                    <Users size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No freelancers available yet</p>
+                  </div>
                 ) : (
-                  <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl p-2" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
+                  <div className="space-y-2.5">
                     {freelancers.map(fl => {
                       const selected = form.teamMemberIds.includes(fl.id)
+                      const palette = ['#DC143C', '#60a5fa', '#4ade80', '#fbbf24', '#a78bfa', '#fb923c']
+                      const accent  = palette[(fl.user?.name?.charCodeAt(0) ?? 0) % palette.length]
+                      const initials = (fl.user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
                       return (
-                        <label key={fl.id} className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-all select-none"
-                          style={{ background: selected ? 'rgba(96,165,250,0.08)' : 'transparent', border: `1px solid ${selected ? 'rgba(96,165,250,0.25)' : 'transparent'}` }}>
+                        <label key={fl.id} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all select-none"
+                          style={{
+                            background: selected ? 'rgba(96,165,250,0.07)' : 'var(--bg-elevated)',
+                            border: `1px solid ${selected ? 'rgba(96,165,250,0.35)' : 'var(--border)'}`,
+                          }}>
                           <input type="checkbox" checked={selected} onChange={() => toggleTeamMember(fl.id)} className="hidden" />
-                          <div className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
-                            style={{ background: selected ? '#60a5fa' : 'var(--input-bg)', border: `1.5px solid ${selected ? '#60a5fa' : 'var(--track-bg)'}` }}>
-                            {selected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="var(--bg-base)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+
+                          {/* custom checkbox */}
+                          <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all"
+                            style={{ background: selected ? '#60a5fa' : 'var(--input-bg)', border: `1.5px solid ${selected ? '#60a5fa' : 'var(--border)'}` }}>
+                            {selected && <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                           </div>
-                          <MemberAvatar name={fl.user?.name ?? '?'} size={22} />
+
+                          {/* avatar */}
+                          <div className="rounded-xl flex items-center justify-center font-bold text-xs shrink-0"
+                            style={{ width: 38, height: 38, background: `${accent}18`, border: `1.5px solid ${accent}40`, color: accent }}>
+                            {initials}
+                          </div>
+
+                          {/* info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium leading-tight" style={{ color: selected ? '#e2e8f0' : 'var(--text-secondary)' }}>{fl.user?.name}</p>
-                            {fl.skills?.length > 0 && <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{fl.skills.slice(0, 3).join(' · ')}</p>}
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="text-sm font-semibold truncate" style={{ color: selected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{fl.user?.name}</p>
+                              {fl.track === 'intern' && (
+                                <span className="text-mono-label px-1.5 py-0.5 rounded text-[9px]"
+                                  style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}>INTERN</span>
+                              )}
+                            </div>
+                            {fl.skills?.length > 0 && (
+                              <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                {fl.skills.slice(0, 4).join(' · ')}
+                              </p>
+                            )}
                           </div>
-                          <span className="text-mono-label shrink-0" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{curr}{fl.hourlyRate}/hr</span>
+
+                          {/* rate */}
+                          {fl.hourlyRate && (
+                            <div className="text-right shrink-0">
+                              <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{curr}{fl.hourlyRate}</p>
+                              <p className="text-mono-label" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>/ hr</p>
+                            </div>
+                          )}
                         </label>
                       )
                     })}
                   </div>
                 )}
-                {form.teamMemberIds.length > 0 && (
-                  <p className="text-mono-label mt-1.5 text-xs" style={{ color: '#60a5fa' }}>{form.teamMemberIds.length} member{form.teamMemberIds.length > 1 ? 's' : ''} selected</p>
-                )}
-              </div>
-              <div className="pt-2 border-t border-[var(--input-bg)]">
-                <p className="text-mono-label mb-3" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PROJECT LINKS</p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: '#DC143C' }} /> Repository URL</label>
-                    <input className="input-field" placeholder="https://github.com/org/repo" value={form.repoUrl} onChange={e => setForm(f => ({ ...f, repoUrl: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: '#4ade80' }} /> Live / Staging URL</label>
-                    <input className="input-field" placeholder="https://staging.yoursite.com" value={form.liveUrl} onChange={e => setForm(f => ({ ...f, liveUrl: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: '#fbbf24' }} /> Correction Sheet URL</label>
-                    <input className="input-field" placeholder="https://docs.google.com/spreadsheets/..." value={form.correctionSheetUrl} onChange={e => setForm(f => ({ ...f, correctionSheetUrl: e.target.value }))} />
-                  </div>
-                </div>
               </div>
             </div>
-            <div className="px-6 py-5 border-t border-[var(--input-bg)] flex gap-3 shrink-0">
-              <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 rounded text-sm py-3">{saving ? 'Saving...' : panelMode === 'create' ? 'Create Project' : 'Save Changes'}</button>
-              <button onClick={() => setPanelMode(null)} className="btn-ghost rounded text-sm py-3 px-6">Cancel</button>
+
+            {/* Footer */}
+            <div className="px-8 py-4 border-t border-theme flex items-center justify-between shrink-0"
+              style={{ background: 'var(--bg-sidebar)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                {panelMode === 'edit' ? 'Changes will be saved immediately.' : 'Project will be created and visible in the dashboard.'}
+              </p>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setPanelMode(null)} className="btn-ghost rounded text-sm py-2 px-5">Cancel</button>
+                <button onClick={handleSave} disabled={saving}
+                  className="btn-primary flex items-center gap-2 rounded text-sm py-2 px-6 disabled:opacity-50">
+                  {saving ? <><Clock size={13} className="animate-spin" /> Saving…</> : panelMode === 'create' ? <><Plus size={13} /> Create Project</> : <><Pencil size={13} /> Save Changes</>}
+                </button>
+              </div>
             </div>
           </div>
         </div>
