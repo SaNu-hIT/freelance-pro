@@ -6,6 +6,7 @@ import {
   CheckSquare, Square, Clock, User, DollarSign,
   Calendar, ListChecks, Globe, FileSpreadsheet,
   ExternalLink, Timer, Layers, ChevronRight, ChevronDown as ChevDown, Code2, Users,
+  Activity, TrendingUp, Mail, Zap,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -362,108 +363,113 @@ export default function AdminProjectsPage() {
         )}
       </div>
 
-      {/* ── Side Panel ── */}
-      {panelMode && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setPanelMode(null)} />
-          <div className="glass-card h-full overflow-y-auto flex flex-col" style={{ width: panelMode === 'view' ? 620 : 520, borderLeft: '1px solid rgba(220,20,60,0.3)' }}>
+      {/* ── Full-screen View Modal ── */}
+      {panelMode === 'view' && selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-stretch">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPanelMode(null)} />
+          <div className="relative z-10 m-4 flex-1 rounded-2xl overflow-hidden flex flex-col"
+            style={{ background: 'var(--bg-surface)', border: '1px solid rgba(220,20,60,0.25)', maxHeight: 'calc(100vh - 32px)' }}>
 
-            {/* Panel Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)] shrink-0">
-              <div className="flex-1 min-w-0 mr-4">
-                <p className="text-mono-label mb-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  {panelMode === 'create' ? 'NEW PROJECT' : panelMode === 'edit' ? 'EDIT PROJECT' : 'PROJECT DETAIL'}
-                </p>
-                <h2 className="text-primary-ui font-bold text-lg leading-tight truncate">{panelMode === 'create' ? 'Create Project' : selectedProject?.title}</h2>
+            {/* ── Modal Header ── */}
+            <div className="flex items-center gap-4 px-8 py-5 shrink-0 border-b border-theme"
+              style={{ background: 'var(--bg-sidebar)' }}>
+              {/* left: title block */}
+              <div className="flex-1 min-w-0">
+                <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.2em' }}>PROJECT DETAIL</p>
+                <h2 className="text-primary-ui font-bold text-xl leading-tight truncate">{selectedProject.title}</h2>
+                {selectedProject.client?.name && (
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Client: <span style={{ color: 'var(--text-secondary)' }}>{selectedProject.client.name}</span></p>
+                )}
               </div>
-              <button onClick={() => setPanelMode(null)} className="p-2 rounded glass-card-dark hover:border-[#DC143C] transition-colors shrink-0"><X size={16} style={{ color: 'var(--text-muted)' }} /></button>
+              {/* centre: chips */}
+              <div className="hidden md:flex items-center gap-2 shrink-0">
+                <DaysChip deadline={selectedProject.deadline} />
+                <span className="text-mono-label px-2.5 py-1 rounded-lg text-[10px]"
+                  style={{ color: PRIORITY_COLORS[selectedProject.priority], background: `${PRIORITY_COLORS[selectedProject.priority]}15`, border: `1px solid ${PRIORITY_COLORS[selectedProject.priority]}35` }}>
+                  {selectedProject.priority.toUpperCase()} PRIORITY
+                </span>
+                <StatusBadge status={selectedProject.status} />
+              </div>
+              {/* right: actions */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={() => openEdit(selectedProject)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all"
+                  style={{ background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)', color: '#DC143C' }}>
+                  <Pencil size={12} /> Edit
+                </button>
+                <button onClick={() => setPanelMode(null)}
+                  className="p-2 rounded transition-colors"
+                  style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  <X size={16} />
+                </button>
+              </div>
             </div>
 
-            {/* ── VIEW ── */}
-            {panelMode === 'view' && selectedProject && (
-              <div className="flex-1 overflow-y-auto">
+            {/* ── Two-column body ── */}
+            <div className="flex-1 overflow-hidden flex min-h-0">
 
-                {/* Days remaining + priority banner */}
-                <div className="px-6 pt-5 pb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <DaysChip deadline={selectedProject.deadline} />
-                    <span className="text-mono-label px-2.5 py-1 rounded-lg text-xs" style={{ color: PRIORITY_COLORS[selectedProject.priority], background: `${PRIORITY_COLORS[selectedProject.priority]}15`, border: `1px solid ${PRIORITY_COLORS[selectedProject.priority]}35` }}>
-                      {selectedProject.priority.toUpperCase()} PRIORITY
-                    </span>
-                  </div>
-                  <StatusBadge status={selectedProject.status} />
-                </div>
+              {/* LEFT COLUMN — project info */}
+              <div className="w-[42%] shrink-0 overflow-y-auto border-r border-theme px-8 py-6 space-y-7">
 
-                {/* Team members */}
-                {viewTeam.length > 0 && (
-                  <div className="px-6 mb-4">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Users size={11} style={{ color: 'var(--text-muted)' }} />
-                      <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>TEAM</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {viewTeam.map(m => (
-                        <div key={m.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                          style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
-                          <MemberAvatar name={m.user?.name ?? '?'} size={20} />
-                          <div>
-                            <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{m.user?.name}</p>
-                            {m.skills?.length > 0 && (
-                              <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{m.skills.slice(0, 2).join(', ')}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Meta grid */}
-                <div className="grid grid-cols-2 gap-px mx-6 mb-4 rounded-xl overflow-hidden" style={{ background: 'var(--input-bg)' }}>
+                {/* Stat cards */}
+                <div className="grid grid-cols-2 gap-3">
                   {[
-                    { icon: <DollarSign size={12} />, label: 'BUDGET', value: `${curr}${Number(selectedProject.budget).toLocaleString()}`, color: '#DC143C' },
-                    { icon: <Calendar size={12} />, label: 'END DATE', value: new Date(selectedProject.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), color: '#fbbf24' },
-                    { icon: <User size={12} />, label: 'MEMBERS', value: viewTeam.length > 0 ? `${viewTeam.length} person${viewTeam.length > 1 ? 's' : ''}` : 'Unassigned', color: '#60a5fa' },
-                    { icon: <Clock size={12} />, label: 'PROGRESS', value: `${selectedProject.progress ?? 0}%`, color: '#4ade80' },
-                  ].map(({ icon, label, value, color }) => (
-                    <div key={label} className="px-4 py-3" style={{ background: '#0d0d0f' }}>
-                      <div className="flex items-center gap-1.5 mb-1" style={{ color: 'var(--text-muted)' }}>{icon}<span className="text-mono-label" style={{ fontSize: '10px' }}>{label}</span></div>
-                      <p className="font-bold text-sm" style={{ color }}>{value}</p>
+                    { icon: <DollarSign size={14} />, label: 'BUDGET',   value: `${curr}${Number(selectedProject.budget).toLocaleString()}`, color: '#DC143C', bg: 'rgba(220,20,60,0.08)', border: 'rgba(220,20,60,0.2)' },
+                    { icon: <Calendar size={14} />,   label: 'DEADLINE', value: new Date(selectedProject.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+                    { icon: <Users size={14} />,      label: 'TEAM SIZE',value: `${viewTeam.length} member${viewTeam.length !== 1 ? 's' : ''}`, color: '#60a5fa', bg: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.2)' },
+                    { icon: <CheckSquare size={14} />,label: 'TASKS DONE',value: `${completedCount} / ${tasks.length}`, color: '#4ade80', bg: 'rgba(74,222,128,0.08)', border: 'rgba(74,222,128,0.2)' },
+                  ].map(({ icon, label, value, color, bg, border }) => (
+                    <div key={label} className="rounded-xl px-4 py-3.5" style={{ background: bg, border: `1px solid ${border}` }}>
+                      <div className="flex items-center gap-1.5 mb-2" style={{ color }}>
+                        {icon}
+                        <span className="text-mono-label" style={{ fontSize: '10px', letterSpacing: '0.15em' }}>{label}</span>
+                      </div>
+                      <p className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>{value}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Progress bar */}
-                <div className="px-6 mb-4">
-                  <div className="progress-bar" style={{ height: 5 }}>
-                    <div className="progress-fill" style={{ width: `${selectedProject.progress ?? 0}%` }} />
+                {/* Progress */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>OVERALL PROGRESS</span>
+                    <span className="font-bold text-sm" style={{ color: '#DC143C' }}>{selectedProject.progress ?? 0}%</span>
+                  </div>
+                  <div className="rounded-full overflow-hidden" style={{ height: 8, background: 'var(--track-bg)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${selectedProject.progress ?? 0}%`, background: 'linear-gradient(to right, #8B0000, #DC143C)' }} />
                   </div>
                 </div>
 
                 {/* Links */}
                 {(selectedProject.repoUrl || selectedProject.liveUrl || selectedProject.correctionSheetUrl) && (
-                  <div className="px-6 mb-4">
-                    <p className="text-mono-label mb-2" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>LINKS</p>
-                    <div className="flex flex-wrap gap-2">
+                  <div>
+                    <p className="text-mono-label mb-3" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PROJECT LINKS</p>
+                    <div className="space-y-2">
                       {selectedProject.repoUrl && (
                         <a href={selectedProject.repoUrl} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all hover:border-[rgba(220,20,60,0.5)]"
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-medium transition-all group"
                           style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                          <Code2 size={12} style={{ color: '#DC143C' }} /> Repository <ExternalLink size={10} style={{ color: 'var(--text-muted)' }} />
+                          <Code2 size={14} style={{ color: '#DC143C' }} />
+                          <span className="flex-1">Repository</span>
+                          <ExternalLink size={11} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                       {selectedProject.liveUrl && (
                         <a href={selectedProject.liveUrl} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all hover:border-[rgba(74,222,128,0.4)]"
-                          style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }}>
-                          <Globe size={12} /> Live / Staging <ExternalLink size={10} style={{ color: 'rgba(74,222,128,0.5)' }} />
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-medium transition-all group"
+                          style={{ background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }}>
+                          <Globe size={14} />
+                          <span className="flex-1">Live / Staging</span>
+                          <ExternalLink size={11} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                       {selectedProject.correctionSheetUrl && (
                         <a href={selectedProject.correctionSheetUrl} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all hover:border-[rgba(251,191,36,0.4)]"
-                          style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)', color: '#fbbf24' }}>
-                          <FileSpreadsheet size={12} /> Correction Sheet <ExternalLink size={10} style={{ color: 'rgba(251,191,36,0.5)' }} />
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-medium transition-all group"
+                          style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.2)', color: '#fbbf24' }}>
+                          <FileSpreadsheet size={14} />
+                          <span className="flex-1">Correction Sheet</span>
+                          <ExternalLink size={11} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                     </div>
@@ -472,238 +478,382 @@ export default function AdminProjectsPage() {
 
                 {/* Description */}
                 {selectedProject.description && (
-                  <div className="px-6 mb-4 pb-4 border-b border-[var(--input-bg)]">
-                    <p className="text-mono-label mb-1.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>DESCRIPTION</p>
+                  <div>
+                    <p className="text-mono-label mb-2" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>DESCRIPTION</p>
                     <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedProject.description}</p>
                   </div>
                 )}
 
-                {/* Sprint Checklist */}
-                <div className="px-6 py-4">
-                  <div className="flex items-center justify-between mb-4">
+                {/* ── Team Members ── */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <ListChecks size={14} style={{ color: '#DC143C' }} />
-                      <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>SPRINTS & TASKS</span>
+                      <Users size={13} style={{ color: '#60a5fa' }} />
+                      <p className="text-mono-label font-bold" style={{ fontSize: '10px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>ASSIGNED EMPLOYEES</p>
                     </div>
-                    {tasks.length > 0 && (
-                      <span className="text-mono-label px-2 py-0.5 rounded text-xs" style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#f87171' }}>
-                        {completedCount}/{tasks.length} done
-                      </span>
-                    )}
+                    <span className="text-mono-label px-2 py-0.5 rounded-full text-[10px]"
+                      style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa' }}>
+                      {viewTeam.length} total
+                    </span>
                   </div>
 
-                  {tasksLoading ? (
-                    <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="animate-pulse h-10 rounded" style={{ background: 'var(--input-bg)' }} />)}</div>
+                  {viewTeam.length === 0 ? (
+                    <div className="rounded-xl px-4 py-6 text-center" style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
+                      <Users size={20} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No team members assigned</p>
+                    </div>
                   ) : (
                     <div className="space-y-3">
-                      {/* Sprint groups */}
-                      {sprints.map(sprint => {
-                        const sprintTasks = tasksBySprint(sprint.id)
-                        const sprintDone = sprintTasks.filter(t => t.completed).length
-                        const isCollapsed = collapsedSprints.has(sprint.id)
+                      {viewTeam.map((m, idx) => {
+                        const palette = ['#DC143C', '#60a5fa', '#4ade80', '#fbbf24', '#a78bfa', '#fb923c']
+                        const accent  = palette[(m.user?.name?.charCodeAt(0) ?? idx) % palette.length]
+                        const memberTasks   = tasks.filter(t => t.assignedFreelancerId === m.id)
+                        const memberDone    = memberTasks.filter(t => t.completed).length
+                        const memberPending = memberTasks.filter(t => !t.completed).length
+                        const pct = memberTasks.length ? Math.round((memberDone / memberTasks.length) * 100) : 0
+                        const initials = (m.user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+                        const isIntern = m.track === 'intern'
+                        const estCost  = m.hourlyRate ? `${curr}${(m.hourlyRate * 8).toLocaleString()}` : null
+
                         return (
-                          <div key={sprint.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                            {/* Sprint header */}
-                            <div className="flex items-center gap-2 px-3 py-2.5 cursor-pointer select-none" style={{ background: 'var(--input-bg)' }}
-                              onClick={() => toggleSprintCollapse(sprint.id)}>
-                              <button className="shrink-0 transition-transform" style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
-                                <ChevDown size={13} style={{ color: 'var(--text-muted)' }} />
-                              </button>
-                              <Layers size={12} style={{ color: '#DC143C' }} />
-                              <span className="flex-1 text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{sprint.name}</span>
-                              <span className="text-mono-label text-xs" style={{ color: 'var(--text-muted)' }}>{sprintDone}/{sprintTasks.length}</span>
-                              {sprint.endDate && (
-                                <span className="text-mono-label text-xs ml-2" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
-                                  ends {new Date(sprint.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                </span>
-                              )}
-                              <button onClick={(e) => { e.stopPropagation(); handleDeleteSprint(sprint.id) }}
-                                className="ml-2 p-0.5 rounded hover:text-[#f87171] transition-colors"
-                                style={{ color: 'var(--text-muted)' }}>
-                                <X size={11} />
-                              </button>
-                            </div>
-                            {/* Sprint tasks */}
-                            {!isCollapsed && (
-                              <div className="px-2 pb-2 pt-1 space-y-1">
-                                {sprintTasks.map(task => (
-                                  <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />
-                                ))}
-                                {sprintTasks.length === 0 && (
-                                  <p className="text-center py-2 text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>No tasks — add one below</p>
+                          <div key={m.id} className="rounded-xl overflow-hidden"
+                            style={{ background: 'var(--bg-elevated)', border: `1px solid ${accent}22` }}>
+
+                            {/* colour accent bar */}
+                            <div className="h-0.5 w-full" style={{ background: `linear-gradient(to right, ${accent}, transparent)` }} />
+
+                            <div className="p-4">
+                              {/* ── Row 1: avatar + name + rate ── */}
+                              <div className="flex items-start gap-3 mb-3">
+                                {/* avatar */}
+                                <div className="relative shrink-0">
+                                  <div className="rounded-2xl flex items-center justify-center font-bold text-base"
+                                    style={{ width: 48, height: 48, background: `${accent}18`, border: `2px solid ${accent}40`, color: accent }}>
+                                    {initials}
+                                  </div>
+                                  {/* online dot */}
+                                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                                    style={{ background: '#4ade80', borderColor: 'var(--bg-elevated)' }} />
+                                </div>
+
+                                {/* name block */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                    <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{m.user?.name ?? 'Unknown'}</p>
+                                    <span className="text-mono-label px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                                      style={{ background: isIntern ? 'rgba(251,191,36,0.12)' : `${accent}12`, border: `1px solid ${isIntern ? 'rgba(251,191,36,0.3)' : `${accent}30`}`, color: isIntern ? '#fbbf24' : accent }}>
+                                      {isIntern ? '⚡ INTERN' : '✦ PRO'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <Mail size={10} style={{ color: 'var(--text-muted)' }} />
+                                    <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{m.user?.email ?? '—'}</p>
+                                  </div>
+                                </div>
+
+                                {/* rate */}
+                                {m.hourlyRate && (
+                                  <div className="shrink-0 text-right">
+                                    <div className="flex items-center gap-1 justify-end mb-0.5">
+                                      <Zap size={10} style={{ color: '#4ade80' }} />
+                                      <p className="font-bold text-base" style={{ color: '#4ade80' }}>{curr}{m.hourlyRate}<span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>/hr</span></p>
+                                    </div>
+                                    {estCost && <p className="text-mono-label text-[9px]" style={{ color: 'var(--text-muted)' }}>~{estCost}/day</p>}
+                                  </div>
                                 )}
                               </div>
-                            )}
+
+                              {/* ── Row 2: skills ── */}
+                              {m.skills?.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {m.skills.slice(0, 6).map((sk: string) => (
+                                    <span key={sk} className="text-mono-label px-2 py-0.5 rounded-full text-[9px]"
+                                      style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                                      {sk}
+                                    </span>
+                                  ))}
+                                  {m.skills.length > 6 && (
+                                    <span className="text-mono-label text-[9px]" style={{ color: 'var(--text-muted)' }}>+{m.skills.length - 6} more</span>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* ── Row 3: task stats + progress ── */}
+                              <div className="rounded-lg px-3 py-2.5" style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-1">
+                                      <Activity size={11} style={{ color: accent }} />
+                                      <span className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>TASKS</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="flex items-center gap-1 text-[10px] font-bold" style={{ color: '#4ade80' }}>
+                                        <CheckSquare size={10} /> {memberDone} done
+                                      </span>
+                                      {memberPending > 0 && (
+                                        <span className="flex items-center gap-1 text-[10px] font-bold" style={{ color: '#fbbf24' }}>
+                                          <Clock size={10} /> {memberPending} open
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <TrendingUp size={10} style={{ color: pct >= 50 ? '#4ade80' : '#fbbf24' }} />
+                                    <span className="font-bold text-[10px]" style={{ color: pct >= 50 ? '#4ade80' : '#fbbf24' }}>{pct}%</span>
+                                  </div>
+                                </div>
+                                {memberTasks.length > 0 ? (
+                                  <div className="rounded-full overflow-hidden" style={{ height: 5, background: 'var(--track-bg)' }}>
+                                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: `linear-gradient(to right, ${accent}99, ${accent})` }} />
+                                  </div>
+                                ) : (
+                                  <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>No tasks assigned yet</p>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         )
                       })}
-
-                      {/* Unassigned tasks */}
-                      {unassignedTasks.length > 0 && (
-                        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                          <div className="px-3 py-2 flex items-center gap-2" style={{ background: 'var(--row-hover-bg)' }}>
-                            <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
-                            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Backlog / Unassigned</span>
-                            <span className="text-mono-label text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>{unassignedTasks.filter(t => t.completed).length}/{unassignedTasks.length}</span>
-                          </div>
-                          <div className="px-2 pb-2 pt-1 space-y-1">
-                            {unassignedTasks.map(task => <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />)}
-                          </div>
-                        </div>
-                      )}
-
-                      {tasks.length === 0 && sprints.length === 0 && (
-                        <p className="text-center py-6 text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No sprints yet — create one below</p>
-                      )}
                     </div>
                   )}
-
-                  {/* Add task */}
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <select value={newTaskSprint} onChange={e => setNewTaskSprint(e.target.value)}
-                        className="input-field py-2 text-xs appearance-none" style={{ width: 140, flexShrink: 0 }}>
-                        <option value="">Backlog</option>
-                        {sprints.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                      <select value={newTaskAssignee} onChange={e => setNewTaskAssignee(e.target.value)}
-                        className="input-field py-2 text-xs appearance-none" style={{ width: 130, flexShrink: 0 }}>
-                        <option value="">No assignee</option>
-                        {viewTeam.map(m => <option key={m.id} value={m.id}>{m.user?.name?.split(' ')[0]}</option>)}
-                      </select>
-                      <input
-                        className="input-field flex-1 py-2 text-sm"
-                        placeholder="Add a task… (Enter)"
-                        value={newTaskTitle}
-                        onChange={e => setNewTaskTitle(e.target.value)}
-                        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddTask() }}
-                        disabled={addingTask}
-                      />
-                      <button onClick={handleAddTask} disabled={!newTaskTitle.trim() || addingTask}
-                        className="p-2 rounded transition-colors disabled:opacity-40 shrink-0"
-                        style={{ background: 'rgba(220,20,60,0.15)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}>
-                        <Plus size={15} />
-                      </button>
-                    </div>
-
-                    {/* Add sprint */}
-                    <div className="flex items-center gap-2">
-                      <input
-                        className="input-field flex-1 py-2 text-sm"
-                        placeholder="New sprint name… (e.g. Sprint 4 — Payments)"
-                        value={newSprintName}
-                        onChange={e => setNewSprintName(e.target.value)}
-                        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddSprint() }}
-                        disabled={addingSprint}
-                        style={{ borderColor: 'rgba(220,20,60,0.2)' }}
-                      />
-                      <button onClick={handleAddSprint} disabled={!newSprintName.trim() || addingSprint}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded text-xs transition-colors disabled:opacity-40 shrink-0"
-                        style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
-                        <Layers size={12} /> Sprint
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Edit button */}
-                <div className="px-6 pb-6 pt-2">
-                  <button onClick={() => openEdit(selectedProject)} className="w-full btn-ghost rounded text-sm py-2.5 flex items-center justify-center gap-2">
-                    <Pencil size={13} /> Edit Project Details
-                  </button>
                 </div>
               </div>
-            )}
 
-            {/* ── CREATE / EDIT ── */}
-            {(panelMode === 'create' || panelMode === 'edit') && (
-              <>
-                <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
-                  <div><label className="label-field">Project Title</label><input className="input-field" placeholder="Enter project title..." value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-                  <div><label className="label-field">Description</label><textarea className="input-field resize-none" rows={3} placeholder="Project description..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="label-field">Budget ({curr})</label><input type="number" className="input-field" placeholder="0" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} /></div>
-                    <div><label className="label-field">End Date</label><input type="date" className="input-field" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="label-field">Status</label>
-                      <div className="relative">
-                        <select className="input-field appearance-none pr-8" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
-                          {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-                        </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="label-field">Priority</label>
-                      <div className="relative">
-                        <select className="input-field appearance-none pr-8" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
-                          {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
-                        </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
-                      </div>
-                    </div>
-                  </div>
+              {/* RIGHT COLUMN — sprints & tasks */}
+              <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-4">
 
-                  {/* Team member multi-select */}
+                {/* Header */}
+                <div className="flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <ListChecks size={15} style={{ color: '#DC143C' }} />
+                    <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>SPRINTS & TASKS</span>
+                  </div>
+                  {tasks.length > 0 && (
+                    <span className="text-mono-label px-2.5 py-1 rounded-lg text-xs"
+                      style={{ background: 'rgba(220,20,60,0.08)', border: '1px solid rgba(220,20,60,0.2)', color: '#f87171' }}>
+                      {completedCount} / {tasks.length} done
+                    </span>
+                  )}
+                </div>
+
+                {/* Sprint list */}
+                {tasksLoading ? (
+                  <div className="space-y-3">{[...Array(3)].map((_, i) => (
+                    <div key={i} className="animate-pulse h-12 rounded-xl" style={{ background: 'var(--input-bg)' }} />
+                  ))}</div>
+                ) : (
+                  <div className="space-y-3">
+                    {sprints.map(sprint => {
+                      const sprintTasks = tasksBySprint(sprint.id)
+                      const sprintDone  = sprintTasks.filter(t => t.completed).length
+                      const isCollapsed = collapsedSprints.has(sprint.id)
+                      const pct = sprintTasks.length ? Math.round((sprintDone / sprintTasks.length) * 100) : 0
+                      return (
+                        <div key={sprint.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                          <div className="flex items-center gap-2 px-4 py-3 cursor-pointer select-none"
+                            style={{ background: 'var(--bg-elevated)' }}
+                            onClick={() => toggleSprintCollapse(sprint.id)}>
+                            <button className="shrink-0 transition-transform duration-150"
+                              style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                              <ChevDown size={13} style={{ color: 'var(--text-muted)' }} />
+                            </button>
+                            <Layers size={12} style={{ color: '#DC143C' }} />
+                            <span className="flex-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{sprint.name}</span>
+                            {/* mini progress */}
+                            <div className="hidden sm:flex items-center gap-2">
+                              <div className="w-16 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--track-bg)' }}>
+                                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#DC143C' }} />
+                              </div>
+                              <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{sprintDone}/{sprintTasks.length}</span>
+                            </div>
+                            {sprint.endDate && (
+                              <span className="text-mono-label ml-3" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                                ends {new Date(sprint.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </span>
+                            )}
+                            <button onClick={e => { e.stopPropagation(); handleDeleteSprint(sprint.id) }}
+                              className="ml-2 p-0.5 rounded transition-colors hover:text-[#f87171]"
+                              style={{ color: 'var(--text-muted)' }}>
+                              <X size={11} />
+                            </button>
+                          </div>
+                          {!isCollapsed && (
+                            <div className="px-3 pb-3 pt-1 space-y-1">
+                              {sprintTasks.map(task => (
+                                <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />
+                              ))}
+                              {sprintTasks.length === 0 && (
+                                <p className="text-center py-3 text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>No tasks — add one below</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {/* Backlog */}
+                    {unassignedTasks.length > 0 && (
+                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                        <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'var(--bg-elevated)' }}>
+                          <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+                          <span className="flex-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Backlog / Unassigned</span>
+                          <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                            {unassignedTasks.filter(t => t.completed).length}/{unassignedTasks.length}
+                          </span>
+                        </div>
+                        <div className="px-3 pb-3 pt-1 space-y-1">
+                          {unassignedTasks.map(task => <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />)}
+                        </div>
+                      </div>
+                    )}
+
+                    {tasks.length === 0 && sprints.length === 0 && (
+                      <div className="text-center py-10 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
+                        <ListChecks size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
+                        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No sprints yet — create one below</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Add task row */}
+                <div className="shrink-0 space-y-2 pt-2 border-t border-theme">
+                  <div className="flex items-center gap-2">
+                    <select value={newTaskSprint} onChange={e => setNewTaskSprint(e.target.value)}
+                      className="input-field py-2 text-xs appearance-none shrink-0" style={{ width: 140 }}>
+                      <option value="">Backlog</option>
+                      {sprints.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                    <select value={newTaskAssignee} onChange={e => setNewTaskAssignee(e.target.value)}
+                      className="input-field py-2 text-xs appearance-none shrink-0" style={{ width: 130 }}>
+                      <option value="">No assignee</option>
+                      {viewTeam.map(m => <option key={m.id} value={m.id}>{m.user?.name?.split(' ')[0]}</option>)}
+                    </select>
+                    <input className="input-field flex-1 py-2 text-sm"
+                      placeholder="Add a task… (Enter)"
+                      value={newTaskTitle}
+                      onChange={e => setNewTaskTitle(e.target.value)}
+                      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddTask() }}
+                      disabled={addingTask} />
+                    <button onClick={handleAddTask} disabled={!newTaskTitle.trim() || addingTask}
+                      className="p-2 rounded transition-colors disabled:opacity-40 shrink-0"
+                      style={{ background: 'rgba(220,20,60,0.15)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}>
+                      <Plus size={15} />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input className="input-field flex-1 py-2 text-sm"
+                      placeholder="New sprint name… (e.g. Sprint 4 — Payments)"
+                      value={newSprintName}
+                      onChange={e => setNewSprintName(e.target.value)}
+                      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddSprint() }}
+                      disabled={addingSprint}
+                      style={{ borderColor: 'rgba(220,20,60,0.2)' }} />
+                    <button onClick={handleAddSprint} disabled={!newSprintName.trim() || addingSprint}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-colors disabled:opacity-40 shrink-0"
+                      style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
+                      <Layers size={12} /> Sprint
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Create / Edit Panel (narrow slide-in) ── */}
+      {(panelMode === 'create' || panelMode === 'edit') && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setPanelMode(null)} />
+          <div className="glass-card h-full overflow-y-auto flex flex-col" style={{ width: 520, borderLeft: '1px solid rgba(220,20,60,0.3)' }}>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)] shrink-0">
+              <div>
+                <p className="text-mono-label mb-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>{panelMode === 'create' ? 'NEW PROJECT' : 'EDIT PROJECT'}</p>
+                <h2 className="text-primary-ui font-bold text-lg leading-tight">{panelMode === 'create' ? 'Create Project' : selectedProject?.title}</h2>
+              </div>
+              <button onClick={() => setPanelMode(null)} className="p-2 rounded glass-card-dark hover:border-[#DC143C] transition-colors shrink-0"><X size={16} style={{ color: 'var(--text-muted)' }} /></button>
+            </div>
+            <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
+              <div><label className="label-field">Project Title</label><input className="input-field" placeholder="Enter project title..." value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
+              <div><label className="label-field">Description</label><textarea className="input-field resize-none" rows={3} placeholder="Project description..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="label-field">Budget ({curr})</label><input type="number" className="input-field" placeholder="0" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} /></div>
+                <div><label className="label-field">End Date</label><input type="date" className="input-field" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label-field">Status</label>
+                  <div className="relative">
+                    <select className="input-field appearance-none pr-8" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
+                      {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                  </div>
+                </div>
+                <div>
+                  <label className="label-field">Priority</label>
+                  <div className="relative">
+                    <select className="input-field appearance-none pr-8" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
+                      {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="label-field flex items-center gap-1.5"><Users size={11} style={{ color: '#60a5fa' }} /> Team Members</label>
+                {freelancers.length === 0 ? (
+                  <p className="text-mono-label text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>No freelancers available</p>
+                ) : (
+                  <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl p-2" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
+                    {freelancers.map(fl => {
+                      const selected = form.teamMemberIds.includes(fl.id)
+                      return (
+                        <label key={fl.id} className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-all select-none"
+                          style={{ background: selected ? 'rgba(96,165,250,0.08)' : 'transparent', border: `1px solid ${selected ? 'rgba(96,165,250,0.25)' : 'transparent'}` }}>
+                          <input type="checkbox" checked={selected} onChange={() => toggleTeamMember(fl.id)} className="hidden" />
+                          <div className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
+                            style={{ background: selected ? '#60a5fa' : 'var(--input-bg)', border: `1.5px solid ${selected ? '#60a5fa' : 'var(--track-bg)'}` }}>
+                            {selected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="var(--bg-base)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                          </div>
+                          <MemberAvatar name={fl.user?.name ?? '?'} size={22} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium leading-tight" style={{ color: selected ? '#e2e8f0' : 'var(--text-secondary)' }}>{fl.user?.name}</p>
+                            {fl.skills?.length > 0 && <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{fl.skills.slice(0, 3).join(' · ')}</p>}
+                          </div>
+                          <span className="text-mono-label shrink-0" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{curr}{fl.hourlyRate}/hr</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+                {form.teamMemberIds.length > 0 && (
+                  <p className="text-mono-label mt-1.5 text-xs" style={{ color: '#60a5fa' }}>{form.teamMemberIds.length} member{form.teamMemberIds.length > 1 ? 's' : ''} selected</p>
+                )}
+              </div>
+              <div className="pt-2 border-t border-[var(--input-bg)]">
+                <p className="text-mono-label mb-3" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PROJECT LINKS</p>
+                <div className="space-y-3">
                   <div>
-                    <label className="label-field flex items-center gap-1.5"><Users size={11} style={{ color: '#60a5fa' }} /> Team Members</label>
-                    {freelancers.length === 0 ? (
-                      <p className="text-mono-label text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>No freelancers available</p>
-                    ) : (
-                      <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl p-2" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
-                        {freelancers.map(fl => {
-                          const selected = form.teamMemberIds.includes(fl.id)
-                          return (
-                            <label key={fl.id} className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-all select-none"
-                              style={{ background: selected ? 'rgba(96,165,250,0.08)' : 'transparent', border: `1px solid ${selected ? 'rgba(96,165,250,0.25)' : 'transparent'}` }}>
-                              <input type="checkbox" checked={selected} onChange={() => toggleTeamMember(fl.id)} className="hidden" />
-                              <div className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
-                                style={{ background: selected ? '#60a5fa' : 'var(--input-bg)', border: `1.5px solid ${selected ? '#60a5fa' : 'var(--track-bg)'}` }}>
-                                {selected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="var(--bg-base)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                              </div>
-                              <MemberAvatar name={fl.user?.name ?? '?'} size={22} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium leading-tight" style={{ color: selected ? '#e2e8f0' : 'var(--text-secondary)' }}>{fl.user?.name}</p>
-                                {fl.skills?.length > 0 && <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{fl.skills.slice(0, 3).join(' · ')}</p>}
-                              </div>
-                              <span className="text-mono-label shrink-0" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{curr}{fl.hourlyRate}/hr</span>
-                            </label>
-                          )
-                        })}
-                      </div>
-                    )}
-                    {form.teamMemberIds.length > 0 && (
-                      <p className="text-mono-label mt-1.5 text-xs" style={{ color: '#60a5fa' }}>{form.teamMemberIds.length} member{form.teamMemberIds.length > 1 ? 's' : ''} selected</p>
-                    )}
+                    <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: '#DC143C' }} /> Repository URL</label>
+                    <input className="input-field" placeholder="https://github.com/org/repo" value={form.repoUrl} onChange={e => setForm(f => ({ ...f, repoUrl: e.target.value }))} />
                   </div>
-
-                  {/* Links */}
-                  <div className="pt-2 border-t border-[var(--input-bg)]">
-                    <p className="text-mono-label mb-3" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PROJECT LINKS</p>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: '#DC143C' }} /> Repository URL</label>
-                        <input className="input-field" placeholder="https://github.com/org/repo" value={form.repoUrl} onChange={e => setForm(f => ({ ...f, repoUrl: e.target.value }))} />
-                      </div>
-                      <div>
-                        <label className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: '#4ade80' }} /> Live / Staging URL</label>
-                        <input className="input-field" placeholder="https://staging.yoursite.com" value={form.liveUrl} onChange={e => setForm(f => ({ ...f, liveUrl: e.target.value }))} />
-                      </div>
-                      <div>
-                        <label className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: '#fbbf24' }} /> Correction Sheet URL</label>
-                        <input className="input-field" placeholder="https://docs.google.com/spreadsheets/..." value={form.correctionSheetUrl} onChange={e => setForm(f => ({ ...f, correctionSheetUrl: e.target.value }))} />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: '#4ade80' }} /> Live / Staging URL</label>
+                    <input className="input-field" placeholder="https://staging.yoursite.com" value={form.liveUrl} onChange={e => setForm(f => ({ ...f, liveUrl: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: '#fbbf24' }} /> Correction Sheet URL</label>
+                    <input className="input-field" placeholder="https://docs.google.com/spreadsheets/..." value={form.correctionSheetUrl} onChange={e => setForm(f => ({ ...f, correctionSheetUrl: e.target.value }))} />
                   </div>
                 </div>
-                <div className="px-6 py-5 border-t border-[var(--input-bg)] flex gap-3 shrink-0">
-                  <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 rounded text-sm py-3">{saving ? 'Saving...' : panelMode === 'create' ? 'Create Project' : 'Save Changes'}</button>
-                  <button onClick={() => setPanelMode(null)} className="btn-ghost rounded text-sm py-3 px-6">Cancel</button>
-                </div>
-              </>
-            )}
+              </div>
+            </div>
+            <div className="px-6 py-5 border-t border-[var(--input-bg)] flex gap-3 shrink-0">
+              <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 rounded text-sm py-3">{saving ? 'Saving...' : panelMode === 'create' ? 'Create Project' : 'Save Changes'}</button>
+              <button onClick={() => setPanelMode(null)} className="btn-ghost rounded text-sm py-3 px-6">Cancel</button>
+            </div>
           </div>
         </div>
       )}
