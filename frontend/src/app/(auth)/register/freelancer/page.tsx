@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 import { MorphBlob } from '@/components/ui/MorphBlob'
+import { useTheme } from '@/lib/theme'
+import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 
 const SUGGESTED_SKILLS = [
@@ -68,6 +70,7 @@ const ONBOARDING_STEPS = [
 export default function FreelancerRegisterPage() {
   const router = useRouter()
   const { login: storeLogin } = useAuthStore()
+  const { theme, toggleTheme } = useTheme()
 
   const [track, setTrack] = useState<'freelancer' | 'intern'>('freelancer')
   const [step, setStep] = useState<1 | 2>(1)
@@ -142,10 +145,19 @@ export default function FreelancerRegisterPage() {
             }} />
             <span className="text-display text-primary-ui text-base tracking-widest">FREELANCE_PRO</span>
           </div>
-          <Link href="/register" className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
-            style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
-            <ArrowLeft size={12} /> BACK
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
+              style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+            >
+              {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
+            </button>
+            <Link href="/register" className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
+              style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
+              <ArrowLeft size={12} /> BACK
+            </Link>
+          </div>
         </div>
 
         {/* Headline */}
@@ -186,7 +198,7 @@ export default function FreelancerRegisterPage() {
                       <Icon size={14} style={{ color: s.color }} />
                     </div>
                     {i < ONBOARDING_STEPS.length - 1 && (
-                      <div className="w-px flex-1 my-1.5" style={{ background: 'var(--input-bg)', minHeight: 24 }} />
+                      <div className="w-px flex-1 my-1.5" style={{ background: 'var(--border)', minHeight: 24 }} />
                     )}
                   </div>
                   {/* content */}
@@ -265,7 +277,7 @@ export default function FreelancerRegisterPage() {
         </div>
 
         {/* Bottom trust row */}
-        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--input-bg)' }}>
+        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           {[
             { icon: Users, val: '100+', label: 'ACTIVE FREELANCERS' },
             { icon: Star, val: '4.9', label: 'AVG RATING' },
@@ -292,9 +304,18 @@ export default function FreelancerRegisterPage() {
               <div className="w-6 h-6" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
               <span className="text-display text-primary-ui text-sm tracking-widest">FREELANCE_PRO</span>
             </div>
-            <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <ArrowLeft size={12} /> Back
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-1 px-2 py-1 rounded text-[9px] font-bold tracking-widest"
+                style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+              >
+                {theme === 'dark' ? <><Sun size={10} /><span>LIGHT</span></> : <><Moon size={10} /><span>DARK</span></>}
+              </button>
+              <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <ArrowLeft size={12} /> Back
+              </Link>
+            </div>
           </div>
 
           <div className="glass-card rounded-xl p-8" style={{ borderColor: `${accentColor}30` }}>
@@ -357,7 +378,7 @@ export default function FreelancerRegisterPage() {
                     {s === 1 ? 'ACCOUNT' : 'PROFILE'}
                   </span>
                   {idx < 1 && (
-                    <div className="w-10 h-px mx-1 transition-all" style={{ background: step > s ? accentColor : 'var(--track-bg)' }} />
+                    <div className="w-10 h-px mx-1 transition-all" style={{ background: step > s ? accentColor : 'var(--border)' }} />
                   )}
                 </div>
               ))}
@@ -416,7 +437,7 @@ export default function FreelancerRegisterPage() {
                     setStep(2)
                   }}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm mt-2 transition-all"
-                  style={{ background: accentColor, color: 'var(--text-primary)' }}
+                  style={{ background: accentColor, color: '#fff' }}
                 >
                   Continue to Profile <ChevronRight size={15} />
                 </button>
@@ -542,7 +563,7 @@ export default function FreelancerRegisterPage() {
                     type="submit"
                     disabled={loading || (isIntern && !depositAck)}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: accentColor, color: 'var(--text-primary)' }}
+                    style={{ background: accentColor, color: '#fff' }}
                   >
                     {loading
                       ? <><Loader2 size={15} className="animate-spin" /> Creating Account...</>

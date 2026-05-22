@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 import { MorphBlob } from '@/components/ui/MorphBlob'
+import { useTheme } from '@/lib/theme'
+import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 
 const DELIVERY_STEPS = [
@@ -68,6 +70,7 @@ const CLIENT_PERKS = [
 export default function ClientRegisterPage() {
   const router = useRouter()
   const { login: storeLogin } = useAuthStore()
+  const { theme, toggleTheme } = useTheme()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -116,11 +119,20 @@ export default function ClientRegisterPage() {
             }} />
             <span className="text-display text-primary-ui text-base tracking-widest">FREELANCE_PRO</span>
           </div>
-          <Link href="/register"
-            className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
-            style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
-            <ArrowLeft size={12} /> BACK
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
+              style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+            >
+              {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
+            </button>
+            <Link href="/register"
+              className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
+              style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
+              <ArrowLeft size={12} /> BACK
+            </Link>
+          </div>
         </div>
 
         {/* Headline */}
@@ -160,7 +172,7 @@ export default function ClientRegisterPage() {
                       <Icon size={14} style={{ color: s.color }} />
                     </div>
                     {i < DELIVERY_STEPS.length - 1 && (
-                      <div className="w-px flex-1 my-1.5" style={{ background: 'var(--input-bg)', minHeight: 20 }} />
+                      <div className="w-px flex-1 my-1.5" style={{ background: 'var(--border)', minHeight: 20 }} />
                     )}
                   </div>
                   <div className="pb-4">
@@ -207,7 +219,7 @@ export default function ClientRegisterPage() {
         </div>
 
         {/* Bottom trust row */}
-        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--input-bg)' }}>
+        <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           {[
             { icon: Users, val: '50+', label: 'PROJECTS DELIVERED' },
             { icon: Star, val: '4.8', label: 'CLIENT RATING' },
@@ -234,9 +246,18 @@ export default function ClientRegisterPage() {
               <div className="w-6 h-6" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
               <span className="text-display text-primary-ui text-sm tracking-widest">FREELANCE_PRO</span>
             </div>
-            <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <ArrowLeft size={12} /> Back
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-1 px-2 py-1 rounded text-[9px] font-bold tracking-widest"
+                style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+              >
+                {theme === 'dark' ? <><Sun size={10} /><span>LIGHT</span></> : <><Moon size={10} /><span>DARK</span></>}
+              </button>
+              <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                <ArrowLeft size={12} /> Back
+              </Link>
+            </div>
           </div>
 
           <div className="glass-card rounded-xl p-8" style={{ borderColor: accentBorder }}>
