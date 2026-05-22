@@ -29,6 +29,7 @@
     --row-hover-bg:   rgba(255,255,255,0.03);
     --cell-border:    rgba(255,255,255,0.05);
     --track-bg:       rgba(255,255,255,0.08);
+    --skeleton:       rgba(255,255,255,0.07);
   }
 
   /* ── Light theme ────────────────────────────────────────── */
@@ -58,6 +59,7 @@
     --row-hover-bg:   rgba(0,0,0,0.025);
     --cell-border:    rgba(0,0,0,0.06);
     --track-bg:       rgba(0,0,0,0.07);
+    --skeleton:       rgba(0,0,0,0.07);
   }
 
   * { box-sizing: border-box; }

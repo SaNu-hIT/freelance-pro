@@ -68,7 +68,7 @@ const specializations = [
 export default function FreelancersPage() {
   const curr = useCurrencySymbol()
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'white' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
       {/* Header */}
       <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">

@@ -178,7 +178,7 @@ export default function AdminSettingsPage() {
                     <p className="text-sm font-medium text-primary-ui">Authenticator App</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Use Google Authenticator or similar</p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(156,163,175,0.12)', border: '1px solid rgba(156,163,175,0.25)', color: '#9ca3af' }}>Not enabled</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(156,163,175,0.12)', border: '1px solid rgba(156,163,175,0.25)', color: 'var(--text-muted)' }}>Not enabled</span>
                 </div>
               </div>
               <SaveBar saved={saved} onSave={handleSave} />
@@ -245,7 +245,7 @@ export default function AdminSettingsPage() {
                       <div key={key} className="flex items-center justify-between p-4 rounded-xl"
                         style={{ background: isDanger ? 'rgba(220,20,60,0.04)' : 'var(--row-hover-bg)', border: `1px solid ${isDanger ? 'rgba(220,20,60,0.15)' : 'var(--input-bg)'}` }}>
                         <div>
-                          <p className="text-sm font-medium" style={{ color: isDanger ? '#f87171' : '#fff' }}>{title}</p>
+                          <p className="text-sm font-medium" style={{ color: isDanger ? '#f87171' : 'var(--text-primary)' }}>{title}</p>
                           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                         </div>
                         <button

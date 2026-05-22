@@ -43,7 +43,7 @@ const TYPE_META: Record<DocType, { icon: typeof FileText; color: string; label: 
 const STATUS_META: Record<DocStatus, { icon: typeof CheckCircle2; color: string; bg: string; label: string }> = {
   delivered:  { icon: CheckCircle2, color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   label: 'Delivered' },
   'in-review':{ icon: Clock,        color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',  label: 'In Review' },
-  pending:    { icon: Clock,        color: '#9ca3af', bg: 'rgba(156,163,175,0.1)', label: 'Pending' },
+  pending:    { icon: Clock,        color: 'var(--text-muted)', bg: 'rgba(156,163,175,0.1)', label: 'Pending' },
 }
 
 function fmtDate(iso: string) {
@@ -92,7 +92,7 @@ export default function ClientDocumentsPage() {
             { label: 'Total Files', val: counts.total, color: '#60a5fa', icon: FolderOpen },
             { label: 'Delivered', val: counts.delivered, color: '#4ade80', icon: CheckCircle2 },
             { label: 'In QA Review', val: counts.inReview, color: '#fbbf24', icon: Clock },
-            { label: 'Pending', val: counts.pending, color: '#9ca3af', icon: Clock },
+            { label: 'Pending', val: counts.pending, color: 'var(--text-muted)', icon: Clock },
           ].map(({ label, val, color, icon: Icon }) => (
             <div key={label} className="glass-card rounded-xl px-4 py-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"

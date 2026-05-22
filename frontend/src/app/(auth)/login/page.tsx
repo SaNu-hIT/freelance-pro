@@ -246,7 +246,7 @@ export default function LoginPage() {
               type="submit"
               disabled={busy}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{ background: '#DC143C', color: '#fff', marginTop: 4 }}
+              style={{ background: '#DC143C', color: 'var(--text-primary)', marginTop: 4 }}
             >
               {loading
                 ? <><Loader2 size={15} className="animate-spin" /> Signing in...</>

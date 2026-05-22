@@ -324,7 +324,7 @@ function AvailabilityBadge({ resource, today }: { resource: Resource; today: Dat
           fontSize: '10px',
           background: 'rgba(156,163,175,0.08)',
           border: '1px solid rgba(156,163,175,0.2)',
-          color: '#9ca3af',
+          color: 'var(--text-muted)',
         }}
       >
         <span style={{ fontSize: 8 }}>⬛</span> On Project · Free {formatShortDate(resource.availableFrom)}
@@ -395,7 +395,7 @@ function MemberCard({
         <AvatarCircle initials={resource.avatar} color={resource.avatarColor} size={44} />
         <div className="flex-1 min-w-0">
           <p className="text-primary-ui font-bold text-sm truncate leading-tight">{resource.name}</p>
-          <p className="text-mono-label truncate" style={{ fontSize: '10px', color: '#9ca3af' }}>
+          <p className="text-mono-label truncate" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
             {resource.email}
           </p>
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -443,14 +443,14 @@ function MemberCard({
       </div>
 
       {/* Bio */}
-      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: '#9ca3af' }}>
+      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: 'var(--text-muted)' }}>
         {resource.bio}
       </p>
 
       {/* Bottom: exp + rate + availability */}
       <div className="flex items-center justify-between pt-2 border-t border-[var(--input-bg)]">
         <div className="flex items-center gap-3">
-          <span className="text-mono-label" style={{ fontSize: '11px', color: '#9ca3af' }}>
+          <span className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
             {resource.experience} yr exp
           </span>
           <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: '#DC143C' }}>
@@ -720,7 +720,7 @@ export default function AdminResourcesPage() {
           { label: 'TOTAL RESOURCES', value: stats.total, color: '#DC143C', icon: Users },
           { label: 'AVAILABLE NOW', value: stats.available, color: '#4ade80', icon: Zap },
           { label: 'ENDING SOON', value: stats.endingSoon, color: '#fbbf24', icon: null },
-          { label: 'ON PROJECT', value: stats.onProject, color: '#9ca3af', icon: null },
+          { label: 'ON PROJECT', value: stats.onProject, color: 'var(--text-muted)', icon: null },
         ].map(item => (
           <div key={item.label} className="glass-card metric-card rounded-lg">
             <p className="text-mono-label mb-2">{item.label}</p>
@@ -742,7 +742,7 @@ export default function AdminResourcesPage() {
               view === v
                 ? {
                     background: '#DC143C',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     border: '1px solid #DC143C',
                     fontFamily: 'JetBrains Mono, monospace',
                     letterSpacing: '0.06em',

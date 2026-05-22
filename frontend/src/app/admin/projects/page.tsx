@@ -311,7 +311,7 @@ export default function AdminProjectsPage() {
                 {filtered.map(p => (
                   <tr key={p.id}>
                     <td><p className="font-semibold text-primary-ui text-sm max-w-[200px] truncate">{p.title}</p></td>
-                    <td><span style={{ color: '#d1d5db', fontSize: '13px' }}>{p.client?.name ?? '—'}</span></td>
+                    <td><span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{p.client?.name ?? '—'}</span></td>
                     <td><span className="text-crimson font-bold">{curr}{Number(p.budget).toLocaleString()}</span></td>
                     <td>
                       <div className="flex flex-col gap-0.5">
@@ -344,7 +344,7 @@ export default function AdminProjectsPage() {
                           )}
                         </div>
                       ) : (
-                        <span style={{ color: '#9ca3af', fontSize: '13px' }}>—</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>—</span>
                       )}
                     </td>
                     <td>
@@ -715,7 +715,7 @@ export default function AdminProjectsPage() {
           <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-md text-center" style={{ borderColor: 'rgba(220,20,60,0.5)' }}>
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(220,20,60,0.1)' }}><Trash2 size={20} style={{ color: '#f87171' }} /></div>
             <h3 className="text-primary-ui font-bold text-lg mb-2">Delete Project</h3>
-            <p className="text-mono-label mb-6" style={{ color: '#9ca3af' }}>This action cannot be undone. The project and all associated data will be permanently removed.</p>
+            <p className="text-mono-label mb-6" style={{ color: 'var(--text-muted)' }}>This action cannot be undone. The project and all associated data will be permanently removed.</p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => handleDelete(deleteId)} className="btn-primary rounded px-6" style={{ background: '#f87171' }}>Delete</button>
               <button onClick={() => setDeleteId(null)} className="btn-ghost rounded px-6">Cancel</button>

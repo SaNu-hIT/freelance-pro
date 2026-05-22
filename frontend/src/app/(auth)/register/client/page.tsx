@@ -128,7 +128,7 @@ export default function ClientRegisterPage() {
           <p className="text-mono-label mb-4" style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.4em' }}>
             CLIENT ONBOARDING
           </p>
-          <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: '#fff' }}>
+          <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: 'var(--text-primary)' }}>
             BUILD YOUR<br />
             <span style={{
               background: 'linear-gradient(to right, #60a5fa, #818cf8)',
@@ -260,11 +260,11 @@ export default function ClientRegisterPage() {
             <div className="flex flex-wrap gap-2 mb-7">
               {[
                 { icon: ClipboardList, label: 'Enquiry', color: '#60a5fa' },
-                { icon: ChevronRight, label: '', color: 'var(--track-bg)' },
+                { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
                 { icon: Users, label: 'Manager Review', color: '#818cf8' },
-                { icon: ChevronRight, label: '', color: 'var(--track-bg)' },
+                { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
                 { icon: UserCheck, label: 'Team Assigned', color: '#f97316' },
-                { icon: ChevronRight, label: '', color: 'var(--track-bg)' },
+                { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
                 { icon: FlaskConical, label: 'QA & Delivery', color: '#4ade80' },
               ].map(({ icon: Icon, label, color }, i) => (
                 label

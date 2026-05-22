@@ -102,7 +102,7 @@ export default function AdminPaymentsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         <div className="glass-card metric-card rounded-xl flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[#3D0000] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-[var(--skeleton)] flex items-center justify-center shrink-0">
             <DollarSign size={18} style={{ color: '#4ade80' }} />
           </div>
           <div>
@@ -113,7 +113,7 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
         <div className="glass-card metric-card rounded-xl flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[#3D0000] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-[var(--skeleton)] flex items-center justify-center shrink-0">
             <DollarSign size={18} style={{ color: '#fbbf24' }} />
           </div>
           <div>
@@ -124,7 +124,7 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
         <div className="glass-card metric-card rounded-xl flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[#3D0000] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-[var(--skeleton)] flex items-center justify-center shrink-0">
             <DollarSign size={18} className="text-crimson" />
           </div>
           <div>
@@ -156,10 +156,10 @@ export default function AdminPaymentsPage() {
           <div className="p-6 space-y-4">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="animate-pulse flex gap-4 py-3">
-                <div className="h-4 bg-[#3D0000] rounded w-28" />
-                <div className="h-4 bg-[#3D0000] rounded flex-1" />
-                <div className="h-4 bg-[#3D0000] rounded w-24" />
-                <div className="h-4 bg-[#3D0000] rounded w-20" />
+                <div className="h-4 bg-[var(--skeleton)] rounded w-28" />
+                <div className="h-4 bg-[var(--skeleton)] rounded flex-1" />
+                <div className="h-4 bg-[var(--skeleton)] rounded w-24" />
+                <div className="h-4 bg-[var(--skeleton)] rounded w-20" />
               </div>
             ))}
           </div>
@@ -189,12 +189,12 @@ export default function AdminPaymentsPage() {
                     <tr key={p.id}>
                       <td>
                         <p className="text-primary-ui text-sm font-medium">{p.freelancer?.user.name ?? `#${p.freelancerId}`}</p>
-                        <p className="text-mono-label" style={{ fontSize: '10px', color: '#9ca3af' }}>
+                        <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                           {p.freelancer?.user.email ?? ''}
                         </p>
                       </td>
                       <td>
-                        <span className="text-sm max-w-[160px] truncate block" style={{ color: '#d1d5db' }}>
+                        <span className="text-sm max-w-[160px] truncate block" style={{ color: 'var(--text-secondary)' }}>
                           {p.project?.title ?? `#${p.projectId}`}
                         </span>
                       </td>
@@ -251,7 +251,7 @@ export default function AdminPaymentsPage() {
                 <h2 className="text-primary-ui font-bold text-lg">
                   {editingPayment.freelancer?.user.name}
                 </h2>
-                <p className="text-mono-label mt-0.5" style={{ fontSize: '11px', color: '#9ca3af' }}>
+                <p className="text-mono-label mt-0.5" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                   {editingPayment.project?.title}
                 </p>
               </div>

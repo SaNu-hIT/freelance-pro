@@ -51,7 +51,7 @@ const STATUS_META: Record<string, { label: string; bg: string; border: string; c
   new:       { label: 'NEW',       bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.35)',  color: '#93c5fd' },
   contacted: { label: 'CONTACTED', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.35)',  color: '#fcd34d' },
   converted: { label: 'CONVERTED', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.35)',   color: '#86efac' },
-  closed:    { label: 'CLOSED',    bg: 'rgba(156,163,175,0.12)', border: 'rgba(156,163,175,0.35)', color: '#9ca3af' },
+  closed:    { label: 'CLOSED',    bg: 'rgba(156,163,175,0.12)', border: 'rgba(156,163,175,0.35)', color: 'var(--text-muted)' },
 }
 
 const NEXT_STATUS: Record<string, string> = {

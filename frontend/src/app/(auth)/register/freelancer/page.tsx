@@ -153,7 +153,7 @@ export default function FreelancerRegisterPage() {
           <p className="text-mono-label mb-4" style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.4em' }}>
             TALENT ONBOARDING
           </p>
-          <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: '#fff' }}>
+          <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: 'var(--text-primary)' }}>
             JOIN THE<br />
             <span style={{
               background: 'linear-gradient(to right, #DC143C, #f97316)',
@@ -416,7 +416,7 @@ export default function FreelancerRegisterPage() {
                     setStep(2)
                   }}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm mt-2 transition-all"
-                  style={{ background: accentColor, color: '#fff' }}
+                  style={{ background: accentColor, color: 'var(--text-primary)' }}
                 >
                   Continue to Profile <ChevronRight size={15} />
                 </button>
@@ -542,7 +542,7 @@ export default function FreelancerRegisterPage() {
                     type="submit"
                     disabled={loading || (isIntern && !depositAck)}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: accentColor, color: '#fff' }}
+                    style={{ background: accentColor, color: 'var(--text-primary)' }}
                   >
                     {loading
                       ? <><Loader2 size={15} className="animate-spin" /> Creating Account...</>

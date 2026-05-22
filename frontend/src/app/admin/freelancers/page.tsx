@@ -19,7 +19,7 @@ const MOCK_FREELANCERS: FreelancerProfile[] = [
 const STATUS_COLORS = {
   active: { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', color: '#4ade80' },
   pending: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', color: '#fbbf24' },
-  inactive: { bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.3)', color: '#9ca3af' },
+  inactive: { bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.3)', color: 'var(--text-muted)' },
 }
 
 function getInitials(name: string) {
@@ -92,7 +92,7 @@ export default function AdminFreelancersPage() {
           { label: 'TOTAL', value: counts.total, color: '#DC143C' },
           { label: 'ACTIVE', value: counts.active, color: '#4ade80' },
           { label: 'PENDING APPROVAL', value: counts.pending, color: '#fbbf24' },
-          { label: 'INACTIVE', value: counts.inactive, color: '#9ca3af' },
+          { label: 'INACTIVE', value: counts.inactive, color: 'var(--text-muted)' },
         ].map(item => (
           <div key={item.label} className="glass-card metric-card rounded-lg">
             <p className="text-mono-label mb-2">{item.label}</p>
@@ -133,17 +133,17 @@ export default function AdminFreelancersPage() {
           {[...Array(6)].map((_, i) => (
             <div key={i} className="glass-card rounded-xl p-6 animate-pulse space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#3D0000]" />
+                <div className="w-12 h-12 rounded-full bg-[var(--skeleton)]" />
                 <div className="space-y-2 flex-1">
-                  <div className="h-4 bg-[#3D0000] rounded w-3/4" />
-                  <div className="h-3 bg-[#3D0000] rounded w-1/2" />
+                  <div className="h-4 bg-[var(--skeleton)] rounded w-3/4" />
+                  <div className="h-3 bg-[var(--skeleton)] rounded w-1/2" />
                 </div>
               </div>
-              <div className="h-3 bg-[#3D0000] rounded" />
+              <div className="h-3 bg-[var(--skeleton)] rounded" />
               <div className="flex gap-2">
-                <div className="h-6 bg-[#3D0000] rounded w-16" />
-                <div className="h-6 bg-[#3D0000] rounded w-20" />
-                <div className="h-6 bg-[#3D0000] rounded w-14" />
+                <div className="h-6 bg-[var(--skeleton)] rounded w-16" />
+                <div className="h-6 bg-[var(--skeleton)] rounded w-20" />
+                <div className="h-6 bg-[var(--skeleton)] rounded w-14" />
               </div>
             </div>
           ))}
@@ -169,7 +169,7 @@ export default function AdminFreelancersPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-primary-ui font-bold text-base truncate">{f.user.name}</p>
-                    <p className="text-mono-label truncate" style={{ fontSize: '11px', color: '#9ca3af' }}>
+                    <p className="text-mono-label truncate" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                       {f.user.email}
                     </p>
                   </div>
@@ -183,7 +183,7 @@ export default function AdminFreelancersPage() {
 
                 {/* Bio */}
                 {f.bio && (
-                  <p className="text-sm leading-relaxed line-clamp-2" style={{ color: '#9ca3af' }}>{f.bio}</p>
+                  <p className="text-sm leading-relaxed line-clamp-2" style={{ color: 'var(--text-muted)' }}>{f.bio}</p>
                 )}
 
                 {/* Skills */}
@@ -192,7 +192,7 @@ export default function AdminFreelancersPage() {
                     <span
                       key={skill}
                       className="glass-card-dark text-mono-label px-2 py-0.5 rounded"
-                      style={{ fontSize: '10px', color: '#d1d5db' }}
+                      style={{ fontSize: '10px', color: 'var(--text-secondary)' }}
                     >
                       {skill}
                     </span>
@@ -206,7 +206,7 @@ export default function AdminFreelancersPage() {
 
                 {/* Meta */}
                 <div className="flex items-center gap-4 text-mono-label" style={{ fontSize: '11px' }}>
-                  <span style={{ color: '#9ca3af' }}>{f.experience} yr exp</span>
+                  <span style={{ color: 'var(--text-muted)' }}>{f.experience} yr exp</span>
                   <span className="text-crimson font-bold">{curr}{f.hourlyRate}/hr</span>
                 </div>
 
@@ -251,7 +251,7 @@ export default function AdminFreelancersPage() {
                 </div>
                 <div>
                   <h2 className="text-primary-ui font-bold text-xl">{detailFreelancer.user.name}</h2>
-                  <p className="text-mono-label" style={{ fontSize: '11px', color: '#9ca3af' }}>
+                  <p className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                     {detailFreelancer.user.email}
                   </p>
                 </div>
@@ -267,7 +267,7 @@ export default function AdminFreelancersPage() {
             <div className="space-y-4">
               <div>
                 <p className="label-field">Bio</p>
-                <p className="text-sm leading-relaxed" style={{ color: '#d1d5db' }}>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   {detailFreelancer.bio || 'No bio provided.'}
                 </p>
               </div>
@@ -285,7 +285,7 @@ export default function AdminFreelancersPage() {
                 <p className="label-field">Skills</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {detailFreelancer.skills.map(skill => (
-                    <span key={skill} className="glass-card-dark text-mono-label px-3 py-1 rounded" style={{ fontSize: '11px', color: '#d1d5db' }}>
+                    <span key={skill} className="glass-card-dark text-mono-label px-3 py-1 rounded" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                       {skill}
                     </span>
                   ))}
@@ -293,7 +293,7 @@ export default function AdminFreelancersPage() {
               </div>
               <div>
                 <p className="label-field">Member Since</p>
-                <p className="text-mono-label" style={{ color: '#9ca3af' }}>
+                <p className="text-mono-label" style={{ color: 'var(--text-muted)' }}>
                   {new Date(detailFreelancer.user.createdAt || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
               </div>

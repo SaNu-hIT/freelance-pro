@@ -91,9 +91,9 @@ function MetricCard({ label, value, trend = 'neutral', loading, highlight }: Met
     return (
       <div className="glass-card metric-card rounded-lg">
         <div className="animate-pulse space-y-3">
-          <div className="h-3 bg-[#3D0000] rounded w-2/3" />
-          <div className="h-8 bg-[#3D0000] rounded w-1/2" />
-          <div className="h-2 bg-[#3D0000] rounded w-1/3" />
+          <div className="h-3 bg-[var(--skeleton)] rounded w-2/3" />
+          <div className="h-8 bg-[var(--skeleton)] rounded w-1/2" />
+          <div className="h-2 bg-[var(--skeleton)] rounded w-1/3" />
         </div>
       </div>
     )
@@ -184,14 +184,14 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="animate-pulse flex gap-4 py-3">
-                  <div className="h-4 bg-[#3D0000] rounded flex-1" />
-                  <div className="h-4 bg-[#3D0000] rounded w-24" />
-                  <div className="h-4 bg-[#3D0000] rounded w-16" />
+                  <div className="h-4 bg-[var(--skeleton)] rounded flex-1" />
+                  <div className="h-4 bg-[var(--skeleton)] rounded w-24" />
+                  <div className="h-4 bg-[var(--skeleton)] rounded w-16" />
                 </div>
               ))}
             </div>
           ) : projects.length === 0 ? (
-            <p className="text-center text-mono-label py-8" style={{ color: '#6b7280' }}>No projects found</p>
+            <p className="text-center text-mono-label py-8" style={{ color: 'var(--text-muted)' }}>No projects found</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="data-table">
@@ -250,13 +250,13 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="animate-pulse glass-card-dark rounded-lg p-4 space-y-2">
-                  <div className="h-3 bg-[#3D0000] rounded w-3/4" />
-                  <div className="h-2 bg-[#3D0000] rounded w-1/2" />
+                  <div className="h-3 bg-[var(--skeleton)] rounded w-3/4" />
+                  <div className="h-2 bg-[var(--skeleton)] rounded w-1/2" />
                 </div>
               ))}
             </div>
           ) : worklogs.length === 0 ? (
-            <p className="text-center text-mono-label py-8" style={{ color: '#6b7280' }}>No worklogs found</p>
+            <p className="text-center text-mono-label py-8" style={{ color: 'var(--text-muted)' }}>No worklogs found</p>
           ) : (
             <div className="space-y-3">
               {worklogs.map(w => (
@@ -264,7 +264,7 @@ export default function AdminDashboardPage() {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <p className="text-primary-ui text-sm font-semibold">{w.freelancer?.user.name ?? 'Unknown'}</p>
-                      <p className="text-mono-label mt-0.5" style={{ fontSize: '10px', color: '#9ca3af' }}>
+                      <p className="text-mono-label mt-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                         {w.project?.title ?? `Project #${w.projectId}`}
                       </p>
                     </div>
@@ -275,7 +275,7 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <p className="text-mono-label text-xs leading-relaxed truncate" style={{ color: '#9ca3af' }}>
+                  <p className="text-mono-label text-xs leading-relaxed truncate" style={{ color: 'var(--text-muted)' }}>
                     {w.tasksCompleted}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
@@ -296,7 +296,7 @@ export default function AdminDashboardPage() {
         {/* Delayed / Blocked Alert */}
         <div className="glass-card rounded-xl p-6" style={{ borderColor: 'rgba(220,20,60,0.5)' }}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-lg bg-[#3D0000] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[var(--skeleton)] flex items-center justify-center">
               <AlertTriangle size={16} className="text-crimson" />
             </div>
             <div>
@@ -319,7 +319,7 @@ export default function AdminDashboardPage() {
                 >
                   <div>
                     <p className="text-primary-ui text-sm font-medium">{p.title}</p>
-                    <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: '#9ca3af' }}>
+                    <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                       Client: {p.client?.name ?? '—'} · Due: {new Date(p.deadline).toLocaleDateString()}
                     </p>
                   </div>
@@ -333,7 +333,7 @@ export default function AdminDashboardPage() {
         {/* Pending Approvals */}
         <div className="glass-card rounded-xl p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-lg bg-[#3D0000] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[var(--skeleton)] flex items-center justify-center">
               <Clock size={16} className="text-crimson" />
             </div>
             <div>
@@ -352,7 +352,7 @@ export default function AdminDashboardPage() {
                 <div key={p.id} className="glass-card-dark rounded-lg p-4 flex items-center justify-between">
                   <div>
                     <p className="text-primary-ui text-sm font-medium">{p.title}</p>
-                    <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: '#9ca3af' }}>
+                    <p className="text-mono-label mt-1" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                       {p.client?.name ?? '—'} · {p.progress}% complete
                     </p>
                   </div>

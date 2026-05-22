@@ -425,7 +425,7 @@ export default function AdminWorklogsPage() {
                       <p className="text-primary-ui text-sm font-medium">{w.freelancer?.user.name ?? `#${w.freelancerId}`}</p>
                     </td>
                     <td>
-                      <span className="text-sm max-w-[160px] truncate block" style={{ color: '#d1d5db' }}>
+                      <span className="text-sm max-w-[160px] truncate block" style={{ color: 'var(--text-secondary)' }}>
                         {w.project?.title ?? `#${w.projectId}`}
                       </span>
                     </td>
@@ -437,7 +437,7 @@ export default function AdminWorklogsPage() {
                       </div>
                     </td>
                     <td style={{ maxWidth: 220 }}>
-                      <p className="text-sm truncate" style={{ color: '#d1d5db' }}>{w.tasksCompleted}</p>
+                      <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{w.tasksCompleted}</p>
                     </td>
                     <td>
                       {w.blockers
@@ -496,7 +496,7 @@ export default function AdminWorklogsPage() {
 
               <div>
                 <p className="label-field">Tasks Completed</p>
-                <p className="text-sm leading-relaxed" style={{ color: '#d1d5db' }}>{detailLog.tasksCompleted}</p>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{detailLog.tasksCompleted}</p>
               </div>
 
               {detailLog.blockers && (
@@ -512,7 +512,7 @@ export default function AdminWorklogsPage() {
               {detailLog.nextSteps && (
                 <div>
                   <p className="label-field">Next Steps</p>
-                  <p className="text-sm leading-relaxed" style={{ color: '#d1d5db' }}>{detailLog.nextSteps}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{detailLog.nextSteps}</p>
                 </div>
               )}
 
@@ -523,7 +523,7 @@ export default function AdminWorklogsPage() {
                     {detailLog.fileUrls.map((url, i) => (
                       <div key={i} className="glass-card-dark rounded-lg p-3 flex items-center gap-3">
                         <Paperclip size={14} style={{ color: '#DC143C' }} />
-                        <span className="text-mono-label flex-1" style={{ fontSize: '12px', color: '#d1d5db' }}>{url}</span>
+                        <span className="text-mono-label flex-1" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{url}</span>
                       </div>
                     ))}
                   </div>

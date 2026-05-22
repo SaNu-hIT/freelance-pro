@@ -398,14 +398,14 @@ export default function OnboardingPipelinePage() {
 
   return (
     <DashboardLayout allowedRoles={['admin']}>
-      <div style={{ padding: '32px 28px', minHeight: '100vh', color: '#e5e7eb' }}>
+      <div style={{ padding: '32px 28px', minHeight: '100vh', color: 'var(--text-primary)' }}>
 
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
             Onboarding Pipeline
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--track-bg)', margin: '6px 0 0', fontFamily: 'JetBrains Mono, monospace' }}>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '6px 0 0', fontFamily: 'JetBrains Mono, monospace' }}>
             Review, verify and approve incoming freelancer applications
           </p>
         </div>
@@ -413,7 +413,7 @@ export default function OnboardingPipelinePage() {
         {/* Stat chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 28 }}>
           {([
-            { label: 'Total',              value: counts.all,        color: 'var(--track-bg)' },
+            { label: 'Total',              value: counts.all,        color: 'var(--text-muted)' },
             { label: 'Applied (new)',       value: counts.applied,    color: '#60a5fa' },
             { label: 'Under Review',        value: counts.reviewing,  color: '#fbbf24' },
             { label: 'Assessment',          value: counts.assessment, color: '#a78bfa' },
@@ -435,7 +435,7 @@ export default function OnboardingPipelinePage() {
               <span style={{ fontSize: 20, fontWeight: 700, color: chip.color, fontFamily: 'JetBrains Mono, monospace' }}>
                 {chip.value}
               </span>
-              <span style={{ fontSize: 11, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace' }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                 {chip.label}
               </span>
             </div>
@@ -487,7 +487,7 @@ export default function OnboardingPipelinePage() {
         {loading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '48px 0', justifyContent: 'center' }}>
             <Loader2 size={20} style={{ color: '#DC143C', animation: 'spin 1s linear infinite' }} />
-            <span style={{ color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
+            <span style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
               LOADING APPLICANTS...
             </span>
           </div>
@@ -512,7 +512,7 @@ export default function OnboardingPipelinePage() {
               }}
             >
               {filtered.length === 0 && (
-                <div style={{ textAlign: 'center', color: 'var(--track-bg)', padding: '48px 0', fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '48px 0', fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>
                   No applicants in this stage
                 </div>
               )}
@@ -552,13 +552,13 @@ export default function OnboardingPipelinePage() {
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 600, fontSize: 14, color: '#fff', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                             {applicant.user.name}
                           </span>
                           <TrackBadge track={applicant.track} />
                           <StageBadge stage={stage} />
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>
                           {applicant.user.email}
                         </div>
                       </div>
@@ -571,7 +571,7 @@ export default function OnboardingPipelinePage() {
                           background: 'var(--input-bg)',
                           border: '1px solid var(--border)',
                           borderRadius: 4, padding: '2px 7px',
-                          fontSize: 10, color: 'var(--track-bg)',
+                          fontSize: 10, color: 'var(--text-muted)',
                           fontFamily: 'JetBrains Mono, monospace',
                         }}>
                           {skill}
@@ -582,7 +582,7 @@ export default function OnboardingPipelinePage() {
                           background: 'var(--input-bg)',
                           border: '1px solid var(--border)',
                           borderRadius: 4, padding: '2px 7px',
-                          fontSize: 10, color: 'var(--track-bg)',
+                          fontSize: 10, color: 'var(--text-muted)',
                           fontFamily: 'JetBrains Mono, monospace',
                         }}>
                           +{applicant.skills.length - 3} more
@@ -592,10 +592,10 @@ export default function OnboardingPipelinePage() {
 
                     {/* Bottom row */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace' }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                         Applied {daysAgo(applicant.createdAt ?? '')}
                       </span>
-                      <span style={{ fontSize: 11, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace' }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                         {applicant.experience}y · {curr}{applicant.hourlyRate}/hr
                       </span>
                     </div>
@@ -627,7 +627,7 @@ export default function OnboardingPipelinePage() {
                     style={{
                       background: 'none', border: '1px solid var(--border)',
                       borderRadius: 6, padding: '4px 10px', cursor: 'pointer',
-                      color: 'var(--track-bg)', fontSize: 11,
+                      color: 'var(--text-muted)', fontSize: 11,
                       fontFamily: 'JetBrains Mono, monospace',
                     }}
                   >
@@ -648,11 +648,11 @@ export default function OnboardingPipelinePage() {
                     </div>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                        <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>{selected.user.name}</span>
+                        <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.user.name}</span>
                         <TrackBadge track={selected.track} />
                         <StageBadge stage={selected.onboardingStage ?? 'applied'} />
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
                         {selected.user.email}
                       </div>
                     </div>
@@ -660,7 +660,7 @@ export default function OnboardingPipelinePage() {
 
                   {/* Portfolio */}
                   <div style={{ marginBottom: 10 }}>
-                    <span style={{ fontSize: 10, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                       Portfolio
                     </span>
                     <div style={{ marginTop: 4 }}>
@@ -675,7 +675,7 @@ export default function OnboardingPipelinePage() {
                           <ExternalLink size={12} />
                         </a>
                       ) : (
-                        <span style={{ fontSize: 13, color: 'var(--track-bg)', fontStyle: 'italic' }}>Not provided</span>
+                        <span style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>Not provided</span>
                       )}
                     </div>
                   </div>
@@ -683,10 +683,10 @@ export default function OnboardingPipelinePage() {
                   {/* Bio */}
                   {selected.bio && (
                     <div style={{ marginBottom: 10 }}>
-                      <span style={{ fontSize: 10, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         Bio
                       </span>
-                      <p style={{ marginTop: 4, fontSize: 13, color: 'var(--track-bg)', lineHeight: 1.6 }}>
+                      <p style={{ marginTop: 4, fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                         {selected.bio}
                       </p>
                     </div>
@@ -695,12 +695,12 @@ export default function OnboardingPipelinePage() {
                   {/* Experience + Rate + Skills */}
                   <div style={{ display: 'flex', gap: 20, marginBottom: 10, flexWrap: 'wrap' }}>
                     <div>
-                      <span style={{ fontSize: 10, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Experience</span>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{selected.experience}y</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Experience</span>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.experience}y</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: 10, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Rate</span>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{curr}{selected.hourlyRate}/hr</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Rate</span>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{curr}{selected.hourlyRate}/hr</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -709,7 +709,7 @@ export default function OnboardingPipelinePage() {
                         background: 'var(--input-bg)',
                         border: '1px solid var(--border)',
                         borderRadius: 5, padding: '3px 9px',
-                        fontSize: 11, color: 'var(--track-bg)',
+                        fontSize: 11, color: 'var(--text-muted)',
                         fontFamily: 'JetBrains Mono, monospace',
                       }}>
                         {skill}
@@ -723,7 +723,7 @@ export default function OnboardingPipelinePage() {
 
                 {/* ── Section 2: Verification Checklist ── */}
                 <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--track-bg)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
+                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
                     Verification Checklist
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -752,7 +752,7 @@ export default function OnboardingPipelinePage() {
                             {checked ? (
                               <CheckCircle size={18} style={{ color: '#4ade80', flexShrink: 0 }} />
                             ) : (
-                              <Circle size={18} style={{ color: 'var(--track-bg)', flexShrink: 0 }} />
+                              <Circle size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                             )}
                             <span style={{
                               fontSize: 13,
@@ -773,7 +773,7 @@ export default function OnboardingPipelinePage() {
 
                 {/* ── Section 3: Pipeline Stage Actions ── */}
                 <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--track-bg)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
+                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
                     Pipeline Stage
                   </h3>
 
@@ -799,7 +799,7 @@ export default function OnboardingPipelinePage() {
                             {stageLabel(s)}
                           </div>
                           {idx < PIPELINE_STAGES.length - 1 && (
-                            <ChevronRight size={14} style={{ color: 'var(--track-bg)', margin: '0 2px' }} />
+                            <ChevronRight size={14} style={{ color: 'var(--text-muted)', margin: '0 2px' }} />
                           )}
                         </div>
                       )
@@ -862,7 +862,7 @@ export default function OnboardingPipelinePage() {
                               </span>
                             </div>
                             {selected.rejectionReason && (
-                              <p style={{ margin: 0, fontSize: 12, color: 'var(--track-bg)', lineHeight: 1.5 }}>
+                              <p style={{ margin: 0, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
                                 {selected.rejectionReason}
                               </p>
                             )}
@@ -945,7 +945,7 @@ export default function OnboardingPipelinePage() {
                       border: '1px solid rgba(248,113,113,0.2)',
                       borderRadius: 8, padding: '14px',
                     }}>
-                      <label style={{ fontSize: 11, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 8 }}>
+                      <label style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 8 }}>
                         REJECTION REASON
                       </label>
                       <textarea
@@ -956,7 +956,7 @@ export default function OnboardingPipelinePage() {
                         style={{
                           width: '100%', background: 'rgba(0,0,0,0.3)',
                           border: '1px solid var(--border)', borderRadius: 6,
-                          color: '#e5e7eb', fontSize: 13, padding: '8px 10px',
+                          color: 'var(--text-primary)', fontSize: 13, padding: '8px 10px',
                           fontFamily: 'inherit', resize: 'vertical', outline: 'none',
                           boxSizing: 'border-box',
                         }}
@@ -980,7 +980,7 @@ export default function OnboardingPipelinePage() {
                         <button
                           onClick={() => { setShowRejectForm(false); setRejectReason('') }}
                           style={{
-                            background: 'var(--input-bg)', color: 'var(--track-bg)',
+                            background: 'var(--input-bg)', color: 'var(--text-muted)',
                             border: '1px solid var(--border)', borderRadius: 6,
                             padding: '8px 14px', fontSize: 12,
                             fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer',
@@ -998,7 +998,7 @@ export default function OnboardingPipelinePage() {
 
                 {/* ── Section 4: Admin Notes ── */}
                 <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--track-bg)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 10px' }}>
+                  <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 10px' }}>
                     Admin Notes
                   </h3>
                   <textarea
@@ -1012,7 +1012,7 @@ export default function OnboardingPipelinePage() {
                       background: 'var(--row-hover-bg)',
                       border: '1px solid var(--border)',
                       borderRadius: 8,
-                      color: '#e5e7eb',
+                      color: 'var(--text-primary)',
                       fontSize: 13,
                       padding: '10px 12px',
                       fontFamily: 'inherit',
@@ -1024,7 +1024,7 @@ export default function OnboardingPipelinePage() {
                     onFocus={e => { e.currentTarget.style.borderColor = 'rgba(220,20,60,0.35)' }}
                     onBlurCapture={e => { e.currentTarget.style.borderColor = 'var(--input-bg)' }}
                   />
-                  <p style={{ fontSize: 10, color: 'var(--track-bg)', fontFamily: 'JetBrains Mono, monospace', marginTop: 6 }}>
+                  <p style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: 6 }}>
                     AUTO-SAVES ON BLUR
                   </p>
                 </div>
