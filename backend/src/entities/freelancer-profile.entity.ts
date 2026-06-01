@@ -67,6 +67,9 @@ export class FreelancerProfile {
   @Column({ type: 'jsonb', nullable: true, default: null })
   verifications: Record<string, boolean> | null;
 
+  @Column({ type: 'jsonb', nullable: true, default: null })
+  availability: Record<string, unknown> | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

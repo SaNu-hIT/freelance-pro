@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { settingsApi } from './api'
 import { UserRole } from './types'
 
 // ── Currency symbols ──────────────────────────────────────────
@@ -12,29 +13,47 @@ export const CURRENCY_SYMBOLS: Record<string, string> = {
 }
 
 export interface SettingsState {
-  currency: string          // e.g. 'INR'
+  currency: string
   timezone: string
   maintenanceMode: boolean
   newRegistrations: boolean
   requireApproval: boolean
-  setCurrency: (c: string) => void
-  setPlatformSettings: (s: Partial<Omit<SettingsState, 'setCurrency' | 'setPlatformSettings'>>) => void
+  _loaded: boolean
+  setCurrency: (c: string) => Promise<void>
+  setPlatformSettings: (s: Partial<Omit<SettingsState, 'setCurrency' | 'setPlatformSettings' | 'fetchSettings' | '_loaded'>>) => Promise<void>
+  fetchSettings: () => Promise<void>
 }
 
-export const useSettingsStore = create<SettingsState>()(
-  persist(
-    (set) => ({
-      currency: 'USD',
-      timezone: 'UTC+5:30',
-      maintenanceMode: false,
-      newRegistrations: true,
-      requireApproval: true,
-      setCurrency: (currency) => set({ currency }),
-      setPlatformSettings: (s) => set(s),
-    }),
-    { name: 'platform-settings' }
-  )
-)
+export const useSettingsStore = create<SettingsState>()((set, get) => ({
+  currency: 'USD',
+  timezone: 'UTC+5:30',
+  maintenanceMode: false,
+  newRegistrations: true,
+  requireApproval: true,
+  _loaded: false,
+
+  fetchSettings: async () => {
+    try {
+      const res = await settingsApi.get()
+      if (res.data) {
+        const { currency, timezone, maintenanceMode, newRegistrations, requireApproval } = res.data
+        set({ currency, timezone, maintenanceMode, newRegistrations, requireApproval, _loaded: true })
+      }
+    } catch {
+      set({ _loaded: true })
+    }
+  },
+
+  setCurrency: async (currency) => {
+    set({ currency })
+    try { await settingsApi.update({ currency }) } catch {}
+  },
+
+  setPlatformSettings: async (s) => {
+    set(s as Partial<SettingsState>)
+    try { await settingsApi.update(s as Parameters<typeof settingsApi.update>[0]) } catch {}
+  },
+}))
 
 /** Returns the symbol for the currently selected currency, e.g. "₹" */
 export function useCurrencySymbol() {
@@ -61,6 +80,7 @@ interface AuthState {
   setHasHydrated: (v: boolean) => void
 }
 
+// Auth stays in localStorage — it's a session token, appropriate for local storage
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({

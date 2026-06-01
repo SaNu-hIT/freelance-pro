@@ -6,16 +6,16 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { projectsApi, sprintsApi, tasksApi } from '@/lib/api'
 import { Project, ProjectSprint, ProjectTask } from '@/lib/types'
 import { useCurrencySymbol, useAuthStore } from '@/lib/store'
+import { useChatStore } from '@/lib/chatStore'
 import {
   X, Upload, CheckCircle, AlertTriangle, Calendar, DollarSign,
   Globe, Code2, FileSpreadsheet, ExternalLink, ChevronDown as ChevDown,
   MessageSquare, Send, AlertOctagon, Users, Clock, TrendingUp,
   CheckSquare, Square, Layers, ChevronRight, Zap, Bell, Plus,
-  ArrowUpRight, Shield,
+  ArrowUpRight, Shield, LayoutGrid, List,
 } from 'lucide-react'
 
 /* ── Types ──────────────────────────────────────────────── */
-interface ChatMessage { id: string; from: 'client' | 'team'; sender: string; text: string; ts: string }
 interface DevRequest  { id: string; from: string; subject: string; body: string; ts: string; status: 'open' | 'resolved'; projectId: string }
 
 /* ── Mock data ──────────────────────────────────────────── */
@@ -71,14 +71,6 @@ const PAYMENT_SCHEDULE: Record<string, { label: string; date: string; amount: nu
   ],
 }
 
-const MOCK_CHAT: Record<string, ChatMessage[]> = {
-  '1': [
-    { id: 'c1', from: 'team',   sender: 'Alex Rivera', text: 'Hi! Just wanted to give you a quick update — the cart component is 80% done. Looking good!', ts: new Date(Date.now() - 3 * 3600000).toISOString() },
-    { id: 'c2', from: 'client', sender: 'You',         text: 'Great to hear! Will you be able to hit the staging deadline?', ts: new Date(Date.now() - 2.5 * 3600000).toISOString() },
-    { id: 'c3', from: 'team',   sender: 'Alex Rivera', text: 'Yes, we\'re on track. Staging will be live by Friday EOD.', ts: new Date(Date.now() - 2 * 3600000).toISOString() },
-  ],
-  '2': [],
-}
 
 /* ── Helpers ────────────────────────────────────────────── */
 function fmt(iso: string, opts?: Intl.DateTimeFormatOptions) {
@@ -110,13 +102,14 @@ export default function ClientProjectsPage() {
   const [tasks,      setTasks]      = useState<ProjectTask[]>([])
   const [collapsed,  setCollapsed]  = useState<Set<string>>(new Set())
   const [requests,   setRequests]   = useState<DevRequest[]>(MOCK_REQUESTS)
-  const [chat,       setChat]       = useState<Record<string, ChatMessage[]>>(MOCK_CHAT)
+  const { messages: chatMessages, sendMessage: storeSendMsg, markReadByClient, unreadForClient, fetchMessages } = useChatStore()
   const [chatMsg,    setChatMsg]    = useState('')
   const [escalateForm, setEscalateForm] = useState({ subject: '', details: '', urgency: 'normal' })
   const [escalated,  setEscalated]  = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   /* submit new project form */
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [form, setForm]   = useState({ title: '', description: '', budget: '', deadline: '', requirements: '' })
   const [errors, setErrors] = useState<Partial<typeof form>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -128,7 +121,8 @@ export default function ClientProjectsPage() {
       .then(r => setProjects(r.data?.data ?? r.data ?? MOCK_PROJECTS))
       .catch(() => setProjects(MOCK_PROJECTS))
       .finally(() => setLoading(false))
-  }, [])
+    fetchMessages()
+  }, []) // eslint-disable-line
 
   const openModal = async (p: Project) => {
     setModal(p); setTab('overview'); setSprints([]); setTasks([])
@@ -142,8 +136,16 @@ export default function ClientProjectsPage() {
   /* chat send */
   const sendChat = () => {
     if (!chatMsg.trim() || !modal) return
-    const msg: ChatMessage = { id: `m${Date.now()}`, from: 'client', sender: 'You', text: chatMsg.trim(), ts: new Date().toISOString() }
-    setChat(prev => ({ ...prev, [modal.id]: [...(prev[modal.id] ?? []), msg] }))
+    storeSendMsg({
+      projectId: modal.id,
+      projectTitle: modal.title,
+      from: 'client',
+      sender: curr?.name ?? 'Client',
+      senderId: curr?.id ?? 'client',
+      text: chatMsg.trim(),
+      readByAdmin: false,
+      readByClient: true,
+    })
     setChatMsg('')
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
@@ -182,7 +184,8 @@ export default function ClientProjectsPage() {
     }
   }
 
-  const projectChat    = modal ? (chat[modal.id] ?? []) : []
+  const projectChat    = modal ? chatMessages.filter(m => m.projectId === modal.id) : []
+  const chatUnread     = modal ? unreadForClient(modal.id) : 0
   const projectRequests = modal ? requests.filter(r => r.projectId === modal.id) : []
   const openRequests    = projectRequests.filter(r => r.status === 'open').length
   const payments        = modal ? (PAYMENT_SCHEDULE[modal.id] ?? []) : []
@@ -205,23 +208,28 @@ export default function ClientProjectsPage() {
               {projects.length} project{projects.length !== 1 ? 's' : ''} · {projects.filter(p => p.status === 'in_progress').length} active
             </p>
           </div>
-          {/* summary pills */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* summary pills + view toggle */}
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             {[
               { label: 'Active',   count: projects.filter(p => p.status === 'in_progress').length,      color: '#60a5fa' },
               { label: 'Pending',  count: projects.filter(p => p.status === 'pending_approval').length,  color: '#fbbf24' },
               { label: 'Done',     count: projects.filter(p => p.status === 'completed').length,         color: '#4ade80' },
             ].map(({ label, count, color }) => (
-              <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-xl"
+              <div key={label} className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl"
                 style={{ background: `${color}10`, border: `1px solid ${color}30` }}>
                 <span className="font-bold text-base" style={{ color }}>{count}</span>
                 <span className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>{label}</span>
               </div>
             ))}
+            {/* View toggle */}
+            <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+              <button onClick={() => setViewMode('grid')} className="p-1.5 rounded transition-all" style={{ background: viewMode === 'grid' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'grid' ? '#DC143C' : 'var(--text-muted)' }} title="Grid view"><LayoutGrid size={14} /></button>
+              <button onClick={() => setViewMode('list')} className="p-1.5 rounded transition-all" style={{ background: viewMode === 'list' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'list' ? '#DC143C' : 'var(--text-muted)' }} title="List view"><List size={14} /></button>
+            </div>
           </div>
         </div>
 
-        {/* ── Project Cards ── */}
+        {/* ── Project Cards / List ── */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => <div key={i} className="h-56 rounded-2xl animate-pulse" style={{ background: 'var(--bg-elevated)' }} />)}
@@ -230,7 +238,7 @@ export default function ClientProjectsPage() {
           <div className="text-center py-16 rounded-2xl" style={{ border: '1px dashed var(--border)' }}>
             <p className="text-mono-label" style={{ color: 'var(--text-muted)' }}>No projects yet — submit one below</p>
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {projects.map(p => {
               const days    = daysLeft(p.deadline)
@@ -242,11 +250,8 @@ export default function ClientProjectsPage() {
                   className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-0.5"
                   style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
                   onClick={() => openModal(p)}>
-                  {/* colour top bar */}
                   <div className="h-1" style={{ background: `linear-gradient(to right, ${PRIORITY_COLOR[p.priority]}, transparent)` }} />
-
                   <div className="p-5">
-                    {/* title row */}
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-base leading-tight text-primary-ui truncate">{p.title}</h3>
@@ -254,8 +259,6 @@ export default function ClientProjectsPage() {
                       </div>
                       <ArrowUpRight size={16} className="shrink-0 mt-0.5 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: 'var(--text-muted)' }} />
                     </div>
-
-                    {/* badges row */}
                     <div className="flex flex-wrap items-center gap-1.5 mb-4">
                       <StatusBadge status={p.status} />
                       <span className="text-mono-label px-2 py-0.5 rounded-full text-[9px]"
@@ -269,8 +272,6 @@ export default function ClientProjectsPage() {
                         </span>
                       )}
                     </div>
-
-                    {/* progress */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>PROGRESS</span>
@@ -280,8 +281,6 @@ export default function ClientProjectsPage() {
                         <div className="h-full rounded-full" style={{ width: `${p.progress}%`, background: 'linear-gradient(to right, #8B0000, #DC143C)' }} />
                       </div>
                     </div>
-
-                    {/* key stats */}
                     <div className="grid grid-cols-2 gap-2 mb-4">
                       <div className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                         <p className="text-mono-label text-[9px] mb-0.5" style={{ color: 'var(--text-muted)' }}>BUDGET</p>
@@ -294,8 +293,6 @@ export default function ClientProjectsPage() {
                         </p>
                       </div>
                     </div>
-
-                    {/* next payment */}
                     {pPay && (
                       <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg"
                         style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.2)' }}>
@@ -305,6 +302,63 @@ export default function ClientProjectsPage() {
                       </div>
                     )}
                   </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          /* List view */
+          <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+            {projects.map((p, i) => {
+              const days    = daysLeft(p.deadline)
+              const overdue = isOverdue(p.deadline) && p.status !== 'completed'
+              const pReqs   = requests.filter(r => r.projectId === p.id && r.status === 'open').length
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-4 px-5 py-4 cursor-pointer group transition-all"
+                  style={{ borderBottom: i < projects.length - 1 ? '1px solid var(--border)' : 'none', background: 'transparent' }}
+                  onClick={() => openModal(p)}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,20,60,0.03)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  {/* Color indicator */}
+                  <div className="w-1 h-10 rounded-full shrink-0" style={{ background: PRIORITY_COLOR[p.priority] }} />
+                  {/* Title + desc */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm text-primary-ui truncate">{p.title}</h3>
+                    <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.description}</p>
+                  </div>
+                  {/* Status + badges */}
+                  <div className="hidden md:flex items-center gap-2 shrink-0">
+                    <StatusBadge status={p.status} />
+                    {pReqs > 0 && (
+                      <span className="flex items-center gap-1 text-mono-label px-2 py-0.5 rounded-full text-[9px]"
+                        style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}>
+                        <Bell size={8} />{pReqs}
+                      </span>
+                    )}
+                  </div>
+                  {/* Progress */}
+                  <div className="hidden lg:flex items-center gap-2 shrink-0" style={{ width: 120 }}>
+                    <div className="rounded-full overflow-hidden flex-1" style={{ height: 5, background: 'var(--track-bg)' }}>
+                      <div className="h-full rounded-full" style={{ width: `${p.progress}%`, background: 'linear-gradient(to right,#8B0000,#DC143C)' }} />
+                    </div>
+                    <span className="text-xs font-bold shrink-0" style={{ color: '#DC143C' }}>{p.progress}%</span>
+                  </div>
+                  {/* Budget */}
+                  <div className="hidden md:block shrink-0 text-right" style={{ minWidth: 80 }}>
+                    <p className="text-mono-label text-[9px]" style={{ color: 'var(--text-muted)' }}>BUDGET</p>
+                    <p className="font-bold text-sm text-crimson">{currency}{p.budget.toLocaleString()}</p>
+                  </div>
+                  {/* Deadline */}
+                  <div className="shrink-0 text-right" style={{ minWidth: 72 }}>
+                    <p className="text-mono-label text-[9px]" style={{ color: 'var(--text-muted)' }}>DEADLINE</p>
+                    <p className="font-bold text-xs" style={{ color: overdue ? '#f87171' : 'var(--text-primary)' }}>
+                      {overdue ? `${Math.abs(days)}d over` : p.status === 'completed' ? 'Done ✓' : `${days}d left`}
+                    </p>
+                  </div>
+                  <ArrowUpRight size={14} className="shrink-0 opacity-0 group-hover:opacity-50 transition-opacity" style={{ color: 'var(--text-muted)' }} />
                 </div>
               )
             })}
@@ -416,10 +470,10 @@ export default function ClientProjectsPage() {
                 { key: 'overview',  label: 'Overview',     icon: <TrendingUp size={13} /> },
                 { key: 'tasks',     label: 'Sprints & Tasks', icon: <CheckSquare size={13} /> },
                 { key: 'requests',  label: `Requests${openRequests > 0 ? ` (${openRequests})` : ''}`, icon: <Bell size={13} /> },
-                { key: 'chat',      label: 'Chat',         icon: <MessageSquare size={13} /> },
+                { key: 'chat',      label: `Chat${chatUnread > 0 ? ` (${chatUnread})` : ''}`, icon: <MessageSquare size={13} /> },
                 { key: 'escalate',  label: 'Escalate',     icon: <AlertOctagon size={13} /> },
               ] as { key: Tab; label: string; icon: React.ReactNode }[]).map(t => (
-                <button key={t.key} onClick={() => setTab(t.key)}
+                <button key={t.key} onClick={() => { setTab(t.key); if (t.key === 'chat' && modal) markReadByClient(modal.id) }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                   style={{
                     background: tab === t.key ? 'var(--crimson-dim)' : 'transparent',
@@ -788,7 +842,7 @@ export default function ClientProjectsPage() {
                                 border: `1px solid ${msg.from === 'client' ? 'rgba(220,20,60,0.2)' : 'var(--border)'}`,
                                 color: 'var(--text-primary)',
                                 borderBottomRightRadius: msg.from === 'client' ? 4 : undefined,
-                                borderBottomLeftRadius: msg.from === 'team' ? 4 : undefined,
+                                borderBottomLeftRadius: msg.from === 'admin' ? 4 : undefined,
                               }}>
                               {msg.text}
                             </div>

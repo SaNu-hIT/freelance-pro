@@ -68,25 +68,39 @@ export default function LoginPage() {
   const busy = loading || !!demoLoading
 
   return (
-    <div className="min-h-screen flex" style={{ background: 'var(--bg-base)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-base)' }}>
+
+      {/* ── Global top bar ── */}
+      <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0" style={{ background: 'var(--bg-sidebar)' }}>
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
+          <div className="w-5 h-5 bg-[#DC143C]" style={{ clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' }} />
+          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
+            style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+          >
+            {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
+          </button>
+          <Link href="/register"
+            className="px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
+            style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            REGISTER →
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Two-panel layout ── */}
+      <div className="flex flex-1">
 
       {/* ── LEFT: Brand panel ─────────────────────────────────────── */}
       <div
         className="hidden lg:flex flex-col w-[44%] shrink-0 relative overflow-hidden border-r border-theme"
         style={{ background: 'var(--bg-sidebar)' }}
       >
-        {/* Top crimson line */}
-        <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(to right, transparent, #DC143C, transparent)' }} />
-
         <div className="flex flex-col justify-between h-full px-12 py-12">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 w-fit hover:opacity-75 transition-opacity">
-            <div className="w-7 h-7 shrink-0 bg-[#DC143C]" style={{ clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' }} />
-            <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>
-              FREELANCE_PRO
-            </span>
-          </Link>
 
           {/* Main copy */}
           <div>
@@ -134,30 +148,6 @@ export default function LoginPage() {
 
       {/* ── RIGHT: Form ──────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col">
-
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0" style={{ background: 'var(--bg-sidebar)' }}>
-          {/* Mobile logo */}
-          <Link href="/" className="flex items-center gap-2 lg:invisible">
-            <div className="w-5 h-5 bg-[#DC143C]" style={{ clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' }} />
-            <span className="text-xs font-bold tracking-widest text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
-          </Link>
-
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
-              style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
-            >
-              {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
-            </button>
-            <Link href="/register"
-              className="px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
-              style={{ fontFamily: 'JetBrains Mono,monospace' }}>
-              REGISTER →
-            </Link>
-          </div>
-        </div>
 
         {/* Form area */}
         <div className="flex-1 flex items-center justify-center px-6 py-12">
@@ -242,6 +232,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      </div>{/* end two-panel */}
     </div>
   )
 }

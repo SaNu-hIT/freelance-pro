@@ -19,9 +19,12 @@ import {
   Inbox,
   UsersRound,
   GitMerge,
+  MessageSquare,
 } from 'lucide-react'
+import { useEffect } from 'react'
 import { UserRole } from '@/lib/types'
 import { useAuthStore } from '@/lib/store'
+import { useChatStore } from '@/lib/chatStore'
 import { CrimsonCube } from '@/components/ui/CrimsonCube'
 
 interface NavItem {
@@ -30,35 +33,101 @@ interface NavItem {
   icon: React.ReactNode
 }
 
-const adminNav: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={16} /> },
-  { label: 'Projects', href: '/admin/projects', icon: <FolderKanban size={16} /> },
-  { label: 'Freelancers', href: '/admin/freelancers', icon: <UserCheck size={16} /> },
-  { label: 'Onboarding', href: '/admin/onboarding', icon: <GitMerge size={16} /> },
-  { label: 'Resources', href: '/admin/resources', icon: <UsersRound size={16} /> },
-  { label: 'Clients', href: '/admin/clients', icon: <Users size={16} /> },
-  { label: 'Worklogs', href: '/admin/worklogs', icon: <ClipboardList size={16} /> },
-  { label: 'Payments', href: '/admin/payments', icon: <CreditCard size={16} /> },
-  { label: 'Inquiries', href: '/admin/inquiries', icon: <Inbox size={16} /> },
-  { label: 'Settings', href: '/admin/settings', icon: <Settings size={16} /> },
+interface NavSection {
+  section: string | null
+  items: NavItem[]
+}
+
+const adminNav: NavSection[] = [
+  {
+    section: null,
+    items: [
+      { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={16} /> },
+    ],
+  },
+  {
+    section: 'Projects',
+    items: [
+      { label: 'Projects', href: '/admin/projects', icon: <FolderKanban size={16} /> },
+      { label: 'Worklogs', href: '/admin/worklogs', icon: <ClipboardList size={16} /> },
+    ],
+  },
+  {
+    section: 'Team',
+    items: [
+      { label: 'Our Team', href: '/admin/freelancers', icon: <UserCheck size={16} /> },
+      { label: 'Onboarding', href: '/admin/onboarding', icon: <GitMerge size={16} /> },
+      { label: 'Resources', href: '/admin/resources', icon: <UsersRound size={16} /> },
+    ],
+  },
+  {
+    section: 'Clients',
+    items: [
+      { label: 'Clients', href: '/admin/clients', icon: <Users size={16} /> },
+      { label: 'Payments', href: '/admin/payments', icon: <CreditCard size={16} /> },
+      { label: 'Inquiries', href: '/admin/inquiries', icon: <Inbox size={16} /> },
+    ],
+  },
+  {
+    section: 'Communication',
+    items: [
+      { label: 'Messages', href: '/admin/chat', icon: <MessageSquare size={16} /> },
+    ],
+  },
+  {
+    section: 'System',
+    items: [
+      { label: 'Settings', href: '/admin/settings', icon: <Settings size={16} /> },
+    ],
+  },
 ]
 
-const freelancerNav: NavItem[] = [
-  { label: 'Dashboard', href: '/freelancer', icon: <LayoutDashboard size={16} /> },
-  { label: 'My Projects', href: '/freelancer/projects', icon: <Briefcase size={16} /> },
-  { label: 'Worklogs', href: '/freelancer/worklogs', icon: <ClipboardList size={16} /> },
-  { label: 'Earnings', href: '/freelancer/earnings', icon: <DollarSign size={16} /> },
-  { label: 'Profile', href: '/freelancer/profile', icon: <User size={16} /> },
+const freelancerNav: NavSection[] = [
+  {
+    section: null,
+    items: [
+      { label: 'Dashboard', href: '/freelancer', icon: <LayoutDashboard size={16} /> },
+    ],
+  },
+  {
+    section: 'Work',
+    items: [
+      { label: 'My Projects', href: '/freelancer/projects', icon: <Briefcase size={16} /> },
+      { label: 'Worklogs', href: '/freelancer/worklogs', icon: <ClipboardList size={16} /> },
+    ],
+  },
+  {
+    section: 'Finance',
+    items: [
+      { label: 'Earnings', href: '/freelancer/earnings', icon: <DollarSign size={16} /> },
+    ],
+  },
+  {
+    section: 'Account',
+    items: [
+      { label: 'Profile', href: '/freelancer/profile', icon: <User size={16} /> },
+    ],
+  },
 ]
 
-const clientNav: NavItem[] = [
-  { label: 'Dashboard', href: '/client', icon: <LayoutDashboard size={16} /> },
-  { label: 'My Projects', href: '/client/projects', icon: <FolderKanban size={16} /> },
-  { label: 'Milestones', href: '/client/milestones', icon: <Milestone size={16} /> },
-  { label: 'Documents', href: '/client/documents', icon: <FileText size={16} /> },
+const clientNav: NavSection[] = [
+  {
+    section: null,
+    items: [
+      { label: 'Dashboard', href: '/client', icon: <LayoutDashboard size={16} /> },
+    ],
+  },
+  {
+    section: 'Projects',
+    items: [
+      { label: 'My Projects', href: '/client/projects', icon: <FolderKanban size={16} /> },
+      { label: 'Milestones', href: '/client/milestones', icon: <Milestone size={16} /> },
+      { label: 'Documents', href: '/client/documents', icon: <FileText size={16} /> },
+    ],
+  },
 ]
 
-const navByRole: Record<UserRole, NavItem[]> = {
+const navByRole: Record<UserRole, NavSection[]> = {
   admin: adminNav,
   freelancer: freelancerNav,
   client: clientNav,
@@ -71,7 +140,14 @@ interface SidebarProps {
 
 export function Sidebar({ role, pathname }: SidebarProps) {
   const { user, logout } = useAuthStore()
-  const navItems = navByRole[role]
+  const unreadForAdmin = useChatStore(s => s.unreadForAdmin)
+  const fetchMessages = useChatStore(s => s.fetchMessages)
+  const adminChatUnread = role === 'admin' ? unreadForAdmin() : 0
+
+  useEffect(() => {
+    if (role === 'admin') fetchMessages()
+  }, [role, fetchMessages])
+  const navSections = navByRole[role]
 
   return (
     <aside
@@ -85,23 +161,44 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         </span>
       </Link>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all group ${isActive ? 'active' : ''}`}
-            >
-              <span className="shrink-0">{item.icon}</span>
-              <span className="flex-1 text-xs tracking-wide uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{item.label}</span>
-              {isActive && (
-                <ChevronRight size={12} className="text-[#DC143C] opacity-70" />
-              )}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        {navSections.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
+            {group.section && (
+              <p className="px-3 mb-1 text-[9px] font-bold tracking-[0.2em] uppercase select-none"
+                style={{ color: 'rgba(220,20,60,0.45)', fontFamily: "'JetBrains Mono', monospace" }}>
+                {group.section}
+              </p>
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const isRootItem = item.href.split('/').length < 3
+                const isActive =
+                  pathname === item.href ||
+                  (isRootItem && pathname === item.href + '/dashboard') ||
+                  (!isRootItem && pathname.startsWith(item.href + '/'))
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all group ${isActive ? 'active' : ''}`}
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    <span className="flex-1 text-xs tracking-wide uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{item.label}</span>
+                    {item.href === '/admin/chat' && adminChatUnread > 0 ? (
+                      <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse"
+                        style={{ background: '#DC143C', color: '#fff' }}>
+                        {adminChatUnread}
+                      </span>
+                    ) : isActive ? (
+                      <ChevronRight size={12} className="text-[#DC143C] opacity-70" />
+                    ) : null}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="px-4 py-4 border-t border-theme">

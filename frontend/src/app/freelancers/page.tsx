@@ -263,10 +263,10 @@ export default function FreelancersPage() {
       {/* Footer */}
       <footer className="glass-card-dark border-t border-[var(--input-bg)]">
         <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
             <CrimsonCube size={20} />
             <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><X size={18} /></a>

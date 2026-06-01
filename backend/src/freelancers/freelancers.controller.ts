@@ -103,4 +103,23 @@ export class FreelancersController {
   ) {
     return this.freelancersService.updateStatus(id, body.status);
   }
+
+  @Get(':id/availability')
+  async getAvailability(@Param('id') id: string) {
+    return this.freelancersService.getAvailability(id);
+  }
+
+  @Patch(':id/availability')
+  async updateAvailability(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+    @Request() req: any,
+  ) {
+    const user = req.user;
+    if (user.role === 'freelancer') {
+      const profile = await this.freelancersService.findByUserId(user.id);
+      if (!profile || profile.id !== id) throw new ForbiddenException('You can only update your own availability');
+    }
+    return this.freelancersService.updateAvailability(id, body);
+  }
 }

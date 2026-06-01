@@ -18,6 +18,12 @@ import { TasksModule } from './tasks/tasks.module';
 import { ProjectTask } from './entities/project-task.entity';
 import { SprintsModule } from './sprints/sprints.module';
 import { ProjectSprint } from './entities/project-sprint.entity';
+import { SkillGroupsModule } from './skill-groups/skill-groups.module';
+import { SkillGroup } from './entities/skill-group.entity';
+import { PlatformSettingsModule } from './platform-settings/platform-settings.module';
+import { PlatformSettings } from './entities/platform-settings.entity';
+import { ChatModule } from './chat/chat.module';
+import { ChatMessage } from './entities/chat-message.entity';
 
 @Module({
   imports: [
@@ -32,7 +38,7 @@ import { ProjectSprint } from './entities/project-sprint.entity';
         username: configService.get<string>('DATABASE_USER', 'postgres'),
         password: configService.get<string>('DATABASE_PASSWORD', 'postgres'),
         database: configService.get<string>('DATABASE_NAME', 'freelance_pro'),
-        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint],
+        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage],
         synchronize: true,
         logging: false,
       }),
@@ -47,6 +53,9 @@ import { ProjectSprint } from './entities/project-sprint.entity';
     InquiriesModule,
     TasksModule,
     SprintsModule,
+    SkillGroupsModule,
+    PlatformSettingsModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

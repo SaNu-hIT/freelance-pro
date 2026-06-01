@@ -7,7 +7,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { projectsApi, worklogsApi } from '@/lib/api'
 import { Project, Worklog, ProjectStatus } from '@/lib/types'
-import { Briefcase, Clock, DollarSign, CheckSquare, Square, AlertTriangle } from 'lucide-react'
+import { Briefcase, Clock, DollarSign, CheckSquare, Square, AlertTriangle, Shield, ChevronRight } from 'lucide-react'
+import { useFreelancerStore } from '@/lib/freelancerStore'
+import { freelancersApi } from '@/lib/api'
 
 const MOCK_PROJECTS: Project[] = [
   {
@@ -107,6 +109,33 @@ function fmtHours(h: number) {
 export default function FreelancerDashboardPage() {
   const { user } = useAuthStore()
   const curr = useCurrencySymbol()
+  const fetchAvailability = useFreelancerStore(s => s.fetchAvailability)
+  const getAvailability   = useFreelancerStore(s => s.getAvailability)
+  const userId = user?.id ?? 'demo-freelancer'
+
+  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending')
+  const [profileId, setProfileId] = useState<string | null>(null)
+
+  // Load approval status and profile ID from backend
+  useEffect(() => {
+    freelancersApi.getAll().then(res => {
+      const list = res.data?.data ?? res.data ?? []
+      const fp = Array.isArray(list) ? list[0] : list
+      if (!fp) return
+      setProfileId(fp.id ?? null)
+      const stage = fp.onboardingStage ?? fp.status
+      if (stage === 'approved' || fp.status === 'active') setApprovalStatus('approved')
+      else if (stage === 'rejected' || fp.status === 'inactive') setApprovalStatus('rejected')
+    }).catch(() => {})
+  }, [userId])
+
+  // Load availability when profileId is known
+  useEffect(() => {
+    if (profileId) fetchAvailability(profileId)
+  }, [profileId]) // eslint-disable-line
+
+  const avail = profileId ? getAvailability(profileId) : getAvailability(userId)
+  const activeDays = Object.values(avail.schedule).filter(d => d.enabled).length
   const [projects, setProjects] = useState<Project[]>([])
   const [worklogs, setWorklogs] = useState<Worklog[]>([])
   const [loading, setLoading] = useState(true)
@@ -179,6 +208,61 @@ export default function FreelancerDashboardPage() {
           </div>
           <span className="text-mono-label text-xs text-[var(--text-muted)]">{today}</span>
         </div>
+
+        {/* ── Approval status ── */}
+        {approvalStatus !== 'approved' && (
+          <Link href="/freelancer/profile"
+            className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:opacity-90"
+            style={{
+              background: approvalStatus === 'rejected' ? 'rgba(248,113,113,0.06)' : 'rgba(251,191,36,0.06)',
+              border: `1px solid ${approvalStatus === 'rejected' ? 'rgba(248,113,113,0.25)' : 'rgba(251,191,36,0.25)'}`,
+            }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                background: approvalStatus === 'rejected' ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)',
+                color: approvalStatus === 'rejected' ? '#f87171' : '#fbbf24',
+              }}>
+              <AlertTriangle size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-sm" style={{ color: approvalStatus === 'rejected' ? '#f87171' : '#fbbf24' }}>
+                {approvalStatus === 'rejected' ? 'Application Not Approved' : 'Application Under Review'}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {approvalStatus === 'rejected'
+                  ? 'Your application was not approved. Check your profile for details.'
+                  : 'Our team is reviewing your profile. You\'ll be notified within 2–3 business days.'}
+              </p>
+            </div>
+            <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
+          </Link>
+        )}
+
+        {approvalStatus === 'approved' && (
+          <div className="flex items-center gap-4 rounded-2xl p-4"
+            style={{ background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.2)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80' }}>
+              <Shield size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-sm" style={{ color: '#4ade80' }}>Active — Approved Freelancer</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                Your profile is live. You can be assigned to projects.
+              </p>
+            </div>
+            <div className="hidden md:flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
+                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                <Clock size={11} /> {avail.hoursPerWeek}h/wk
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
+                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                {activeDays}d/wk available
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">

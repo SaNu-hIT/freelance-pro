@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search, CheckCircle, Eye, User } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Search, User, LayoutGrid, List } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
 import { FreelancerProfile } from '@/lib/types'
@@ -28,38 +30,27 @@ function getInitials(name: string) {
 
 export default function AdminFreelancersPage() {
   const curr = useCurrencySymbol()
+  const router = useRouter()
   const [freelancers, setFreelancers] = useState<FreelancerProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'pending' | 'inactive'>('all')
-  const [approvingId, setApprovingId] = useState<string | null>(null)
-  const [detailFreelancer, setDetailFreelancer] = useState<FreelancerProfile | null>(null)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active'>('all')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await freelancersApi.getAll()
-        setFreelancers(res.data?.data ?? res.data)
+        const res = await freelancersApi.getAll({ status: 'active' })
+        const data = res.data?.data ?? res.data
+        setFreelancers(Array.isArray(data) ? data.filter((f: FreelancerProfile) => f.status === 'active') : [])
       } catch {
-        setFreelancers(MOCK_FREELANCERS)
+        setFreelancers(MOCK_FREELANCERS.filter(f => f.status === 'active'))
       } finally {
         setLoading(false)
       }
     }
     load()
   }, [])
-
-  const handleApprove = async (id: string) => {
-    setApprovingId(id)
-    try {
-      await freelancersApi.approve(id)
-      setFreelancers(prev => prev.map(f => f.id === id ? { ...f, status: 'active' } : f))
-    } catch {
-      setFreelancers(prev => prev.map(f => f.id === id ? { ...f, status: 'active' } : f))
-    } finally {
-      setApprovingId(null)
-    }
-  }
 
   const filtered = freelancers.filter(f => {
     const matchSearch =
@@ -82,17 +73,15 @@ export default function AdminFreelancersPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-mono-label mb-1">TALENT POOL</p>
-        <h1 className="text-display text-4xl text-primary-ui">FREELANCERS</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Manage your freelancer network</p>
+        <h1 className="text-display text-4xl text-primary-ui">OUR TEAM</h1>
+        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved freelancers on the platform</p>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {[
-          { label: 'TOTAL', value: counts.total, color: '#DC143C' },
+          { label: 'TEAM SIZE', value: counts.total, color: '#DC143C' },
           { label: 'ACTIVE', value: counts.active, color: '#4ade80' },
-          { label: 'PENDING APPROVAL', value: counts.pending, color: '#fbbf24' },
-          { label: 'INACTIVE', value: counts.inactive, color: 'var(--text-muted)' },
         ].map(item => (
           <div key={item.label} className="glass-card metric-card rounded-lg">
             <p className="text-mono-label mb-2">{item.label}</p>
@@ -114,7 +103,7 @@ export default function AdminFreelancersPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(['all', 'active', 'pending', 'inactive'] as const).map(s => (
+          {(['all', 'active'] as const).map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
@@ -125,9 +114,28 @@ export default function AdminFreelancersPage() {
             </button>
           ))}
         </div>
+        {/* View toggle */}
+        <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+          <button
+            onClick={() => setViewMode('grid')}
+            className="p-1.5 rounded transition-all"
+            style={{ background: viewMode === 'grid' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'grid' ? '#DC143C' : 'var(--text-muted)' }}
+            title="Grid view"
+          >
+            <LayoutGrid size={14} />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className="p-1.5 rounded transition-all"
+            style={{ background: viewMode === 'list' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'list' ? '#DC143C' : 'var(--text-muted)' }}
+            title="List view"
+          >
+            <List size={14} />
+          </button>
+        </div>
       </div>
 
-      {/* Freelancers Grid */}
+      {/* Freelancers — Grid / List */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[...Array(6)].map((_, i) => (
@@ -153,12 +161,16 @@ export default function AdminFreelancersPage() {
           <User size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
           <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO FREELANCERS FOUND</p>
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map(f => {
             const sc = STATUS_COLORS[f.status]
             return (
-              <div key={f.id} className="glass-card rounded-xl p-6 flex flex-col gap-4 transition-all hover:border-[#DC143C]" style={{ cursor: 'default' }}>
+              <div
+                key={f.id}
+                className="glass-card rounded-xl p-6 flex flex-col gap-4 transition-all hover:border-[#DC143C] cursor-pointer"
+                onClick={() => router.push(`/admin/freelancers/${f.id}`)}
+              >
                 {/* Avatar + Name */}
                 <div className="flex items-start gap-4">
                   <div
@@ -205,115 +217,75 @@ export default function AdminFreelancersPage() {
                 </div>
 
                 {/* Meta */}
-                <div className="flex items-center gap-4 text-mono-label" style={{ fontSize: '11px' }}>
+                <div className="flex items-center gap-4 text-mono-label pt-2 border-t border-[var(--input-bg)]" style={{ fontSize: '11px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>{f.experience} yr exp</span>
                   <span className="text-crimson font-bold">{curr}{f.hourlyRate}/hr</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2 pt-2 border-t border-[var(--input-bg)]">
-                  {f.status === 'pending' && (
-                    <button
-                      onClick={() => handleApprove(f.id)}
-                      disabled={approvingId === f.id}
-                      className="btn-primary flex items-center gap-1.5 rounded text-xs py-2 px-4 flex-1"
-                    >
-                      <CheckCircle size={13} />
-                      {approvingId === f.id ? 'Approving...' : 'Approve'}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setDetailFreelancer(f)}
-                    className="btn-ghost flex items-center gap-1.5 rounded text-xs py-2 px-4 flex-1"
-                  >
-                    <Eye size={13} />
-                    View Details
-                  </button>
+                  <span className="ml-auto text-xs" style={{ color: '#60a5fa' }}>View →</span>
                 </div>
               </div>
             )
           })}
         </div>
-      )}
-
-      {/* Detail Modal */}
-      {detailFreelancer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDetailFreelancer(null)} />
-          <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-lg" style={{ borderColor: 'rgba(220,20,60,0.4)' }}>
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-primary-ui font-bold text-xl"
-                  style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}
-                >
-                  {getInitials(detailFreelancer.user.name)}
-                </div>
-                <div>
-                  <h2 className="text-primary-ui font-bold text-xl">{detailFreelancer.user.name}</h2>
-                  <p className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    {detailFreelancer.user.email}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setDetailFreelancer(null)}
-                className="p-2 rounded glass-card-dark"
-              >
-                <Search size={14} style={{ color: 'var(--text-muted)' }} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <p className="label-field">Bio</p>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  {detailFreelancer.bio || 'No bio provided.'}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="label-field">Experience</p>
-                  <p className="text-primary-ui font-bold">{detailFreelancer.experience} years</p>
-                </div>
-                <div>
-                  <p className="label-field">Hourly Rate</p>
-                  <p className="text-crimson font-bold">{curr}{detailFreelancer.hourlyRate}/hr</p>
-                </div>
-              </div>
-              <div>
-                <p className="label-field">Skills</p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {detailFreelancer.skills.map(skill => (
-                    <span key={skill} className="glass-card-dark text-mono-label px-3 py-1 rounded" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="label-field">Member Since</p>
-                <p className="text-mono-label" style={{ color: 'var(--text-muted)' }}>
-                  {new Date(detailFreelancer.user.createdAt || '').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-5 border-t border-[var(--input-bg)] flex justify-end gap-3">
-              {detailFreelancer.status === 'pending' && (
-                <button
-                  onClick={() => { handleApprove(detailFreelancer.id); setDetailFreelancer(null) }}
-                  className="btn-primary rounded flex items-center gap-2 text-sm"
-                >
-                  <CheckCircle size={14} />
-                  Approve Freelancer
-                </button>
-              )}
-              <button onClick={() => setDetailFreelancer(null)} className="btn-ghost rounded text-sm">Close</button>
-            </div>
-          </div>
+      ) : (
+        /* List view */
+        <div className="glass-card rounded-xl overflow-hidden">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Skills</th>
+                <th>Experience</th>
+                <th>Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(f => {
+                const sc = STATUS_COLORS[f.status]
+                return (
+                  <tr
+                    key={f.id}
+                    className="cursor-pointer"
+                    style={{ transition: 'background 0.15s' }}
+                    onClick={() => router.push(`/admin/freelancers/${f.id}`)}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,20,60,0.04)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
+                  >
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                          style={{ background: 'linear-gradient(135deg,#8B0000,#DC143C)', color: '#fff' }}>
+                          {getInitials(f.user.name)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm text-primary-ui">{f.user.name}</p>
+                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{f.user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-wrap gap-1">
+                        {f.skills.slice(0, 4).map(s => (
+                          <span key={s} className="glass-card-dark text-mono-label px-2 py-0.5 rounded" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{s}</span>
+                        ))}
+                        {f.skills.length > 4 && <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>+{f.skills.length - 4}</span>}
+                      </div>
+                    </td>
+                    <td><span className="text-mono-label text-xs" style={{ color: 'var(--text-secondary)' }}>{f.experience} yr</span></td>
+                    <td><span className="text-crimson font-bold text-sm">{curr}{f.hourlyRate}/hr</span></td>
+                    <td>
+                      <span className="text-mono-label px-2 py-1 rounded" style={{ fontSize: '9px', background: sc.bg, border: `1px solid ${sc.border}`, color: sc.color }}>
+                        {f.status.toUpperCase()}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
+
     </DashboardLayout>
   )
 }

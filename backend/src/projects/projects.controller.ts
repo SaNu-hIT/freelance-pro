@@ -35,6 +35,10 @@ export class ProjectsController {
       filters.clientId = user.id;
     } else if (user.role === 'freelancer') {
       filters.freelancerUserId = user.id;
+    } else if (user.role === 'admin') {
+      if (query.assignedTo) filters.assignedTo = query.assignedTo;
+      if (query.freelancerUserId) filters.freelancerUserId = query.freelancerUserId;
+      if (query.clientId) filters.clientId = query.clientId;
     }
 
     return this.projectsService.findAll(filters);

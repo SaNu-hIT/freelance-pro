@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useState, KeyboardEvent } from 'react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Plus, Pencil, Trash2, X, Search, ChevronDown, Eye,
   CheckSquare, Square, Clock, User, DollarSign,
   Calendar, ListChecks, Globe, FileSpreadsheet,
   ExternalLink, Timer, Layers, ChevronRight, ChevronDown as ChevDown, Code2, Users,
-  Activity, TrendingUp, Mail, Zap,
+  Activity, TrendingUp, Mail, Zap, LayoutGrid, List,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -73,6 +75,8 @@ type PanelMode = 'view' | 'edit' | 'create' | null
 
 export default function AdminProjectsPage() {
   const curr = useCurrencySymbol()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [projects, setProjects] = useState<Project[]>([])
   const [freelancers, setFreelancers] = useState<FreelancerProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -84,6 +88,7 @@ export default function AdminProjectsPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
 
   // Sprints + Tasks state
   const [sprints, setSprints] = useState<ProjectSprint[]>([])
@@ -125,6 +130,18 @@ export default function AdminProjectsPage() {
     } catch {}
     finally { setTasksLoading(false) }
   }
+
+  // Auto-open edit panel when ?edit=<id> query param is present
+  useEffect(() => {
+    const editId = searchParams.get('edit')
+    if (!editId || projects.length === 0) return
+    const target = projects.find(p => p.id === editId)
+    if (target) {
+      openEdit(target)
+      // Clean URL without re-render
+      router.replace('/admin/projects', { scroll: false })
+    }
+  }, [searchParams, projects]) // eslint-disable-line
 
   const openView = (p: Project) => {
     setSelectedProject(p)
@@ -307,15 +324,20 @@ export default function AdminProjectsPage() {
           </select>
           <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
         </div>
+        {/* View toggle */}
+        <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+          <button onClick={() => setViewMode('table')} className="p-1.5 rounded transition-all" style={{ background: viewMode === 'table' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'table' ? '#DC143C' : 'var(--text-muted)' }} title="Table view"><List size={14} /></button>
+          <button onClick={() => setViewMode('grid')} className="p-1.5 rounded transition-all" style={{ background: viewMode === 'grid' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'grid' ? '#DC143C' : 'var(--text-muted)' }} title="Grid view"><LayoutGrid size={14} /></button>
+        </div>
       </div>
 
-      {/* Projects Table */}
-      <div className="glass-card rounded-xl overflow-hidden">
-        {loading ? (
-          <div className="p-6 space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="animate-pulse flex gap-4"><div className="h-4 rounded flex-1" style={{ background: 'rgba(220,20,60,0.1)' }} /></div>)}</div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16"><p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO PROJECTS FOUND</p></div>
-        ) : (
+      {/* Projects — Table / Grid */}
+      {loading ? (
+        <div className="glass-card rounded-xl p-6 space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="animate-pulse flex gap-4"><div className="h-4 rounded flex-1" style={{ background: 'rgba(220,20,60,0.1)' }} /></div>)}</div>
+      ) : filtered.length === 0 ? (
+        <div className="glass-card rounded-xl text-center py-16"><p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO PROJECTS FOUND</p></div>
+      ) : viewMode === 'table' ? (
+        <div className="glass-card rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
@@ -324,7 +346,9 @@ export default function AdminProjectsPage() {
               <tbody>
                 {filtered.map(p => (
                   <tr key={p.id}>
-                    <td><p className="font-semibold text-primary-ui text-sm max-w-[200px] truncate">{p.title}</p></td>
+                    <td>
+                      <Link href={`/admin/projects/${p.id}`} className="font-semibold text-primary-ui text-sm max-w-[200px] truncate block hover:text-[#DC143C] transition-colors">{p.title}</Link>
+                    </td>
                     <td><span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{p.client?.name ?? '—'}</span></td>
                     <td><span className="text-crimson font-bold">{curr}{Number(p.budget).toLocaleString()}</span></td>
                     <td>
@@ -373,8 +397,65 @@ export default function AdminProjectsPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* Grid view */
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map(p => (
+            <div
+              key={p.id}
+              className="rounded-xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-0.5 hover:border-[#DC143C]"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+              onClick={() => openView(p)}
+            >
+              <div className="h-0.5" style={{ background: `linear-gradient(to right, ${PRIORITY_COLORS[p.priority]}, transparent)` }} />
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base leading-tight text-primary-ui truncate">{p.title}</h3>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.client?.name ?? 'No client'}</p>
+                  </div>
+                  <StatusBadge status={p.status} />
+                </div>
+                {/* Progress */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>PROGRESS</span>
+                    <span className="font-bold text-xs" style={{ color: '#DC143C' }}>{p.progress ?? 0}%</span>
+                  </div>
+                  <div className="rounded-full overflow-hidden" style={{ height: 5, background: 'var(--track-bg)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${p.progress ?? 0}%`, background: 'linear-gradient(to right, #8B0000, #DC143C)' }} />
+                  </div>
+                </div>
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                    <p className="text-mono-label text-[9px] mb-0.5" style={{ color: 'var(--text-muted)' }}>BUDGET</p>
+                    <p className="font-bold text-sm text-crimson">{curr}{Number(p.budget).toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-lg px-2.5 py-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                    <p className="text-mono-label text-[9px] mb-0.5" style={{ color: 'var(--text-muted)' }}>DEADLINE</p>
+                    <DaysChip deadline={p.deadline} />
+                  </div>
+                </div>
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--border)' }}>
+                  {p.teamMembers && p.teamMembers.length > 0 ? (
+                    <div className="flex items-center -space-x-1.5">
+                      {p.teamMembers.slice(0, 4).map(m => <MemberAvatar key={m.id} name={m.user?.name ?? '?'} size={20} />)}
+                      {p.teamMembers.length > 4 && <span className="text-xs ml-1" style={{ color: 'var(--text-muted)' }}>+{p.teamMembers.length - 4}</span>}
+                    </div>
+                  ) : <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>No team</span>}
+                  <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                    <button onClick={() => openEdit(p)} className="p-1.5 rounded glass-card-dark hover:border-[#DC143C] transition-colors"><Pencil size={12} style={{ color: '#DC143C' }} /></button>
+                    <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded glass-card-dark hover:border-[#f87171] transition-colors"><Trash2 size={12} style={{ color: '#f87171' }} /></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ── Full-screen View Modal ── */}
       {panelMode === 'view' && selectedProject && (

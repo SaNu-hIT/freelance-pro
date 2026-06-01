@@ -91,4 +91,22 @@ export class FreelancersService {
     profile.verifications = { ...(profile.verifications ?? {}), ...verifications };
     return this.freelancerProfileRepository.save(profile);
   }
+
+  async getAvailability(id: string): Promise<Record<string, unknown> | null> {
+    const profile = await this.findOne(id);
+    return profile.availability ?? null;
+  }
+
+  async updateAvailability(id: string, availability: Record<string, unknown>): Promise<FreelancerProfile> {
+    const profile = await this.findOne(id);
+    profile.availability = availability;
+    return this.freelancerProfileRepository.save(profile);
+  }
+
+  async findByUserIdAndUpdateAvailability(userId: string, availability: Record<string, unknown>): Promise<FreelancerProfile | null> {
+    const profile = await this.freelancerProfileRepository.findOne({ where: { userId }, relations: { user: true } });
+    if (!profile) return null;
+    profile.availability = availability;
+    return this.freelancerProfileRepository.save(profile);
+  }
 }

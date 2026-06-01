@@ -16,6 +16,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
 import { FreelancerProfile, OnboardingStage } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
+import { useFreelancerStore } from '@/lib/freelancerStore'
+
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
@@ -198,6 +200,58 @@ const PROFESSIONAL_CHECKS: VerifItem[] = [
 
 const PIPELINE_STAGES: OnboardingStage[] = ['applied', 'reviewing', 'assessment', 'approved']
 
+// ── Availability panel (read-only for admin) ──────────────────────────────────
+
+const DAY_LABELS: Record<string, string> = {
+  mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+}
+
+function AvailabilityPanel({ profileId }: { profileId: string }) {
+  const fetchAvailability = useFreelancerStore(s => s.fetchAvailability)
+  const getAvailability   = useFreelancerStore(s => s.getAvailability)
+  const avail = getAvailability(profileId)
+
+  useEffect(() => { fetchAvailability(profileId) }, [profileId]) // eslint-disable-line
+  const enabledDays = Object.entries(avail.schedule).filter(([, v]) => v.enabled)
+
+  return (
+    <div>
+      <h3 style={{ fontSize: 12, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 12px' }}>
+        Availability Schedule
+      </h3>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', borderRadius: 6, padding: '3px 10px', fontWeight: 700 }}>
+          {avail.hoursPerWeek}h/week
+        </span>
+        <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', borderRadius: 6, padding: '3px 10px', fontWeight: 700 }}>
+          {avail.timezone.split(' ')[0]}
+        </span>
+        <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', borderRadius: 6, padding: '3px 10px', fontWeight: 700 }}>
+          {enabledDays.length} days/week
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {Object.entries(avail.schedule).map(([day, slot]) => (
+          <div key={day} style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '6px 10px', borderRadius: 7,
+            background: slot.enabled ? 'rgba(96,165,250,0.05)' : 'transparent',
+            border: `1px solid ${slot.enabled ? 'rgba(96,165,250,0.15)' : 'var(--border)'}`,
+            opacity: slot.enabled ? 1 : 0.45,
+          }}>
+            <span style={{ width: 28, fontSize: 10, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: slot.enabled ? '#60a5fa' : 'var(--text-muted)' }}>
+              {DAY_LABELS[day]}
+            </span>
+            {slot.enabled
+              ? <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{slot.from} – {slot.to}</span>
+              : <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Not available</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function OnboardingPipelinePage() {
@@ -219,9 +273,10 @@ export default function OnboardingPipelinePage() {
     try {
       const res = await freelancersApi.getAll()
       const data: FreelancerProfile[] = res.data?.data ?? res.data
-      return Array.isArray(data) && data.length > 0 ? data : MOCK_APPLICANTS
+      const list = Array.isArray(data) && data.length > 0 ? data : MOCK_APPLICANTS
+      return list.filter(a => a.onboardingStage !== 'approved' && a.status !== 'active')
     } catch {
-      return MOCK_APPLICANTS
+      return MOCK_APPLICANTS.filter(a => a.onboardingStage !== 'approved' && a.status !== 'active')
     }
   }
 
@@ -288,6 +343,7 @@ export default function OnboardingPipelinePage() {
 
   const handleApprove = async (id: string) => {
     setActionLoading(true)
+    const applicant = applicants.find(a => a.id === id)
     try {
       await freelancersApi.approve(id)
     } catch {
@@ -302,6 +358,7 @@ export default function OnboardingPipelinePage() {
   const handleReject = async (id: string) => {
     if (!rejectReason.trim()) return
     setActionLoading(true)
+    const applicant = applicants.find(a => a.id === id)
     try {
       await freelancersApi.reject(id, rejectReason)
     } catch {
@@ -992,6 +1049,12 @@ export default function OnboardingPipelinePage() {
                     </div>
                   )}
                 </div>
+
+                {/* Divider */}
+                <div style={{ borderTop: '1px solid var(--border)' }} />
+
+                {/* ── Section 3b: Availability ── */}
+                <AvailabilityPanel profileId={selected.id} />
 
                 {/* Divider */}
                 <div style={{ borderTop: '1px solid var(--border)' }} />

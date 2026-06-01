@@ -5,10 +5,10 @@ export type Theme = 'dark' | 'light'
 const KEY = 'fp-theme'
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
 
   useEffect(() => {
-    const stored = (localStorage.getItem(KEY) as Theme) || 'dark'
+    const stored = (localStorage.getItem(KEY) as Theme) || 'light'
     apply(stored)
     setTheme(stored)
   }, [])

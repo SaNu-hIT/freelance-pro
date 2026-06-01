@@ -17,48 +17,12 @@ import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 
 const DELIVERY_STEPS = [
-  {
-    num: '01',
-    icon: ClipboardList,
-    title: 'Submit Your Enquiry',
-    desc: 'Tell us about your project — scope, timeline, and goals. No commitment needed at this stage.',
-    color: '#60a5fa',
-  },
-  {
-    num: '02',
-    icon: Users,
-    title: 'Manager & Tech Lead Review',
-    desc: 'A dedicated group of project managers and tech leads analyse your requirements and identify the exact resources needed.',
-    color: '#818cf8',
-  },
-  {
-    num: '03',
-    icon: UserCheck,
-    title: 'Freelancer Onboarding',
-    desc: 'We hand-pick and onboard the right specialists from our vetted talent pool and assign them to your project.',
-    color: '#f97316',
-  },
-  {
-    num: '04',
-    icon: FlaskConical,
-    title: 'QA on Every Deliverable',
-    desc: 'Each deliverable passes a dedicated QA review before it ever reaches you — no half-baked work, ever.',
-    color: '#eab308',
-  },
-  {
-    num: '05',
-    icon: PackageCheck,
-    title: 'Delivery & Sign-off',
-    desc: 'Approved deliverables are handed off to you with documentation. You review and sign off on each milestone.',
-    color: '#4ade80',
-  },
-  {
-    num: '06',
-    icon: BarChart3,
-    title: 'Track Progress in Real Time',
-    desc: 'Your client dashboard shows live worklogs, task completion, freelancer activity, and project progress — 24/7.',
-    color: '#2dd4bf',
-  },
+  { num: '01', icon: ClipboardList, title: 'Submit Your Enquiry', desc: 'Scope, timeline, and goals — no commitment needed.', color: '#60a5fa' },
+  { num: '02', icon: Users, title: 'Manager & Tech Lead Review', desc: 'We analyse requirements and identify the exact resources.', color: '#818cf8' },
+  { num: '03', icon: UserCheck, title: 'Freelancer Onboarding', desc: 'Right specialists are hand-picked from our vetted pool.', color: '#f97316' },
+  { num: '04', icon: FlaskConical, title: 'QA on Every Deliverable', desc: 'Dedicated QA review before anything reaches you.', color: '#eab308' },
+  { num: '05', icon: PackageCheck, title: 'Delivery & Sign-off', desc: 'Deliverables handed off with docs — you sign off each milestone.', color: '#4ade80' },
+  { num: '06', icon: BarChart3, title: 'Track Progress in Real Time', desc: 'Live worklogs, tasks, and sprint status in your dashboard.', color: '#2dd4bf' },
 ]
 
 const CLIENT_PERKS = [
@@ -103,7 +67,7 @@ export default function ClientRegisterPage() {
   const accentBorder = 'rgba(96,165,250,0.25)'
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
 
       {/* canvas particle network */}
@@ -133,33 +97,32 @@ export default function ClientRegisterPage() {
       <FloatingGlyph size={55}  color="rgba(96,165,250,0.18)" duration={13} delay="-4s" spin={false}
         style={{ bottom: '18%', right: '8%', zIndex: 1 }} />
 
+      {/* ── Global top bar ── */}
+      <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0 relative z-10" style={{ background: 'var(--bg-sidebar)' }}>
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
+          <div className="w-5 h-5" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
+          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
+            style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+          >
+            {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
+          </button>
+          <Link href="/register" className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
+            style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            <ArrowLeft size={11} /> BACK
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Two-panel layout ── */}
+      <div className="flex flex-1">
+
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex flex-col w-[40%] relative z-10 px-12 py-12 overflow-y-auto">
-
-        {/* Logo + back */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7" style={{
-              background: '#DC143C',
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-            }} />
-            <span className="text-display text-primary-ui text-base tracking-widest">FREELANCE_PRO</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
-              style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
-            >
-              {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
-            </button>
-            <Link href="/register"
-              className="flex items-center gap-1.5 text-xs transition-colors hover:text-primary-ui"
-              style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
-              <ArrowLeft size={12} /> BACK
-            </Link>
-          </div>
-        </div>
 
         {/* Headline */}
         <div className="mb-10">
@@ -214,36 +177,6 @@ export default function ClientRegisterPage() {
           </div>
         </div>
 
-        {/* Client perks */}
-        <div className="mb-8 rounded-xl p-5" style={{ background: accentFaint, border: `1px solid ${accentBorder}` }}>
-          <p className="text-mono-label mb-4" style={{ fontSize: 9, color: accent, letterSpacing: '0.3em' }}>
-            WHAT YOU GET
-          </p>
-          <div className="space-y-3">
-            {CLIENT_PERKS.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.25)' }}>
-                  <Icon size={12} style={{ color: accent }} />
-                </div>
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dashboard preview note */}
-        <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 mb-8"
-          style={{ background: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.2)' }}>
-          <BarChart3 size={14} className="mt-0.5 shrink-0" style={{ color: '#2dd4bf' }} />
-          <div>
-            <p className="text-xs font-semibold mb-1" style={{ color: '#2dd4bf' }}>Your Client Dashboard</p>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-              After registration you get instant access to a live dashboard — track freelancer worklogs, task progress, sprint milestones, and QA status all in one place.
-            </p>
-          </div>
-        </div>
-
         {/* Bottom trust row */}
         <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           {[
@@ -265,26 +198,6 @@ export default function ClientRegisterPage() {
       {/* ── RIGHT PANEL: Form ── */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10 overflow-y-auto">
         <div className="w-full max-w-[620px]">
-
-          {/* Mobile logo */}
-          <div className="flex items-center justify-between mb-8 lg:hidden">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-              <span className="text-display text-primary-ui text-sm tracking-widest">FREELANCE_PRO</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleTheme}
-                className="flex items-center gap-1 px-2 py-1 rounded text-[9px] font-bold tracking-widest"
-                style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
-              >
-                {theme === 'dark' ? <><Sun size={10} /><span>LIGHT</span></> : <><Moon size={10} /><span>DARK</span></>}
-              </button>
-              <Link href="/register" className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <ArrowLeft size={12} /> Back
-              </Link>
-            </div>
-          </div>
 
           <div className="glass-card rounded-xl p-8" style={{ borderColor: accentBorder }}>
 
@@ -426,6 +339,8 @@ export default function ClientRegisterPage() {
           </div>
         </div>
       </div>
+
+      </div>{/* end two-panel */}
     </div>
   )
 }

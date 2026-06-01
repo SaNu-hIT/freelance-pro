@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   ChevronDown,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useCurrencySymbol } from '@/lib/store'
+import { useSkillTaxonomyStore } from '@/lib/skillTaxonomyStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -619,17 +620,33 @@ export default function AdminResourcesPage() {
   const curr = useCurrencySymbol()
   const today = new Date()
 
+  const { groups: skillGroups, fetch: fetchGroups } = useSkillTaxonomyStore()
+  useEffect(() => { fetchGroups() }, [fetchGroups])
+
   const [view, setView] = useState<'member' | 'domain'>('member')
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [collapsedDomains, setCollapsedDomains] = useState<Set<Domain>>(new Set())
 
-  // ── All skills (deduplicated, sorted) ────────────────────────────────────
+  // ── Skills within the active group (for drill-down) ──────────────────────
+  const activeGroup = useMemo(
+    () => skillGroups.find(g => g.id === selectedGroupId) ?? null,
+    [skillGroups, selectedGroupId],
+  )
+
+  // All raw skills across all resources (for unmapped detection)
   const allSkills = useMemo(() => {
     const set = new Set<string>()
     MOCK_RESOURCES.forEach(r => r.skills.forEach(s => set.add(s)))
     return Array.from(set).sort()
   }, [])
+
+  // Skills not mapped to any group
+  const unmappedSkills = useMemo(() => {
+    const mapped = new Set(skillGroups.flatMap(g => g.skills))
+    return allSkills.filter(s => !mapped.has(s))
+  }, [allSkills, skillGroups])
 
   // ── Filtered resources ───────────────────────────────────────────────────
   const filteredResources = useMemo(() => {
@@ -639,9 +656,13 @@ export default function AdminResourcesPage() {
         !q ||
         r.name.toLowerCase().includes(q) ||
         r.skills.some(s => s.toLowerCase().includes(q))
-      return matchSearch
+      // If a specific skill is selected (drill-down), match it
+      const matchSkill = !selectedSkill || r.skills.includes(selectedSkill)
+      // If a group is selected (but no specific skill), match any skill in that group
+      const matchGroup = !selectedGroupId || !activeGroup || activeGroup.skills.some(s => r.skills.includes(s))
+      return matchSearch && matchSkill && matchGroup
     })
-  }, [search])
+  }, [search, selectedSkill, selectedGroupId, activeGroup])
 
   // ── Domain groups ────────────────────────────────────────────────────────
   const domainGroups = useMemo(() => {
@@ -653,12 +674,15 @@ export default function AdminResourcesPage() {
     return map
   }, [filteredResources])
 
-  // ── Skill info bar data ──────────────────────────────────────────────────
-  const skillInfoBar = useMemo(() => {
-    if (!selectedSkill) return null
-    const matching = MOCK_RESOURCES.filter(r => r.skills.includes(selectedSkill))
+  // ── Info bar data ────────────────────────────────────────────────────────
+  const infoBar = useMemo(() => {
+    if (!selectedSkill && !selectedGroupId) return null
+    const matching = selectedSkill
+      ? MOCK_RESOURCES.filter(r => r.skills.includes(selectedSkill))
+      : activeGroup
+        ? MOCK_RESOURCES.filter(r => activeGroup.skills.some(s => r.skills.includes(s)))
+        : []
     const availableNow = matching.filter(r => r.status === 'available').length
-    // Find earliest available date (for non-available resources)
     const futureDates = matching
       .filter(r => r.status !== 'available' && r.availableFrom)
       .map(r => new Date(r.availableFrom!).getTime())
@@ -666,8 +690,14 @@ export default function AdminResourcesPage() {
       futureDates.length > 0
         ? new Date(Math.min(...futureDates)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
         : null
-    return { count: matching.length, availableNow, earliest }
-  }, [selectedSkill])
+    return {
+      count: matching.length,
+      availableNow,
+      earliest,
+      label: selectedSkill ?? activeGroup?.name ?? '',
+      color: activeGroup?.color ?? '#DC143C',
+    }
+  }, [selectedSkill, selectedGroupId, activeGroup])
 
   // ── Domain collapse logic for selected skill ─────────────────────────────
   const effectiveCollapsed = useMemo(() => {
@@ -691,8 +721,28 @@ export default function AdminResourcesPage() {
     })
   }
 
+  function toggleGroup(groupId: string) {
+    if (selectedGroupId === groupId) {
+      setSelectedGroupId(null)
+      setSelectedSkill(null)
+    } else {
+      setSelectedGroupId(groupId)
+      setSelectedSkill(null)
+    }
+  }
+
   function toggleSkill(skill: string) {
     setSelectedSkill(prev => (prev === skill ? null : skill))
+    if (!selectedGroupId) {
+      // find which group this skill belongs to
+      const group = skillGroups.find(g => g.skills.includes(skill))
+      if (group) setSelectedGroupId(group.id)
+    }
+  }
+
+  function clearFilters() {
+    setSelectedGroupId(null)
+    setSelectedSkill(null)
   }
 
   // ── Stat counts ──────────────────────────────────────────────────────────
@@ -765,11 +815,7 @@ export default function AdminResourcesPage() {
       <div className="glass-card-dark rounded-xl p-4 mb-4 space-y-3">
         {/* Search */}
         <div className="relative">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: 'var(--text-muted)' }}
-          />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="Search by name or skill..."
@@ -779,76 +825,108 @@ export default function AdminResourcesPage() {
           />
         </div>
 
-        {/* Skill chips row */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-          {allSkills.map(skill => (
-            <button
-              key={skill}
-              onClick={() => toggleSkill(skill)}
-              className="shrink-0 text-mono-label px-2.5 py-1 rounded transition-all"
-              style={{
-                fontSize: '10px',
-                background: selectedSkill === skill ? '#DC143C' : 'var(--input-bg)',
-                border:
-                  selectedSkill === skill
-                    ? '1px solid #DC143C'
-                    : '1px solid var(--border)',
-                color: selectedSkill === skill ? '#fff' : 'var(--text-secondary)',
-              }}
-            >
-              {skill}
-            </button>
-          ))}
+        {/* Group chips */}
+        <div>
+          <p className="text-mono-label mb-2" style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em' }}>
+            FILTER BY SKILL GROUP
+          </p>
+          <div className="flex gap-1.5 flex-wrap">
+            {skillGroups.filter(g => g.skills.length > 0).map(group => {
+              const active = selectedGroupId === group.id
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => toggleGroup(group.id)}
+                  className="flex items-center gap-1.5 shrink-0 text-mono-label px-3 py-1.5 rounded-lg transition-all"
+                  style={{
+                    fontSize: '11px',
+                    background: active ? `${group.color}22` : 'var(--input-bg)',
+                    border: active ? `1px solid ${group.color}60` : '1px solid var(--border)',
+                    color: active ? group.color : 'var(--text-secondary)',
+                    fontWeight: active ? 700 : 400,
+                  }}
+                >
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: group.color }} />
+                  {group.name}
+                  <span style={{ opacity: 0.6, fontSize: 9 }}>({group.skills.length})</span>
+                </button>
+              )
+            })}
+            {unmappedSkills.length > 0 && (
+              <button
+                onClick={() => toggleGroup('__unmapped__')}
+                className="flex items-center gap-1.5 shrink-0 text-mono-label px-3 py-1.5 rounded-lg transition-all"
+                style={{
+                  fontSize: '11px',
+                  background: selectedGroupId === '__unmapped__' ? 'rgba(156,163,175,0.15)' : 'var(--input-bg)',
+                  border: selectedGroupId === '__unmapped__' ? '1px solid rgba(156,163,175,0.4)' : '1px solid var(--border)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--text-muted)' }} />
+                Other
+                <span style={{ opacity: 0.6, fontSize: 9 }}>({unmappedSkills.length})</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Drill-down: skill chips within selected group */}
+        {activeGroup && activeGroup.skills.length > 0 && (
+          <div>
+            <p className="text-mono-label mb-2" style={{ fontSize: '9px', color: activeGroup.color, letterSpacing: '0.12em' }}>
+              ↳ DRILL DOWN IN {activeGroup.name.toUpperCase()}
+            </p>
+            <div className="flex gap-1.5 flex-wrap">
+              {activeGroup.skills
+                .filter(s => allSkills.includes(s))
+                .map(skill => {
+                  const isActive = selectedSkill === skill
+                  return (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className="shrink-0 text-mono-label px-2.5 py-1 rounded transition-all"
+                      style={{
+                        fontSize: '10px',
+                        background: isActive ? activeGroup.color : `${activeGroup.color}10`,
+                        border: `1px solid ${isActive ? activeGroup.color : `${activeGroup.color}30`}`,
+                        color: isActive ? '#fff' : activeGroup.color,
+                      }}
+                    >
+                      {skill}
+                    </button>
+                  )
+                })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ── Skill Info Bar ────────────────────────────────────────────────── */}
-      {selectedSkill && skillInfoBar && (
+      {/* ── Active Filter Info Bar ─────────────────────────────────────────── */}
+      {infoBar && (
         <div
           className="rounded-lg px-4 py-3 mb-6 flex flex-wrap items-center gap-3"
           style={{
-            background: 'rgba(220,20,60,0.07)',
-            border: '1px solid rgba(220,20,60,0.35)',
+            background: `${infoBar.color}08`,
+            border: `1px solid ${infoBar.color}35`,
           }}
         >
-          <span
-            className="text-mono-label"
-            style={{ fontSize: '11px', color: '#DC143C', letterSpacing: '0.06em' }}
-          >
-            <span className="font-bold text-primary-ui">{skillInfoBar.count}</span> developers have{' '}
-            <span className="font-bold" style={{ color: '#DC143C' }}>
-              {selectedSkill}
-            </span>
+          <span className="text-mono-label" style={{ fontSize: '11px', color: infoBar.color, letterSpacing: '0.06em' }}>
+            <span className="font-bold text-primary-ui">{infoBar.count}</span> developer{infoBar.count !== 1 ? 's' : ''} match{' '}
+            <span className="font-bold" style={{ color: infoBar.color }}>{infoBar.label}</span>
           </span>
-          <span
-            className="text-mono-label px-2.5 py-0.5 rounded"
-            style={{
-              fontSize: '10px',
-              background: 'rgba(74,222,128,0.1)',
-              border: '1px solid rgba(74,222,128,0.3)',
-              color: '#4ade80',
-            }}
-          >
-            {skillInfoBar.availableNow} available now
+          <span className="text-mono-label px-2.5 py-0.5 rounded"
+            style={{ fontSize: '10px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80' }}>
+            {infoBar.availableNow} available now
           </span>
-          {skillInfoBar.earliest && (
-            <span
-              className="text-mono-label px-2.5 py-0.5 rounded"
-              style={{
-                fontSize: '10px',
-                background: 'rgba(251,191,36,0.1)',
-                border: '1px solid rgba(251,191,36,0.3)',
-                color: '#fbbf24',
-              }}
-            >
-              Next available: {skillInfoBar.earliest}
+          {infoBar.earliest && (
+            <span className="text-mono-label px-2.5 py-0.5 rounded"
+              style={{ fontSize: '10px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}>
+              Next available: {infoBar.earliest}
             </span>
           )}
-          <button
-            onClick={() => setSelectedSkill(null)}
-            className="ml-auto text-mono-label text-xs"
-            style={{ color: 'var(--text-muted)' }}
-          >
+          <button onClick={clearFilters} className="ml-auto text-mono-label text-xs" style={{ color: 'var(--text-muted)' }}>
             ✕ Clear
           </button>
         </div>

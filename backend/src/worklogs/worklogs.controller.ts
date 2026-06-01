@@ -33,6 +33,9 @@ export class WorklogsController {
 
     if (user.role === 'freelancer') {
       filters.freelancerUserId = user.id;
+    } else if (user.role === 'admin') {
+      if (query.freelancerId) filters.freelancerId = query.freelancerId;
+      if (query.freelancerUserId) filters.freelancerUserId = query.freelancerUserId;
     }
 
     return this.worklogsService.findAll(filters);
