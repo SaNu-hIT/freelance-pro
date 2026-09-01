@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, KeyboardEvent } from 'react'
+import { useEffect, useState, KeyboardEvent, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -74,6 +74,14 @@ const EMPTY_FORM = {
 type PanelMode = 'view' | 'edit' | 'create' | null
 
 export default function AdminProjectsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminProjectsPageInner />
+    </Suspense>
+  )
+}
+
+function AdminProjectsPageInner() {
   const curr = useCurrencySymbol()
   const router = useRouter()
   const searchParams = useSearchParams()
