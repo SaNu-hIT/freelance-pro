@@ -82,7 +82,7 @@ export const tasksApi = {
 }
 
 export const dashboardApi = {
-  getStats: () => api.get('/dashboard/stats'),
+  getStats: () => api.get('/projects/dashboard/stats'),
 }
 
 export const settingsApi = {

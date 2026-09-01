@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
     const fetchAll = async () => {
       try {
         const [statsRes, projectsRes, worklogsRes] = await Promise.allSettled([
-          api.get('/dashboard/stats'),
+          api.get('/projects/dashboard/stats'),
           projectsApi.getAll({ limit: 8 }),
           worklogsApi.getAll({ limit: 6 }),
         ])
