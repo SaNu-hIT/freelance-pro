@@ -250,7 +250,7 @@ export default function ProjectDetailPage() {
   const doneTasks   = tasks.filter(t => t.completed)
 
   // Group tasks by sprint
-  const sprintMap: Record<string, { name: string; startDate?: string; endDate?: string; tasks: ProjectTask[] }> = {}
+  const sprintMap: Record<string, { name: string; startDate?: string | null; endDate?: string | null; tasks: ProjectTask[] }> = {}
   tasks.forEach(t => {
     const key = t.sprintId ?? '__backlog'
     if (!sprintMap[key]) sprintMap[key] = {
