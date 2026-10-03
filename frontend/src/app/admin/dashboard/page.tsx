@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AlertTriangle, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { AlertTriangle, Clock } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { projectsApi, worklogsApi } from '@/lib/api'
@@ -78,14 +78,12 @@ const MOCK_WORKLOGS: Worklog[] = [
 interface MetricCardProps {
   label: string
   value: number | string
-  trend?: 'up' | 'down' | 'neutral'
+  note?: string
   loading?: boolean
   highlight?: boolean
 }
 
-function MetricCard({ label, value, trend = 'neutral', loading, highlight }: MetricCardProps) {
-  const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
-  const trendColor = trend === 'up' ? 'var(--fg)' : trend === 'down' ? 'var(--fg)' : 'rgb(var(--fg-rgb) / .55)'
+function MetricCard({ label, value, note, loading, highlight }: MetricCardProps) {
 
   if (loading) {
     return (
@@ -106,12 +104,11 @@ function MetricCard({ label, value, trend = 'neutral', loading, highlight }: Met
     >
       <p className="text-mono-label mb-3">{label}</p>
       <p className="text-2xl font-bold text-primary-ui mb-2">{value}</p>
-      <div className="flex items-center gap-1.5">
-        <TrendIcon size={12} style={{ color: trendColor }} />
-        <span className="text-mono-label" style={{ color: trendColor, fontSize: '9px' }}>
-          vs last month
+      {note && (
+        <span className="text-mono-label" style={{ color: 'rgb(var(--fg-rgb) / .55)', fontSize: '9px' }}>
+          {note}
         </span>
-      </div>
+      )}
     </div>
   )
 }
@@ -160,12 +157,12 @@ export default function AdminDashboardPage() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <MetricCard label="TOTAL PROJECTS" value={stats?.totalProjects ?? 0} trend="up" loading={loading} />
-        <MetricCard label="ACTIVE" value={stats?.activeProjects ?? 0} trend="up" loading={loading} />
-        <MetricCard label="DELAYED" value={stats?.delayedProjects ?? 0} trend="down" loading={loading} highlight />
-        <MetricCard label="PENDING APPROVAL" value={stats?.pendingApprovals ?? 0} trend="neutral" loading={loading} />
-        <MetricCard label="TOTAL FREELANCERS" value={stats?.totalFreelancers ?? 0} trend="up" loading={loading} />
-        <MetricCard label="ACTIVE FREELANCERS" value={stats?.activeFreelancers ?? 0} trend="up" loading={loading} />
+        <MetricCard label="TOTAL PROJECTS" value={stats?.totalProjects ?? 0} note={`+${stats?.newProjectsLast30Days ?? 0} in last 30 days`} loading={loading} />
+        <MetricCard label="ACTIVE" value={stats?.activeProjects ?? 0} loading={loading} />
+        <MetricCard label="DELAYED" value={stats?.delayedProjects ?? 0} loading={loading} highlight />
+        <MetricCard label="PENDING APPROVAL" value={stats?.pendingApprovals ?? 0} loading={loading} />
+        <MetricCard label="TOTAL FREELANCERS" value={stats?.totalFreelancers ?? 0} note={`+${stats?.newFreelancersLast30Days ?? 0} in last 30 days`} loading={loading} />
+        <MetricCard label="ACTIVE FREELANCERS" value={stats?.activeFreelancers ?? 0} loading={loading} />
       </div>
 
       {/* Middle Row */}

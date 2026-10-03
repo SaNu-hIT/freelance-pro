@@ -119,4 +119,6 @@ export interface DashboardStats {
   activeFreelancers: number
   totalEarnings?: number
   pendingPayments?: number
+  newProjectsLast30Days?: number
+  newFreelancersLast30Days?: number
 }

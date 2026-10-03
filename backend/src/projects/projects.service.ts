@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, In, Repository } from 'typeorm';
+import { DeepPartial, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { Project } from '../entities/project.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
@@ -113,31 +113,38 @@ export class ProjectsService {
     await this.projectsRepository.remove(project);
   }
 
-  async getDashboardStats(): Promise<any> {
-    const statusCounts = await this.projectsRepository
+  async getDashboardStats() {
+    const statusCounts: { status: string; count: string }[] = await this.projectsRepository
       .createQueryBuilder('project')
       .select('project.status', 'status')
       .addSelect('COUNT(project.id)', 'count')
       .groupBy('project.status')
       .getRawMany();
+    const by: Record<string, number> = {};
+    for (const c of statusCounts) by[c.status] = parseInt(c.count, 10);
+    const total = (...statuses: string[]) => statuses.reduce((n, st) => n + (by[st] ?? 0), 0);
 
-    const totalProjects = await this.projectsRepository.count();
-    const totalFreelancers = await this.projectsRepository
-      .createQueryBuilder('project')
-      .select('COUNT(DISTINCT project.assignedTo)', 'count')
-      .where('project.assignedTo IS NOT NULL')
-      .getRawOne();
+    const since = new Date(Date.now() - 30 * 86400000);
+    const [totalProjects, newProjects, totalFreelancers, activeFreelancers, newFreelancers] = await Promise.all([
+      this.projectsRepository.count(),
+      this.projectsRepository.count({ where: { createdAt: MoreThanOrEqual(since) } }),
+      this.freelancerRepo.count(),
+      this.freelancerRepo.count({ where: { status: 'active' } }),
+      this.freelancerRepo.count({ where: { createdAt: MoreThanOrEqual(since) } }),
+    ]);
 
     return {
       totalProjects,
-      totalFreelancers: parseInt(totalFreelancers?.count || '0', 10),
-      statusBreakdown: statusCounts.reduce(
-        (acc: Record<string, number>, curr: any) => {
-          acc[curr.status] = parseInt(curr.count, 10);
-          return acc;
-        },
-        {},
-      ),
+      activeProjects: total('assigned', 'in_progress'),
+      delayedProjects: total('delayed', 'blocked'),
+      completedProjects: total('completed'),
+      pendingApprovals: total('pending_approval'),
+      totalFreelancers,
+      activeFreelancers,
+      newProjectsLast30Days: newProjects,
+      newFreelancersLast30Days: newFreelancers,
+      statusBreakdown: by,
     };
   }
+
 }
