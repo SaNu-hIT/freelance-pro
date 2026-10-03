@@ -53,11 +53,11 @@ export default function HomePage() {
       {/* ── Header ──────────────────────────────────────────────── */}
       <header
         className="fixed top-0 left-0 right-0 z-50 px-8 md:px-12 py-4 flex items-center justify-between border-b border-theme"
-        style={{ background: 'var(--bg-sidebar)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'var(--bg-sidebar)' }}
       >
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <CrimsonCube size={22} />
-          <span className="text-display text-[#DC143C] font-bold text-sm tracking-widest uppercase hidden sm:block">
+          <span className="text-display text-[var(--fg)] font-bold text-sm tracking-widest uppercase hidden sm:block">
             FREELANCE_PRO
           </span>
         </Link>
@@ -65,7 +65,7 @@ export default function HomePage() {
         <nav className="hidden md:flex items-center gap-6">
           <a href="#how-it-works" className="text-mono-label hover:text-primary-ui transition-colors text-[10px] tracking-widest">HOW IT WORKS</a>
           <a href="#skills"       className="text-mono-label hover:text-primary-ui transition-colors text-[10px] tracking-widest">SKILLS</a>
-          <Link href="/clients"   className="text-mono-label transition-colors text-[10px] tracking-widest" style={{ color: '#DC143C' }}>FOR CLIENTS →</Link>
+          <Link href="/clients"   className="text-mono-label transition-colors text-[10px] tracking-widest" style={{ color: 'var(--fg)' }}>FOR CLIENTS →</Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -74,8 +74,8 @@ export default function HomePage() {
             onClick={toggleTheme}
             className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase transition-all px-3 py-2 rounded"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              color: '#DC143C',
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--fg)',
               background: 'var(--crimson-dim)',
               border: '1px solid var(--border-crimson)',
             }}
@@ -89,7 +89,7 @@ export default function HomePage() {
           <Link
             href="/login"
             className="text-[11px] font-semibold px-4 py-2 rounded transition-all"
-            style={{ border: '1px solid var(--border-crimson)', color: '#DC143C', background: 'var(--crimson-dim)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}
+            style={{ border: '1px solid var(--border-crimson)', color: 'var(--fg)', background: 'var(--crimson-dim)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}
           >
             LOGIN
           </Link>
@@ -105,44 +105,43 @@ export default function HomePage() {
         <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
 
         {/* canvas particle network */}
-        <ParticleNetwork count={65} dotColor="220,20,60" lineColor="220,20,60" className="z-0" />
+        <ParticleNetwork count={65} className="z-0" />
 
         {/* depth blobs behind everything */}
-        <MorphBlob color="#8B0000" size={700} top="-200px" right="-200px" />
-        <MorphBlob color="#3D0000" size={450} bottom="-150px" left="-150px" delay="2s" />
+        <MorphBlob color="var(--fg)" size={700} top="-200px" right="-200px" />
+        <MorphBlob color="var(--surface)" size={450} bottom="-150px" left="-150px" delay="2s" />
 
         {/* rotating wireframe cubes */}
-        <WireframeCube size={200} color="rgba(220,20,60,0.18)" duration={28} delay="0s"
+        <WireframeCube size={200} color="rgb(var(--fg-rgb) / 0.18)" duration={28} delay="0s"
           style={{ top: '10%', right: '6%', zIndex: 1 }} />
-        <WireframeCube size={100} color="rgba(220,20,60,0.22)" duration={18} delay="-6s"
+        <WireframeCube size={100} color="rgb(var(--fg-rgb) / 0.22)" duration={18} delay="-6s"
           style={{ top: '55%', right: '22%', zIndex: 1 }} />
-        <WireframeCube size={60}  color="rgba(220,20,60,0.28)" duration={14} delay="-3s"
+        <WireframeCube size={60}  color="rgb(var(--fg-rgb) / 0.28)" duration={14} delay="-3s"
           style={{ bottom: '12%', right: '40%', zIndex: 1 }} />
 
         {/* orbital rings */}
-        <OrbitalRing size={520} color="rgba(220,20,60,0.08)" tiltX={70} duration={18} delay="0s"
+        <OrbitalRing size={520} color="rgb(var(--fg-rgb) / 0.08)" tiltX={70} duration={18} delay="0s"
           style={{ top: '-80px', right: '-120px', zIndex: 1 }} />
-        <OrbitalRing size={300} color="rgba(139,0,0,0.12)" tiltX={60} duration={11} delay="-4s"
+        <OrbitalRing size={300} color="rgb(var(--fg-rgb) / 0.12)" tiltX={60} duration={11} delay="-4s"
           style={{ bottom: '5%', left: '-60px', zIndex: 1 }} />
 
         {/* floating hex glyphs */}
-        <FloatingGlyph size={110} color="rgba(220,20,60,0.14)" duration={20} delay="0s"
+        <FloatingGlyph size={110} color="rgb(var(--fg-rgb) / 0.14)" duration={20} delay="0s"
           style={{ top: '18%', right: '30%', zIndex: 1 }} />
-        <FloatingGlyph size={60}  color="rgba(220,20,60,0.18)" duration={14} delay="-5s" spin={false}
+        <FloatingGlyph size={60}  color="rgb(var(--fg-rgb) / 0.18)" duration={14} delay="-5s" spin={false}
           style={{ bottom: '20%', right: '10%', zIndex: 1 }} />
 
         <div className="max-w-7xl mx-auto px-8 md:px-12 w-full relative z-10">
           <div className="max-w-3xl">
 
-            <div className="inline-flex items-center gap-2 mb-8 px-3 py-1.5 rounded-full border border-theme text-[10px] font-bold tracking-widest uppercase" style={{ fontFamily: "'JetBrains Mono', monospace", color: '#DC143C', background: 'var(--crimson-dim)' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#DC143C] animate-pulse" />
+            <div className="inline-flex items-center gap-2 mb-8 px-3 py-1.5 border border-theme text-mono-label">
               FOR ELITE FREELANCERS
             </div>
 
-            <h1 className="text-display leading-none mb-8" style={{ fontSize: 'clamp(3.5rem, 9vw, 7rem)' }}>
-              <span className="block text-gradient-hero">YOUR SKILLS.</span>
-              <span className="block text-primary-ui">YOUR TERMS.</span>
-              <span className="block text-gradient-hero">YOUR INCOME.</span>
+            <h1 className="text-display-xl mb-8">
+              <span className="block">YOUR SKILLS.</span>
+              <span className="block text-accent font-normal">your terms.</span>
+              <span className="block">YOUR INCOME.</span>
             </h1>
 
             <p className="text-base md:text-lg leading-relaxed max-w-xl mb-10 text-secondary-ui">
@@ -182,7 +181,7 @@ export default function HomePage() {
           <span className="text-mono-label mr-2">WE HIRE FOR:</span>
           {specializations.map(({ icon, label }) => (
             <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-theme text-sm font-medium text-secondary-ui" style={{ background: 'var(--bg-elevated)' }}>
-              <span className="text-[#DC143C]">{icon}</span>
+              <span className="text-[var(--fg)]">{icon}</span>
               {label}
             </div>
           ))}
@@ -194,8 +193,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-8 md:px-12">
 
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] mb-4 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" /> WHY JOIN <span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] mb-4 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" /> WHY JOIN <span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-4xl md:text-5xl font-bold text-primary-ui">
               BUILT FOR <span className="text-gradient-hero">PROFESSIONALS</span>
@@ -204,12 +203,12 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {benefits.map(({ icon, title, desc }) => (
-              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgba(220,20,60,0.4)] transition-all duration-200">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-[#DC143C] shrink-0 transition-colors"
+              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgb(var(--fg-rgb)/0.4)] transition-all duration-200">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-[var(--fg)] shrink-0 transition-colors"
                   style={{ background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}>
                   {icon}
                 </div>
-                <h3 className="text-primary-ui font-bold text-sm mb-2 uppercase tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{title}</h3>
+                <h3 className="text-primary-ui font-bold text-sm mb-2 uppercase tracking-wide" style={{ fontFamily: 'var(--font-mono)' }}>{title}</h3>
                 <p className="text-sm leading-relaxed text-secondary-ui">{desc}</p>
               </div>
             ))}
@@ -219,12 +218,12 @@ export default function HomePage() {
 
       {/* ── How It Works ────────────────────────────────────────── */}
       <section id="how-it-works" className="py-24 relative border-y border-theme" style={{ background: 'var(--bg-sidebar)' }}>
-        <MorphBlob color="#4A0000" size={400} top="-80px" left="0px" delay="1s" />
+        <MorphBlob color="var(--surface)" size={400} top="-80px" left="0px" delay="1s" />
         <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10">
 
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] mb-4 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" /> PROCESS <span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] mb-4 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" /> PROCESS <span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-4xl md:text-5xl font-bold text-primary-ui">
               HOW IT <span className="text-gradient-hero">WORKS</span>
@@ -235,11 +234,11 @@ export default function HomePage() {
             {steps.map((step, i) => (
               <div key={step.num} className="relative">
                 {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgba(220,20,60,0.2)' }} />
+                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgb(var(--fg-rgb) / 0.2)' }} />
                 )}
                 <div className="glass-card p-6 rounded-xl relative z-10 h-full">
-                  <p className="text-display text-3xl font-bold mb-4" style={{ color: 'rgba(220,20,60,0.3)' }}>{step.num}</p>
-                  <h3 className="text-primary-ui font-bold text-sm mb-2 uppercase tracking-wide" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{step.title}</h3>
+                  <p className="text-display text-3xl font-bold mb-4" style={{ color: 'rgb(var(--fg-rgb) / 0.3)' }}>{step.num}</p>
+                  <h3 className="text-primary-ui font-bold text-sm mb-2 uppercase tracking-wide" style={{ fontFamily: 'var(--font-mono)' }}>{step.title}</h3>
                   <p className="text-sm leading-relaxed text-secondary-ui">{step.desc}</p>
                 </div>
               </div>
@@ -254,8 +253,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             <div>
-              <p className="text-mono-label text-[#DC143C] mb-4 flex items-center gap-2">
-                <span className="w-8 h-px bg-[#DC143C]" /> IN DEMAND
+              <p className="text-mono-label text-[var(--fg)] mb-4 flex items-center gap-2">
+                <span className="w-8 h-px bg-[var(--fg)]" /> IN DEMAND
               </p>
               <h2 className="text-display text-4xl md:text-5xl font-bold mb-6 text-primary-ui">
                 SKILLS WE <span className="text-gradient-hero">NEED NOW</span>
@@ -272,9 +271,9 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-2.5">
               {skills.map((skill) => (
                 <div key={skill}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-theme cursor-default transition-all hover:border-[rgba(220,20,60,0.4)]"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-theme cursor-default transition-all hover:border-[rgb(var(--fg-rgb)/0.4)]"
                   style={{ background: 'var(--bg-surface)' }}>
-                  <CheckCircle size={13} className="text-[#DC143C] shrink-0" />
+                  <CheckCircle size={13} className="text-[var(--fg)] shrink-0" />
                   <span className="text-sm font-medium text-primary-ui">{skill}</span>
                 </div>
               ))}
@@ -287,15 +286,15 @@ export default function HomePage() {
       {/* ── Freelancer CTA ───────────────────────────────────────── */}
       <section className="py-20 relative overflow-hidden border-y border-theme" style={{ background: 'var(--bg-elevated)' }}>
         <div className="absolute inset-0 grid-overlay opacity-40" />
-        <MorphBlob color="#8B0000" size={500} top="-100px" right="-80px" />
-        <WireframeCube size={130} color="rgba(220,20,60,0.15)" duration={24} delay="-2s"
+        <MorphBlob color="var(--fg)" size={500} top="-100px" right="-80px" />
+        <WireframeCube size={130} color="rgb(var(--fg-rgb) / 0.15)" duration={24} delay="-2s"
           style={{ bottom: '-20px', left: '8%', zIndex: 1 }} />
-        <FloatingGlyph size={80} color="rgba(220,20,60,0.12)" duration={18} delay="-7s" spin
+        <FloatingGlyph size={80} color="rgb(var(--fg-rgb) / 0.12)" duration={18} delay="-7s" spin
           style={{ top: '10%', left: '2%', zIndex: 1 }} />
 
         <div className="max-w-3xl mx-auto px-8 md:px-12 text-center relative z-10">
-          <p className="text-mono-label text-[#DC143C] mb-4 flex items-center justify-center gap-2">
-            <span className="w-8 h-px bg-[#DC143C]" /> START TODAY <span className="w-8 h-px bg-[#DC143C]" />
+          <p className="text-mono-label text-[var(--fg)] mb-4 flex items-center justify-center gap-2">
+            <span className="w-8 h-px bg-[var(--fg)]" /> START TODAY <span className="w-8 h-px bg-[var(--fg)]" />
           </p>
           <h2 className="text-display text-4xl md:text-5xl font-bold mb-5 text-primary-ui">
             READY TO JOIN THE <span className="text-gradient-hero">NETWORK?</span>
@@ -317,14 +316,14 @@ export default function HomePage() {
 
       {/* ── Client Callout ───────────────────────────────────────── */}
       <section className="py-20 relative overflow-hidden" style={{ background: 'var(--bg-sidebar)' }}>
-        <MorphBlob color="#1a3a6b" size={400} top="-60px" right="-60px" delay="1s" />
+        <MorphBlob color="var(--surface)" size={400} top="-60px" right="-60px" delay="1s" />
         <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10">
           <div className="rounded-2xl p-10 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-10 border"
-            style={{ background: 'rgba(96,165,250,0.05)', borderColor: 'rgba(96,165,250,0.2)' }}>
+            style={{ background: 'rgb(var(--fg-rgb) / 0.05)', borderColor: 'rgb(var(--fg-rgb) / 0.2)' }}>
 
             <div className="lg:max-w-xl">
-              <p className="text-mono-label mb-3 flex items-center gap-2" style={{ color: '#60a5fa' }}>
-                <span className="w-8 h-px inline-block" style={{ background: '#60a5fa' }} /> FOR CLIENTS
+              <p className="text-mono-label mb-3 flex items-center gap-2" style={{ color: 'var(--fg)' }}>
+                <span className="w-8 h-px inline-block" style={{ background: 'var(--fg)' }} /> FOR CLIENTS
               </p>
               <h2 className="text-display text-3xl md:text-4xl font-bold text-primary-ui mb-4">
                 LOOKING TO HIRE FREELANCERS?
@@ -338,7 +337,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
               <Link href="/clients"
                 className="flex items-center justify-center gap-2 font-bold text-xs py-3 px-8 rounded-lg transition-all"
-                style={{ background: '#3b82f6', color: '#fff', whiteSpace: 'nowrap', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>
+                style={{ background: 'var(--fg)', color: 'var(--bg)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
                 SUBMIT A PROJECT <ArrowRight size={14} />
               </Link>
               <Link href="/clients#get-started"
@@ -356,7 +355,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-8 md:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <CrimsonCube size={18} />
-            <span className="text-display text-[#DC143C] text-xs font-bold tracking-widest uppercase">FREELANCE_PRO</span>
+            <span className="text-display text-[var(--fg)] text-xs font-bold tracking-widest uppercase">FREELANCE_PRO</span>
           </Link>
 
           <div className="flex items-center gap-5 text-muted-ui">

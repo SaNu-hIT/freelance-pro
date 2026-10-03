@@ -34,16 +34,16 @@ const MOCK_DOCS: Document[] = [
 ]
 
 const TYPE_META: Record<DocType, { icon: typeof FileText; color: string; label: string }> = {
-  deliverable: { icon: Package, color: '#60a5fa', label: 'Deliverable' },
-  contract:    { icon: FileCheck, color: '#a78bfa', label: 'Contract' },
-  report:      { icon: FileText, color: '#34d399', label: 'Report' },
-  invoice:     { icon: FileText, color: '#fbbf24', label: 'Invoice' },
+  deliverable: { icon: Package, color: 'var(--fg)', label: 'Deliverable' },
+  contract:    { icon: FileCheck, color: 'var(--fg)', label: 'Contract' },
+  report:      { icon: FileText, color: 'var(--fg)', label: 'Report' },
+  invoice:     { icon: FileText, color: 'var(--fg)', label: 'Invoice' },
 }
 
 const STATUS_META: Record<DocStatus, { icon: typeof CheckCircle2; color: string; bg: string; label: string }> = {
-  delivered:  { icon: CheckCircle2, color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   label: 'Delivered' },
-  'in-review':{ icon: Clock,        color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',  label: 'In Review' },
-  pending:    { icon: Clock,        color: 'var(--text-muted)', bg: 'rgba(156,163,175,0.1)', label: 'Pending' },
+  delivered:  { icon: CheckCircle2, color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',   label: 'Delivered' },
+  'in-review':{ icon: Clock,        color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',  label: 'In Review' },
+  pending:    { icon: Clock,        color: 'var(--text-muted)', bg: 'rgb(var(--fg-rgb) / 0.1)', label: 'Pending' },
 }
 
 function fmtDate(iso: string) {
@@ -89,14 +89,14 @@ export default function ClientDocumentsPage() {
         {/* Summary stats */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: 'Total Files', val: counts.total, color: '#60a5fa', icon: FolderOpen },
-            { label: 'Delivered', val: counts.delivered, color: '#4ade80', icon: CheckCircle2 },
-            { label: 'In QA Review', val: counts.inReview, color: '#fbbf24', icon: Clock },
+            { label: 'Total Files', val: counts.total, color: 'var(--fg)', icon: FolderOpen },
+            { label: 'Delivered', val: counts.delivered, color: 'var(--fg)', icon: CheckCircle2 },
+            { label: 'In QA Review', val: counts.inReview, color: 'var(--fg)', icon: Clock },
             { label: 'Pending', val: counts.pending, color: 'var(--text-muted)', icon: Clock },
           ].map(({ label, val, color, icon: Icon }) => (
             <div key={label} className="glass-card rounded-xl px-4 py-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: `${color}12`, border: `1px solid ${color}25` }}>
+                style={{ background: `color-mix(in srgb, ${color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 15%, transparent)` }}>
                 <Icon size={15} style={{ color }} />
               </div>
               <div>
@@ -126,9 +126,9 @@ export default function ClientDocumentsPage() {
                 onClick={() => setTypeFilter(t)}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize"
                 style={{
-                  background: typeFilter === t ? 'rgba(96,165,250,0.15)' : 'var(--input-bg)',
-                  border: `1px solid ${typeFilter === t ? 'rgba(96,165,250,0.4)' : 'var(--input-bg)'}`,
-                  color: typeFilter === t ? '#60a5fa' : 'var(--text-muted)',
+                  background: typeFilter === t ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--input-bg)',
+                  border: `1px solid ${typeFilter === t ? 'rgb(var(--fg-rgb) / 0.4)' : 'var(--input-bg)'}`,
+                  color: typeFilter === t ? 'var(--fg)' : 'var(--text-muted)',
                 }}>
                 {t === 'all' ? 'All Types' : t}
               </button>
@@ -141,9 +141,9 @@ export default function ClientDocumentsPage() {
                 onClick={() => setStatusFilter(s)}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                 style={{
-                  background: statusFilter === s ? 'rgba(74,222,128,0.12)' : 'var(--input-bg)',
-                  border: `1px solid ${statusFilter === s ? 'rgba(74,222,128,0.3)' : 'var(--input-bg)'}`,
-                  color: statusFilter === s ? '#4ade80' : 'var(--text-muted)',
+                  background: statusFilter === s ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--input-bg)',
+                  border: `1px solid ${statusFilter === s ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--input-bg)'}`,
+                  color: statusFilter === s ? 'var(--fg)' : 'var(--text-muted)',
                 }}>
                 {s === 'all' ? 'All Status' : s === 'in-review' ? 'In Review' : s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -181,7 +181,7 @@ export default function ClientDocumentsPage() {
                   {/* Name */}
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: `${type.color}12`, border: `1px solid ${type.color}25` }}>
+                      style={{ background: `color-mix(in srgb, ${type.color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${type.color} 15%, transparent)` }}>
                       <TypeIcon size={14} style={{ color: type.color }} />
                     </div>
                     <div className="min-w-0">
@@ -192,7 +192,7 @@ export default function ClientDocumentsPage() {
                   <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{doc.project}</p>
                   {/* Type badge */}
                   <span className="text-xs px-2 py-1 rounded-md w-fit"
-                    style={{ background: `${type.color}12`, border: `1px solid ${type.color}25`, color: type.color }}>
+                    style={{ background: `color-mix(in srgb, ${type.color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${type.color} 15%, transparent)`, color: type.color }}>
                     {type.label}
                   </span>
                   {/* Status badge */}
@@ -227,7 +227,7 @@ export default function ClientDocumentsPage() {
       {/* Preview modal */}
       {preview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(3,0,0,0.8)', backdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
           onClick={() => setPreview(null)}>
           <div className="glass-card rounded-xl p-7 w-full max-w-md space-y-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
@@ -236,7 +236,7 @@ export default function ClientDocumentsPage() {
             </div>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: `${TYPE_META[preview.type].color}12`, border: `1px solid ${TYPE_META[preview.type].color}30` }}>
+                style={{ background: `color-mix(in srgb, ${TYPE_META[preview.type].color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${TYPE_META[preview.type].color} 19%, transparent)` }}>
                 {(() => { const Icon = TYPE_META[preview.type].icon; return <Icon size={20} style={{ color: TYPE_META[preview.type].color }} /> })()}
               </div>
               <div>
@@ -261,7 +261,7 @@ export default function ClientDocumentsPage() {
             </div>
             <button
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all"
-              style={{ background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa' }}
+              style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}
               onClick={() => alert('Download is disabled in demo mode.')}>
               <Download size={14} /> Download File
             </button>

@@ -1,5 +1,7 @@
 import { ProjectStatus } from '@/lib/types'
 
+// Brand allows no extra hues: states differ by fill.
+// to do = outline · in progress = solid · blocked = hatched · done = struck at .55
 const statusMap: Record<ProjectStatus, { cls: string; label: string }> = {
   new: { cls: 'status-new', label: 'New' },
   assigned: { cls: 'status-assigned', label: 'Assigned' },
@@ -12,10 +14,5 @@ const statusMap: Record<ProjectStatus, { cls: string; label: string }> = {
 
 export function StatusBadge({ status }: { status: ProjectStatus }) {
   const { cls, label } = statusMap[status]
-  return (
-    <span className={`status-badge ${cls}`}>
-      <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-80" />
-      {label}
-    </span>
-  )
+  return <span className={`status-badge ${cls}`}>{label}</span>
 }

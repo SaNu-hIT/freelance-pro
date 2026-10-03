@@ -74,7 +74,7 @@ export default function FreelancersPage() {
       <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <CrimsonCube size={24} />
-          <span className="text-display text-[#DC143C] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px #DC143C66' }}>
+          <span className="text-display text-[var(--fg)] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px rgb(var(--fg-rgb) / 0.4)' }}>
             FREELANCE_PRO
           </span>
         </Link>
@@ -85,7 +85,7 @@ export default function FreelancersPage() {
         <div className="flex items-center gap-2">
           <Link href="/login"
             className="flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all"
-            style={{ border: '1px solid rgba(220,20,60,0.35)', color: '#DC143C', background: 'rgba(220,20,60,0.06)' }}>
+            style={{ border: '1px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)', background: 'rgb(var(--fg-rgb) / 0.06)' }}>
             Login
           </Link>
           <Link href="/register" className="btn-primary rounded flex items-center gap-2 text-sm">
@@ -97,16 +97,16 @@ export default function FreelancersPage() {
       {/* Hero */}
       <section className="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
         <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
-        <MorphBlob color="#8B0000" size={600} top="-150px" right="-150px" />
-        <MorphBlob color="#3D0000" size={400} bottom="-100px" left="-100px" delay="2s" />
+        <MorphBlob color="var(--fg)" size={600} top="-150px" right="-150px" />
+        <MorphBlob color="var(--surface)" size={400} bottom="-100px" left="-100px" delay="2s" />
 
         <div className="max-w-7xl mx-auto px-12 relative z-10">
           <div className="max-w-3xl">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-6 flex items-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C] inline-block" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-6 flex items-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)] inline-block" />
               FOR ELITE FREELANCERS
             </p>
-            <h1 className="text-display text-6xl md:text-7xl lg:text-8xl leading-none mb-6">
+            <h1 className="text-display-xl mb-6">
               <span className="block text-gradient">YOUR SKILLS.</span>
               <span className="block text-primary-ui">YOUR TERMS.</span>
               <span className="block text-gradient">YOUR INCOME.</span>
@@ -141,7 +141,7 @@ export default function FreelancersPage() {
             <span className="text-mono-label text-xs tracking-widest mr-4" style={{ color: 'var(--text-muted)' }}>WE HIRE FOR:</span>
             {specializations.map(({ icon, label }) => (
               <div key={label} className="flex items-center gap-2 glass-card px-4 py-2 rounded-full">
-                <span className="text-[#DC143C]">{icon}</span>
+                <span className="text-[var(--fg)]">{icon}</span>
                 <span className="text-sm font-medium text-primary-ui">{label}</span>
               </div>
             ))}
@@ -153,8 +153,8 @@ export default function FreelancersPage() {
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-12">
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" />WHY JOIN<span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" />WHY JOIN<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-primary-ui text-5xl font-bold">
               BUILT FOR <span className="text-gradient">PROFESSIONALS</span>
@@ -162,8 +162,8 @@ export default function FreelancersPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {benefits.map(({ icon, title, desc }) => (
-              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgba(220,20,60,0.4)] transition-all duration-300">
-                <div className="w-11 h-11 rounded-lg bg-[rgba(220,20,60,0.1)] flex items-center justify-center text-[#DC143C] mb-5 group-hover:bg-[rgba(220,20,60,0.18)] transition-colors">
+              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgb(var(--fg-rgb)/0.4)] transition-all duration-300">
+                <div className="w-11 h-11 rounded-lg bg-[rgb(var(--fg-rgb)/0.1)] flex items-center justify-center text-[var(--fg)] mb-5 group-hover:bg-[rgb(var(--fg-rgb)/0.18)] transition-colors">
                   {icon}
                 </div>
                 <h3 className="text-primary-ui font-bold text-base mb-2">{title}</h3>
@@ -176,11 +176,11 @@ export default function FreelancersPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
-        <MorphBlob color="#4A0000" size={500} top="-100px" left="0px" delay="1s" />
+        <MorphBlob color="var(--surface)" size={500} top="-100px" left="0px" delay="1s" />
         <div className="max-w-7xl mx-auto px-12 relative z-10">
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" />PROCESS<span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" />PROCESS<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-primary-ui text-5xl font-bold">
               HOW IT <span className="text-gradient">WORKS</span>
@@ -190,10 +190,10 @@ export default function FreelancersPage() {
             {steps.map((step, i) => (
               <div key={step.num} className="relative">
                 {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgba(220,20,60,0.2)' }} />
+                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgb(var(--fg-rgb) / 0.2)' }} />
                 )}
                 <div className="glass-card p-6 rounded-xl relative z-10">
-                  <p className="text-display text-4xl font-bold mb-4" style={{ color: 'rgba(220,20,60,0.25)' }}>{step.num}</p>
+                  <p className="text-display text-4xl font-bold mb-4" style={{ color: 'rgb(var(--fg-rgb) / 0.25)' }}>{step.num}</p>
                   <h3 className="text-primary-ui font-bold text-base mb-2">{step.title}</h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
                 </div>
@@ -208,8 +208,8 @@ export default function FreelancersPage() {
         <div className="max-w-7xl mx-auto px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center gap-2">
-                <span className="w-8 h-px bg-[#DC143C]" />IN DEMAND
+              <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center gap-2">
+                <span className="w-8 h-px bg-[var(--fg)]" />IN DEMAND
               </p>
               <h2 className="text-display text-primary-ui text-5xl font-bold mb-6">
                 SKILLS WE <span className="text-gradient">NEED NOW</span>
@@ -225,9 +225,9 @@ export default function FreelancersPage() {
               {skills.map((skill) => (
                 <div
                   key={skill}
-                  className="glass-card px-4 py-2.5 rounded-lg flex items-center gap-2 hover:border-[rgba(220,20,60,0.4)] transition-all group cursor-default"
+                  className="glass-card px-4 py-2.5 rounded-lg flex items-center gap-2 hover:border-[rgb(var(--fg-rgb)/0.4)] transition-all group cursor-default"
                 >
-                  <CheckCircle size={14} className="text-[#DC143C] shrink-0" />
+                  <CheckCircle size={14} className="text-[var(--fg)] shrink-0" />
                   <span className="text-sm font-medium text-primary-ui">{skill}</span>
                 </div>
               ))}
@@ -237,11 +237,11 @@ export default function FreelancersPage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a0008 0%, #0a0a0c 60%)' }}>
+      <section className="py-20 relative overflow-hidden" style={{ background: 'var(--surface)' }}>
         <div className="absolute inset-0 grid-overlay opacity-50" />
         <div className="max-w-4xl mx-auto px-12 text-center relative z-10">
-          <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-4 flex items-center justify-center gap-2">
-            <span className="w-8 h-px bg-[#DC143C]" />START TODAY<span className="w-8 h-px bg-[#DC143C]" />
+          <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-4 flex items-center justify-center gap-2">
+            <span className="w-8 h-px bg-[var(--fg)]" />START TODAY<span className="w-8 h-px bg-[var(--fg)]" />
           </p>
           <h2 className="text-display text-5xl md:text-6xl font-bold mb-6 text-primary-ui">
             READY TO <span className="text-gradient">JOIN THE NETWORK?</span>
@@ -265,7 +265,7 @@ export default function FreelancersPage() {
         <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
             <CrimsonCube size={20} />
-            <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
+            <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
           </Link>
           <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>

@@ -37,15 +37,15 @@ function fmtDate(iso: string) {
 }
 
 const statusIcons: Record<Milestone['status'], React.ReactNode> = {
-  completed: <CheckCircle2 size={18} className="text-green-400" />,
-  pending: <Clock size={18} className="text-amber-400" />,
-  overdue: <AlertTriangle size={18} className="text-[#DC143C]" />,
+  completed: <CheckCircle2 size={18} className="text-[var(--fg)]" />,
+  pending: <Clock size={18} className="text-[var(--fg)]" />,
+  overdue: <AlertTriangle size={18} className="text-[var(--fg)]" />,
 }
 
 const statusColors: Record<Milestone['status'], string> = {
-  completed: '#4ade80',
-  pending: '#fbbf24',
-  overdue: '#DC143C',
+  completed: 'var(--fg)',
+  pending: 'var(--fg)',
+  overdue: 'var(--fg)',
 }
 
 export default function ClientMilestonesPage() {
@@ -94,8 +94,8 @@ export default function ClientMilestonesPage() {
             onClick={() => setSelectedProject('all')}
             className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
               selectedProject === 'all'
-                ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
-                : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
+                ? 'bg-[var(--fg)] border-[var(--fg)] text-[var(--bg)]'
+                : 'border-[rgb(var(--fg-rgb)/0.2)] text-[var(--text-muted)] hover:border-[var(--fg)] hover:text-primary-ui'
             }`}
           >
             All Projects
@@ -106,8 +106,8 @@ export default function ClientMilestonesPage() {
               onClick={() => setSelectedProject(p.id)}
               className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
                 selectedProject === p.id
-                  ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
-                  : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
+                  ? 'bg-[var(--fg)] border-[var(--fg)] text-[var(--bg)]'
+                  : 'border-[rgb(var(--fg-rgb)/0.2)] text-[var(--text-muted)] hover:border-[var(--fg)] hover:text-primary-ui'
               }`}
             >
               {p.title}
@@ -130,7 +130,7 @@ export default function ClientMilestonesPage() {
           ) : (
             <div className="relative space-y-0">
               {/* Timeline line */}
-              <div className="absolute left-[22px] top-4 bottom-4 w-px bg-[rgba(220,20,60,0.2)]" />
+              <div className="absolute left-[22px] top-4 bottom-4 w-px bg-[rgb(var(--fg-rgb)/0.2)]" />
 
               {filteredMilestones.map((m, idx) => {
                 const proj = projects.find(p => p.id === m.projectId)
@@ -139,16 +139,16 @@ export default function ClientMilestonesPage() {
                   <div key={m.id} className="relative pl-14 pb-6 last:pb-0 group">
                     {/* Timeline dot */}
                     <div
-                      className="absolute left-3 top-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-[#0a0a0c] transition-transform group-hover:scale-110"
-                      style={{ background: isApproved ? '#4ade80' : statusColors[m.status] + '22', border: `2px solid ${isApproved ? '#4ade80' : statusColors[m.status]}` }}
+                      className="absolute left-3 top-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-[var(--surface)] transition-transform group-hover:scale-110"
+                      style={{ background: isApproved ? 'var(--fg)' : `color-mix(in srgb, ${statusColors[m.status]} 13%, transparent)`, border: `2px solid ${isApproved ? 'var(--fg)' : statusColors[m.status]}` }}
                     >
                       {isApproved
-                        ? <Check size={14} className="text-green-400" />
+                        ? <Check size={14} className="text-[var(--fg)]" />
                         : statusIcons[m.status]}
                     </div>
 
                     {/* Content */}
-                    <div className="glass-card-dark rounded-lg p-4 hover:border-[rgba(220,20,60,0.3)] transition-all">
+                    <div className="glass-card-dark rounded-lg p-4 hover:border-[rgb(var(--fg-rgb)/0.3)] transition-all">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -169,11 +169,11 @@ export default function ClientMilestonesPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className={`text-mono-label text-[10px] ${m.status === 'overdue' ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
+                          <p className={`text-mono-label text-[10px] ${m.status === 'overdue' ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                             {m.status === 'overdue' && <AlertTriangle size={10} className="inline mr-1" />}
                             {fmtDate(m.dueDate)}
                           </p>
-                          <p className="text-mono-label text-[10px] mt-0.5 capitalize" style={{ color: isApproved ? '#4ade80' : statusColors[m.status] }}>
+                          <p className="text-mono-label text-[10px] mt-0.5 capitalize" style={{ color: isApproved ? 'var(--fg)' : statusColors[m.status] }}>
                             {isApproved ? 'APPROVED' : m.status.toUpperCase()}
                           </p>
                         </div>
@@ -190,7 +190,7 @@ export default function ClientMilestonesPage() {
                             className="progress-fill"
                             style={{
                               width: `${m.progress}%`,
-                              background: `linear-gradient(to right, ${statusColors[m.status]}88, ${statusColors[m.status]})`
+                              background: `linear-gradient(to right, color-mix(in srgb, ${statusColors[m.status]} 53%, transparent), ${statusColors[m.status]})`
                             }}
                           />
                         </div>
@@ -201,7 +201,7 @@ export default function ClientMilestonesPage() {
                         <div className="mt-3 flex justify-end">
                           <button
                             onClick={() => approve(m.id)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.3)] text-green-400 rounded text-mono-label text-[10px] hover:bg-[rgba(34,197,94,0.2)] transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
                           >
                             <ThumbsUp size={12} />
                             APPROVE MILESTONE
@@ -218,7 +218,7 @@ export default function ClientMilestonesPage() {
 
         {/* Pending Your Review */}
         {pendingReview.length > 0 && (
-          <div className="glass-card rounded-xl p-5 border-l-4 border-[#DC143C]">
+          <div className="glass-card rounded-xl p-5 border-l-4 border-[var(--fg)]">
             <h2 className="text-mono-label text-xs tracking-widest mb-4">PENDING YOUR REVIEW</h2>
             <div className="space-y-3">
               {pendingReview.map(m => {
@@ -231,7 +231,7 @@ export default function ClientMilestonesPage() {
                     </div>
                     <button
                       onClick={() => approve(m.id)}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.3)] text-green-400 rounded text-mono-label text-[10px] hover:bg-[rgba(34,197,94,0.2)] transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
                     >
                       <ThumbsUp size={13} />
                       APPROVE

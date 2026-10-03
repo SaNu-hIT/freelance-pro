@@ -8,8 +8,8 @@ import type { CSSProperties } from 'react'
    ───────────────────────────────────────────────────────────────────────────── */
 export function ParticleNetwork({
   count = 65,
-  dotColor = '220,20,60',
-  lineColor = '220,20,60',
+  dotColor,
+  lineColor,
   className = '',
 }: {
   count?: number
@@ -49,8 +49,14 @@ export function ParticleNetwork({
 
     const LINK = 145
 
+    // Monochrome: draw in the current theme's text colour unless overridden
+    const fgRgb = () => getComputedStyle(document.documentElement).getPropertyValue('--fg-rgb').trim().split(/\s+/).join(',')
+
     const tick = () => {
       const w = W(), h = H()
+      const fg = fgRgb()
+      const dot = dotColor ?? fg
+      const line = lineColor ?? fg
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, w, h)
 
@@ -59,7 +65,7 @@ export function ParticleNetwork({
         p.y = (p.y + p.vy + h) % h
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${dotColor},${p.a})`
+        ctx.fillStyle = `rgba(${dot},${p.a})`
         ctx.fill()
       }
 
@@ -70,7 +76,7 @@ export function ParticleNetwork({
             ctx.beginPath()
             ctx.moveTo(pts[i].x, pts[i].y)
             ctx.lineTo(pts[j].x, pts[j].y)
-            ctx.strokeStyle = `rgba(${lineColor},${(1 - d / LINK) * 0.13})`
+            ctx.strokeStyle = `rgba(${line},${(1 - d / LINK) * 0.13})`
             ctx.lineWidth = 0.6
             ctx.stroke()
           }
@@ -103,7 +109,7 @@ function CubeFace({ t, color }: { t: string; color: string }) {
 
 export function WireframeCube({
   size = 120,
-  color = 'rgba(220,20,60,0.22)',
+  color = 'rgb(var(--fg-rgb) / 0.22)',
   duration = 22,
   delay = '0s',
   style,
@@ -150,7 +156,7 @@ export function WireframeCube({
    ───────────────────────────────────────────────────────────────────────────── */
 export function OrbitalRing({
   size = 420,
-  color = 'rgba(220,20,60,0.10)',
+  color = 'rgb(var(--fg-rgb) / 0.10)',
   tiltX = 72,
   duration = 12,
   delay = '0s',
@@ -202,7 +208,7 @@ export function OrbitalRing({
    ───────────────────────────────────────────────────────────────────────────── */
 export function FloatingGlyph({
   size = 90,
-  color = 'rgba(220,20,60,0.18)',
+  color = 'rgb(var(--fg-rgb) / 0.18)',
   duration = 16,
   delay = '0s',
   spin = true,
@@ -254,7 +260,7 @@ export function FloatingGlyph({
 /* ─────────────────────────────────────────────────────────────────────────────
    CornerAccent  –  decorative L-bracket corners
    ───────────────────────────────────────────────────────────────────────────── */
-export function CornerAccents({ color = 'rgba(220,20,60,0.3)' }: { color?: string }) {
+export function CornerAccents({ color = 'rgb(var(--fg-rgb) / 0.3)' }: { color?: string }) {
   const corner = (cls: string, rx: string, ry: string) => (
     <svg
       width={40}

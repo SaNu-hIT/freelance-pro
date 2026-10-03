@@ -59,19 +59,19 @@ function isOverdue(deadline: string) {
 }
 
 const STATUS_META: Record<ProjectStatus, { label: string; color: string; bg: string }> = {
-  new:              { label: 'New',            color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
-  assigned:         { label: 'Assigned',       color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
-  in_progress:      { label: 'In Progress',    color: '#4ade80', bg: 'rgba(74,222,128,0.12)'  },
-  blocked:          { label: 'Blocked',        color: '#f87171', bg: 'rgba(248,113,113,0.12)' },
-  pending_approval: { label: 'Pending Review', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)'  },
-  completed:        { label: 'Completed',      color: '#4ade80', bg: 'rgba(74,222,128,0.12)'  },
-  delayed:          { label: 'Delayed',        color: '#f87171', bg: 'rgba(248,113,113,0.12)' },
+  new:              { label: 'New',            color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
+  assigned:         { label: 'Assigned',       color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
+  in_progress:      { label: 'In Progress',    color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
+  blocked:          { label: 'Blocked',        color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
+  pending_approval: { label: 'Pending Review', color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
+  completed:        { label: 'Completed',      color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
+  delayed:          { label: 'Delayed',        color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
 }
 
 function StatusPill({ status }: { status: ProjectStatus }) {
   const m = STATUS_META[status] ?? STATUS_META.new
   return (
-    <span style={{ background: m.bg, color: m.color, fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, padding: '2px 8px', borderRadius: 4, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+    <span style={{ background: m.bg, color: m.color, fontSize: 10, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '2px 8px', borderRadius: 4, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
       {m.label}
     </span>
   )
@@ -86,8 +86,8 @@ const card: React.CSSProperties = {
 
 const sectionTitle = (icon: React.ReactNode, text: string, count?: number): React.ReactNode => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-    <span style={{ color: '#DC143C' }}>{icon}</span>
-    <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+    <span style={{ color: 'var(--fg)' }}>{icon}</span>
+    <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
       {text}{count !== undefined ? ` (${count})` : ''}
     </span>
   </div>
@@ -148,8 +148,8 @@ export default function FreelancerDetailPage() {
   if (loading) return (
     <DashboardLayout allowedRoles={['admin']}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, gap: 12 }}>
-        <div style={{ width: 28, height: 28, border: '3px solid rgba(220,20,60,0.2)', borderTopColor: '#DC143C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--text-muted)' }}>LOADING TEAM MEMBER...</span>
+        <div style={{ width: 28, height: 28, border: '3px solid rgb(var(--fg-rgb) / 0.2)', borderTopColor: 'var(--fg)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>LOADING TEAM MEMBER...</span>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     </DashboardLayout>
@@ -157,7 +157,7 @@ export default function FreelancerDetailPage() {
 
   if (!profile) return (
     <DashboardLayout allowedRoles={['admin']}>
-      <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+      <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
         Freelancer not found.
       </div>
     </DashboardLayout>
@@ -190,7 +190,7 @@ export default function FreelancerDetailPage() {
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
       {/* Back nav */}
-      <button onClick={() => router.back()} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', marginBottom: 20, padding: 0 }}>
+      <button onClick={() => router.back()} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, fontFamily: 'var(--font-mono)', marginBottom: 20, padding: 0 }}>
         <ArrowLeft size={13} /> BACK TO OUR TEAM
       </button>
 
@@ -206,19 +206,19 @@ export default function FreelancerDetailPage() {
           <div style={card}>
             {/* Avatar */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingBottom: 18, borderBottom: '1px solid var(--border)', marginBottom: 18 }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#8B0000,#DC143C)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 14 }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--fg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: 'var(--bg)', marginBottom: 14 }}>
                 {getInitials(profile.user.name)}
               </div>
               <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px' }}>{profile.user.name}</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10 }}>
                 <Mail size={11} style={{ color: 'var(--text-muted)' }} />
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{profile.user.email}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{profile.user.email}</span>
               </div>
               {/* Badges */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <span style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>ACTIVE</span>
+                <span style={{ background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>ACTIVE</span>
                 {profile.track && (
-                  <span style={{ background: profile.track === 'professional' ? 'rgba(167,139,250,0.1)' : 'rgba(251,191,36,0.1)', color: profile.track === 'professional' ? '#a78bfa' : '#fbbf24', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  <span style={{ background: profile.track === 'professional' ? 'rgb(var(--fg-rgb) / 0.1)' : 'rgb(var(--fg-rgb) / 0.1)', color: profile.track === 'professional' ? 'var(--fg)' : 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     {profile.track}
                   </span>
                 )}
@@ -232,7 +232,7 @@ export default function FreelancerDetailPage() {
 
             {/* Portfolio */}
             {profile.portfolioUrl && (
-              <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#60a5fa', fontSize: 12, fontFamily: 'JetBrains Mono, monospace', textDecoration: 'none', marginBottom: 14 }}>
+              <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--fg)', fontSize: 12, fontFamily: 'var(--font-mono)', textDecoration: 'none', marginBottom: 14 }}>
                 <ExternalLink size={11} /> Portfolio
               </a>
             )}
@@ -240,17 +240,17 @@ export default function FreelancerDetailPage() {
             {/* Stat rows */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { icon: <Activity size={13} />,   label: 'Last Active',  value: lastActive,                  color: isRecentlyActive ? '#4ade80' : '#fbbf24' },
-                { icon: <Clock size={13} />,       label: 'This Week',    value: `${weekHours}h`,             color: '#60a5fa' },
+                { icon: <Activity size={13} />,   label: 'Last Active',  value: lastActive,                  color: isRecentlyActive ? 'var(--fg)' : 'var(--fg)' },
+                { icon: <Clock size={13} />,       label: 'This Week',    value: `${weekHours}h`,             color: 'var(--fg)' },
                 { icon: <Shield size={13} />,      label: 'Total Hours',  value: `${totalHours}h`,            color: 'var(--text-primary)' },
                 { icon: <Star size={13} />,        label: 'Experience',   value: `${profile.experience} yrs`, color: 'var(--text-primary)' },
-                { icon: <DollarSign size={13} />,  label: 'Rate',         value: `${curr}${profile.hourlyRate}/hr`, color: '#DC143C' },
+                { icon: <DollarSign size={13} />,  label: 'Rate',         value: `${curr}${profile.hourlyRate}/hr`, color: 'var(--fg)' },
                 { icon: <Calendar size={13} />,    label: 'Joined',       value: fmtDate(profile.user.createdAt), color: 'var(--text-muted)' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--bg-elevated)', borderRadius: 8 }}>
-                  <span style={{ color: '#DC143C', flexShrink: 0 }}>{item.icon}</span>
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', flex: 1 }}>{item.label.toUpperCase()}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: item.color, fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>{item.value}</span>
+                  <span style={{ color: 'var(--fg)', flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flex: 1 }}>{item.label.toUpperCase()}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: item.color, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{item.value}</span>
                 </div>
               ))}
             </div>
@@ -262,7 +262,7 @@ export default function FreelancerDetailPage() {
               {sectionTitle(<Zap size={14} />, 'Skills')}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {profile.skills.map(skill => (
-                  <span key={skill} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', padding: '4px 10px', borderRadius: 6 }}>
+                  <span key={skill} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 11, fontFamily: 'var(--font-mono)', padding: '4px 10px', borderRadius: 6 }}>
                     {skill}
                   </span>
                 ))}
@@ -281,16 +281,16 @@ export default function FreelancerDetailPage() {
                   <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                     <span style={{
                       padding: '4px 8px', borderRadius: 6, fontSize: 10,
-                      fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+                      fontFamily: 'var(--font-mono)', fontWeight: 700,
                       letterSpacing: '0.06em',
-                      background: slot.enabled ? 'rgba(220,20,60,0.12)' : 'var(--bg-elevated)',
-                      color: slot.enabled ? '#DC143C' : 'var(--text-muted)',
-                      border: `1px solid ${slot.enabled ? 'rgba(220,20,60,0.3)' : 'var(--border)'}`,
+                      background: slot.enabled ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--bg-elevated)',
+                      color: slot.enabled ? 'var(--fg)' : 'var(--text-muted)',
+                      border: `1px solid ${slot.enabled ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--border)'}`,
                     }}>
                       {short.toUpperCase()}
                     </span>
                     {slot.enabled && (
-                      <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
                         {fmt12(slot.from)}–{fmt12(slot.to)}
                       </span>
                     )}
@@ -305,9 +305,9 @@ export default function FreelancerDetailPage() {
                 { icon: <Globe size={12} />, label: 'Timezone',     value: avail.timezone },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: 'var(--bg-elevated)', borderRadius: 8 }}>
-                  <span style={{ color: '#DC143C', flexShrink: 0 }}>{item.icon}</span>
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', flex: 1 }}>{item.label.toUpperCase()}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'JetBrains Mono, monospace' }}>{item.value}</span>
+                  <span style={{ color: 'var(--fg)', flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flex: 1 }}>{item.label.toUpperCase()}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{item.value}</span>
                 </div>
               ))}
             </div>
@@ -318,15 +318,15 @@ export default function FreelancerDetailPage() {
             {sectionTitle(<Activity size={14} />, 'Activity')}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
-                { label: 'Active Projects', value: activeProjects.length,   color: '#60a5fa',  sub: `${completedProjects.length} done` },
-                { label: 'Open Tasks',      value: openTasks.length,        color: '#fbbf24',  sub: `${doneTasks.length} done` },
-                { label: 'Blockers 30d',    value: blockers.length,         color: blockers.length > 0 ? '#f87171' : '#4ade80',       sub: blockers.length > 0 ? 'attention' : 'all clear' },
-                { label: 'At Risk',         value: blockedProjects.length,  color: blockedProjects.length > 0 ? '#f87171' : '#4ade80', sub: blockedProjects.length > 0 ? 'review' : 'on track' },
+                { label: 'Active Projects', value: activeProjects.length,   color: 'var(--fg)',  sub: `${completedProjects.length} done` },
+                { label: 'Open Tasks',      value: openTasks.length,        color: 'var(--fg)',  sub: `${doneTasks.length} done` },
+                { label: 'Blockers 30d',    value: blockers.length,         color: blockers.length > 0 ? 'var(--fg)' : 'var(--fg)',       sub: blockers.length > 0 ? 'attention' : 'all clear' },
+                { label: 'At Risk',         value: blockedProjects.length,  color: blockedProjects.length > 0 ? 'var(--fg)' : 'var(--fg)', sub: blockedProjects.length > 0 ? 'review' : 'on track' },
               ].map(item => (
                 <div key={item.label} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
-                  <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 6, textTransform: 'uppercase' }}>{item.label}</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: item.color, fontFamily: 'JetBrains Mono, monospace', lineHeight: 1 }}>{item.value}</div>
-                  <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', marginTop: 4 }}>{item.sub}</div>
+                  <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 6, textTransform: 'uppercase' }}>{item.label}</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: item.color, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{item.value}</div>
+                  <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: 4 }}>{item.sub}</div>
                 </div>
               ))}
             </div>
@@ -340,10 +340,10 @@ export default function FreelancerDetailPage() {
 
           {/* Blockers / Escalations */}
           {blockers.length > 0 && (
-            <div style={{ ...card, borderColor: 'rgba(248,113,113,0.3)', background: 'rgba(248,113,113,0.03)' }}>
+            <div style={{ ...card, borderColor: 'rgb(var(--fg-rgb) / 0.3)', background: 'rgb(var(--fg-rgb) / 0.03)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <AlertTriangle size={14} style={{ color: '#f87171' }} />
-                <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: '#f87171', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                <AlertTriangle size={14} style={{ color: 'var(--fg)' }} />
+                <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--fg)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                   Active Blockers & Escalations ({blockers.length})
                 </span>
               </div>
@@ -351,12 +351,12 @@ export default function FreelancerDetailPage() {
                 {blockers.slice(0, 5).map(w => {
                   const proj = projects.find(p => p.id === w.projectId)
                   return (
-                    <div key={w.id} style={{ display: 'flex', gap: 14, padding: '12px 14px', background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)', borderRadius: 10 }}>
+                    <div key={w.id} style={{ display: 'flex', gap: 14, padding: '12px 14px', background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.18)', borderRadius: 10 }}>
                       <div style={{ flexShrink: 0, textAlign: 'center', minWidth: 46 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#f87171', fontFamily: 'JetBrains Mono, monospace' }}>{fmtShortDate(w.date)}</div>
-                        <div style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>{daysAgo(w.date)}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--fg)', fontFamily: 'var(--font-mono)' }}>{fmtShortDate(w.date)}</div>
+                        <div style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 2 }}>{daysAgo(w.date)}</div>
                       </div>
-                      <div style={{ width: 1, background: 'rgba(248,113,113,0.2)', flexShrink: 0 }} />
+                      <div style={{ width: 1, background: 'rgb(var(--fg-rgb) / 0.2)', flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         {proj && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -366,7 +366,7 @@ export default function FreelancerDetailPage() {
                         )}
                         <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.55 }}>{w.blockers}</p>
                         {w.nextSteps && (
-                          <p style={{ fontSize: 11, color: '#4ade80', margin: '6px 0 0', fontFamily: 'JetBrains Mono, monospace' }}>→ {w.nextSteps}</p>
+                          <p style={{ fontSize: 11, color: 'var(--fg)', margin: '6px 0 0', fontFamily: 'var(--font-mono)' }}>→ {w.nextSteps}</p>
                         )}
                       </div>
                     </div>
@@ -380,7 +380,7 @@ export default function FreelancerDetailPage() {
           <div style={card}>
             {sectionTitle(<Layers size={14} />, 'Projects & Tasks', projects.length)}
             {projects.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 12, textAlign: 'center', padding: '32px 0' }}>No projects assigned.</p>
+              <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12, textAlign: 'center', padding: '32px 0' }}>No projects assigned.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {projects.map(project => {
@@ -411,20 +411,20 @@ export default function FreelancerDetailPage() {
                             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{project.title}</span>
                             <StatusPill status={project.status} />
                             {project.priority && (
-                              <span style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: project.priority === 'critical' ? '#f87171' : project.priority === 'high' ? '#f97316' : '#fbbf24' }}>
+                              <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, color: project.priority === 'critical' ? 'var(--fg)' : project.priority === 'high' ? 'var(--fg)' : 'var(--fg)' }}>
                                 {project.priority.toUpperCase()}
                               </span>
                             )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                             <div style={{ flex: 1, height: 4, background: 'var(--border)', borderRadius: 99, overflow: 'hidden' }}>
-                              <div style={{ height: '100%', borderRadius: 99, background: project.status === 'blocked' ? '#f87171' : project.status === 'completed' ? '#4ade80' : '#DC143C', width: `${project.progress}%` }} />
+                              <div style={{ height: '100%', borderRadius: 99, background: project.status === 'blocked' ? 'var(--fg)' : project.status === 'completed' ? 'var(--fg)' : 'var(--fg)', width: `${project.progress}%` }} />
                             </div>
-                            <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{project.progress}%</span>
+                            <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{project.progress}%</span>
                           </div>
                           <div style={{ display: 'flex', gap: 14 }}>
-                            <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>{curr}{project.budget?.toLocaleString()}</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: overdue ? '#f87171' : 'var(--text-muted)' }}>
+                            <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>{curr}{project.budget?.toLocaleString()}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontFamily: 'var(--font-mono)', color: overdue ? 'var(--fg)' : 'var(--text-muted)' }}>
                               {overdue && <AlertTriangle size={10} />}
                               Due {fmtDate(project.deadline)}
                             </span>
@@ -432,11 +432,11 @@ export default function FreelancerDetailPage() {
                         </div>
                         {myTasks.length > 0 && (
                           <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                            <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', marginBottom: 4 }}>MY TASKS</div>
+                            <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: 4 }}>MY TASKS</div>
                             <div style={{ display: 'flex', gap: 6 }}>
-                              <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: '#4ade80' }}>{myDone.length} done</span>
+                              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--fg)' }}>{myDone.length} done</span>
                               <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>·</span>
-                              <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: myOpen.length > 0 ? '#fbbf24' : '#4ade80' }}>{myOpen.length} open</span>
+                              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: myOpen.length > 0 ? 'var(--fg)' : 'var(--fg)' }}>{myOpen.length} open</span>
                             </div>
                           </div>
                         )}
@@ -451,11 +451,11 @@ export default function FreelancerDetailPage() {
                             <div key={key}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                                 <ChevronRight size={11} style={{ color: 'var(--text-muted)' }} />
-                                <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
+                                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
                                   {sprint ? sprint.name.toUpperCase() : 'BACKLOG'}
                                 </span>
                                 {sprint?.startDate && (
-                                  <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>
+                                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
                                     {fmtShortDate(sprint.startDate)} → {sprint.endDate ? fmtShortDate(sprint.endDate) : '…'}
                                   </span>
                                 )}
@@ -464,13 +464,13 @@ export default function FreelancerDetailPage() {
                                 {tasks.map(task => (
                                   <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     {task.completed
-                                      ? <CheckCircle2 size={13} style={{ color: '#4ade80', flexShrink: 0 }} />
+                                      ? <CheckCircle2 size={13} style={{ color: 'var(--fg)', flexShrink: 0 }} />
                                       : <Circle size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />}
                                     <span style={{ fontSize: 13, color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none', flex: 1 }}>
                                       {task.title}
                                     </span>
                                     {task.completed && task.completedAt && (
-                                      <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                      <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                                         {fmtShortDate(task.completedAt)}
                                       </span>
                                     )}
@@ -484,7 +484,7 @@ export default function FreelancerDetailPage() {
 
                       {myTasks.length === 0 && (
                         <div style={{ padding: '10px 16px' }}>
-                          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>No tasks assigned in this project.</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>No tasks assigned in this project.</span>
                         </div>
                       )}
                     </div>
@@ -498,7 +498,7 @@ export default function FreelancerDetailPage() {
           <div style={card}>
             {sectionTitle(<Clock size={14} />, `Recent Work Logs (${worklogs.length} total · ${totalHours}h)`)}
             {sortedLogs.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>No worklogs yet.</p>
+              <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>No worklogs yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {sortedLogs.slice(0, 8).map((w, i) => {
@@ -507,26 +507,26 @@ export default function FreelancerDetailPage() {
                   return (
                     <div key={w.id} style={{ display: 'flex', gap: 14, padding: '12px 0', borderBottom: i < Math.min(sortedLogs.length, 8) - 1 ? '1px solid var(--border)' : 'none' }}>
                       <div style={{ flexShrink: 0, width: 74, textAlign: 'right' }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)' }}>{fmtShortDate(w.date)}</div>
-                        <div style={{ fontSize: 14, fontWeight: 800, fontFamily: 'JetBrains Mono, monospace', color: '#DC143C' }}>{w.hoursWorked}h</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{fmtShortDate(w.date)}</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{w.hoursWorked}h</div>
                       </div>
                       <div style={{ width: 1, background: 'var(--border)', flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                           {proj
                             ? <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{proj.title}</span>
-                            : <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{w.projectId?.slice(0, 8)}…</span>
+                            : <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{w.projectId?.slice(0, 8)}…</span>
                           }
                           {hasBlocker && (
-                            <span style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', fontSize: 9, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, padding: '1px 6px', borderRadius: 4 }}>BLOCKER</span>
+                            <span style={{ background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '1px 6px', borderRadius: 4 }}>BLOCKER</span>
                           )}
-                          <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)', marginLeft: 'auto' }}>Progress: {w.progress}%</span>
+                          <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginLeft: 'auto' }}>Progress: {w.progress}%</span>
                         </div>
                         {w.tasksCompleted && (
                           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>{w.tasksCompleted}</p>
                         )}
                         {hasBlocker && (
-                          <p style={{ fontSize: 11, color: '#f87171', margin: '4px 0 0', lineHeight: 1.4, fontStyle: 'italic' }}>⚠ {w.blockers}</p>
+                          <p style={{ fontSize: 11, color: 'var(--fg)', margin: '4px 0 0', lineHeight: 1.4, fontStyle: 'italic' }}>⚠ {w.blockers}</p>
                         )}
                       </div>
                     </div>

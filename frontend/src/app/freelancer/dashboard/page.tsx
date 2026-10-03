@@ -187,10 +187,10 @@ export default function FreelancerDashboardPage() {
   const assignedCount = projects.filter(p => ['assigned', 'in_progress'].includes(p.status)).length
 
   const stats = [
-    { label: 'Assigned Projects', value: assignedCount, icon: <Briefcase size={20} className="text-[#DC143C]" /> },
-    { label: "Today's Hours", value: fmtHours(todayHours), icon: <Clock size={20} className="text-[#DC143C]" /> },
-    { label: 'This Week Hours', value: fmtHours(weekHours), icon: <Clock size={20} className="text-[#DC143C]" /> },
-    { label: 'Pending Earnings', value: `${curr}${pendingEarnings.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, icon: <DollarSign size={20} className="text-[#DC143C]" /> },
+    { label: 'Assigned Projects', value: assignedCount, icon: <Briefcase size={20} className="text-[var(--fg)]" /> },
+    { label: "Today's Hours", value: fmtHours(todayHours), icon: <Clock size={20} className="text-[var(--fg)]" /> },
+    { label: 'This Week Hours', value: fmtHours(weekHours), icon: <Clock size={20} className="text-[var(--fg)]" /> },
+    { label: 'Pending Earnings', value: `${curr}${pendingEarnings.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, icon: <DollarSign size={20} className="text-[var(--fg)]" /> },
   ]
 
   const hasWorklogToday = worklogs.some(w => w.date.startsWith(todayStr))
@@ -214,18 +214,18 @@ export default function FreelancerDashboardPage() {
           <Link href="/freelancer/profile"
             className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:opacity-90"
             style={{
-              background: approvalStatus === 'rejected' ? 'rgba(248,113,113,0.06)' : 'rgba(251,191,36,0.06)',
-              border: `1px solid ${approvalStatus === 'rejected' ? 'rgba(248,113,113,0.25)' : 'rgba(251,191,36,0.25)'}`,
+              background: approvalStatus === 'rejected' ? 'rgb(var(--fg-rgb) / 0.06)' : 'rgb(var(--fg-rgb) / 0.06)',
+              border: `1px solid ${approvalStatus === 'rejected' ? 'rgb(var(--fg-rgb) / 0.25)' : 'rgb(var(--fg-rgb) / 0.25)'}`,
             }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
               style={{
-                background: approvalStatus === 'rejected' ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)',
-                color: approvalStatus === 'rejected' ? '#f87171' : '#fbbf24',
+                background: approvalStatus === 'rejected' ? 'rgb(var(--fg-rgb) / 0.12)' : 'rgb(var(--fg-rgb) / 0.12)',
+                color: approvalStatus === 'rejected' ? 'var(--fg)' : 'var(--fg)',
               }}>
               <AlertTriangle size={18} />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-sm" style={{ color: approvalStatus === 'rejected' ? '#f87171' : '#fbbf24' }}>
+              <p className="font-bold text-sm" style={{ color: approvalStatus === 'rejected' ? 'var(--fg)' : 'var(--fg)' }}>
                 {approvalStatus === 'rejected' ? 'Application Not Approved' : 'Application Under Review'}
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -240,24 +240,24 @@ export default function FreelancerDashboardPage() {
 
         {approvalStatus === 'approved' && (
           <div className="flex items-center gap-4 rounded-2xl p-4"
-            style={{ background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.2)' }}>
+            style={{ background: 'rgb(var(--fg-rgb) / 0.05)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: 'rgba(74,222,128,0.1)', color: '#4ade80' }}>
+              style={{ background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)' }}>
               <Shield size={18} />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-sm" style={{ color: '#4ade80' }}>Active — Approved Freelancer</p>
+              <p className="font-bold text-sm" style={{ color: 'var(--fg)' }}>Active — Approved Freelancer</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 Your profile is live. You can be assigned to projects.
               </p>
             </div>
             <div className="hidden md:flex items-center gap-2 shrink-0">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
                 <Clock size={11} /> {avail.hoursPerWeek}h/wk
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
                 {activeDays}d/wk available
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function FreelancerDashboardPage() {
                     const overdue = proj ? isOverdue(proj.deadline) : false
                     return (
                       <li key={task.id} className="flex items-start gap-3 py-2 border-b border-[var(--input-bg)] last:border-0">
-                        <span className={`mt-0.5 shrink-0 ${task.done ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
+                        <span className={`mt-0.5 shrink-0 ${task.done ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                           {task.done ? <CheckSquare size={15} /> : <Square size={15} />}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -309,7 +309,7 @@ export default function FreelancerDashboardPage() {
                             {task.label}
                           </p>
                           {proj && (
-                            <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
+                            <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                               {overdue && <AlertTriangle size={10} className="inline mr-1" />}
                               {proj.title} — Due {fmtDate(proj.deadline)}
                             </p>
@@ -324,7 +324,7 @@ export default function FreelancerDashboardPage() {
 
             {/* Worklog Reminder */}
             {!hasWorklogToday && (
-              <div className="glass-card rounded-lg p-5 border-l-4 border-[#DC143C]">
+              <div className="glass-card rounded-lg p-5 border-l-4 border-[var(--fg)]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-mono-label text-[10px] mb-1">REMINDER</p>
@@ -363,7 +363,7 @@ export default function FreelancerDashboardPage() {
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-mono-label text-[10px]">{p.progress}% complete</span>
-                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
+                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                         {isOverdue(p.deadline) && <AlertTriangle size={9} className="inline mr-1" />}
                         Due {fmtDate(p.deadline)}
                       </span>
@@ -403,7 +403,7 @@ export default function FreelancerDashboardPage() {
                     <tr key={w.id}>
                       <td className="text-mono-label text-[11px]">{fmtDate(w.date)}</td>
                       <td className="text-primary-ui text-sm">{proj?.title ?? w.projectId}</td>
-                      <td className="text-[#DC143C] font-semibold">{w.hoursWorked}h</td>
+                      <td className="text-[var(--fg)] font-semibold">{w.hoursWorked}h</td>
                       <td>
                         <div className="flex items-center gap-2">
                           <div className="progress-bar flex-1 max-w-[80px]">

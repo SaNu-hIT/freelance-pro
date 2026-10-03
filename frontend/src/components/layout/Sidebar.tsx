@@ -156,7 +156,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
     >
       <Link href="/" className="flex items-center gap-3 px-5 py-6 border-b border-theme transition-opacity hover:opacity-80">
         <CrimsonCube size={28} />
-        <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase leading-tight">
+        <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase leading-tight">
           FREELANCE_PRO
         </span>
       </Link>
@@ -166,7 +166,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
           <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
             {group.section && (
               <p className="px-3 mb-1 text-[9px] font-bold tracking-[0.2em] uppercase select-none"
-                style={{ color: 'rgba(220,20,60,0.45)', fontFamily: "'JetBrains Mono', monospace" }}>
+                style={{ color: 'rgb(var(--fg-rgb) / 0.45)', fontFamily: 'var(--font-mono)' }}>
                 {group.section}
               </p>
             )}
@@ -184,14 +184,14 @@ export function Sidebar({ role, pathname }: SidebarProps) {
                     className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all group ${isActive ? 'active' : ''}`}
                   >
                     <span className="shrink-0">{item.icon}</span>
-                    <span className="flex-1 text-xs tracking-wide uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{item.label}</span>
+                    <span className="flex-1 text-xs tracking-wide uppercase" style={{ fontFamily: 'var(--font-mono)' }}>{item.label}</span>
                     {item.href === '/admin/chat' && adminChatUnread > 0 ? (
                       <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse"
-                        style={{ background: '#DC143C', color: '#fff' }}>
+                        style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
                         {adminChatUnread}
                       </span>
                     ) : isActive ? (
-                      <ChevronRight size={12} className="text-[#DC143C] opacity-70" />
+                      <ChevronRight size={12} className="text-[var(--fg)] opacity-70" />
                     ) : null}
                   </Link>
                 )
@@ -204,7 +204,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
       <div className="px-4 py-4 border-t border-theme">
         {user && (
           <div className="mb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#8B0000] flex items-center justify-center text-white text-xs font-bold uppercase shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--fg)] flex items-center justify-center text-[var(--bg)] text-xs font-bold uppercase shrink-0">
               {user.profileImage ? (
                 <img src={user.profileImage} alt={user.name} className="w-full h-full rounded-full object-cover" />
               ) : (
@@ -213,7 +213,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
             </div>
             <div className="overflow-hidden">
               <p className="text-primary-ui text-xs font-semibold truncate">{user.name}</p>
-              <p className="text-xs uppercase tracking-widest truncate" style={{ color: 'rgba(220,20,60,0.65)', fontFamily: "'JetBrains Mono', monospace" }}>
+              <p className="text-xs uppercase tracking-widest truncate" style={{ color: 'rgb(var(--fg-rgb) / 0.65)', fontFamily: 'var(--font-mono)' }}>
                 {user.role}
               </p>
             </div>

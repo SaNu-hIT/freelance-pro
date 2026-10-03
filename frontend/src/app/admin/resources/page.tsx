@@ -53,7 +53,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Arjun Mehta',
     email: 'arjun.mehta@devteam.io',
     avatar: 'AM',
-    avatarColor: '#6366f1',
+    avatarColor: 'var(--fg)',
     skills: ['React', 'TypeScript', 'Tailwind CSS', 'GraphQL', 'Figma'],
     domain: 'Frontend',
     experience: 5,
@@ -67,7 +67,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Priya Nair',
     email: 'priya.nair@fullstack.dev',
     avatar: 'PN',
-    avatarColor: '#a78bfa',
+    avatarColor: 'var(--fg)',
     skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'NestJS', 'Docker'],
     domain: 'Full-Stack',
     experience: 7,
@@ -81,7 +81,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Lena Fischer',
     email: 'lena.fischer@mobilelab.de',
     avatar: 'LF',
-    avatarColor: '#34d399',
+    avatarColor: 'var(--fg)',
     skills: ['Flutter', 'Firebase', 'Firestore', 'React Native', 'Dart'],
     domain: 'Mobile',
     experience: 4,
@@ -95,7 +95,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Carlos Vega',
     email: 'carlos.vega@backendpro.com',
     avatar: 'CV',
-    avatarColor: '#818cf8',
+    avatarColor: 'var(--fg)',
     skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'AWS', 'GraphQL'],
     domain: 'Backend',
     experience: 6,
@@ -109,7 +109,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Ayesha Qureshi',
     email: 'ayesha.q@designsprint.co',
     avatar: 'AQ',
-    avatarColor: '#f472b6',
+    avatarColor: 'var(--fg)',
     skills: ['Figma', 'UI/UX', 'Tailwind CSS', 'React', 'CSS'],
     domain: 'Design',
     experience: 3,
@@ -125,7 +125,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Tom Kiefer',
     email: 'tom.kiefer@devops.cloud',
     avatar: 'TK',
-    avatarColor: '#fb923c',
+    avatarColor: 'var(--fg)',
     skills: ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Terraform', 'GCP'],
     domain: 'DevOps',
     experience: 8,
@@ -142,7 +142,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Sofia Reyes',
     email: 'sofia.reyes@vueworks.mx',
     avatar: 'SR',
-    avatarColor: '#60a5fa',
+    avatarColor: 'var(--fg)',
     skills: ['Vue.js', 'TypeScript', 'Node.js', 'MongoDB', 'Tailwind CSS'],
     domain: 'Frontend',
     experience: 4,
@@ -159,7 +159,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Nikhil Shetty',
     email: 'nikhil.shetty@dbmaster.in',
     avatar: 'NS',
-    avatarColor: '#fbbf24',
+    avatarColor: 'var(--fg)',
     skills: ['PostgreSQL', 'MongoDB', 'Redis', 'Firebase', 'MySQL', 'Python'],
     domain: 'Database',
     experience: 5,
@@ -176,7 +176,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Jake Thornton',
     email: 'jake.thornton@phpcraft.uk',
     avatar: 'JT',
-    avatarColor: '#818cf8',
+    avatarColor: 'var(--fg)',
     skills: ['PHP', 'Laravel', 'Shopify', 'WordPress', 'MySQL', 'REST API'],
     domain: 'Backend',
     experience: 3,
@@ -195,7 +195,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Maria Gonzalez',
     email: 'maria.gonzalez@mobilestack.es',
     avatar: 'MG',
-    avatarColor: '#34d399',
+    avatarColor: 'var(--fg)',
     skills: ['React Native', 'TypeScript', 'Firebase', 'Firestore', 'GraphQL', 'iOS'],
     domain: 'Mobile',
     experience: 6,
@@ -212,7 +212,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Raj Patel',
     email: 'raj.patel@nestmaster.io',
     avatar: 'RP',
-    avatarColor: '#818cf8',
+    avatarColor: 'var(--fg)',
     skills: ['NestJS', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker', 'AWS', 'GraphQL'],
     domain: 'Backend',
     experience: 9,
@@ -229,7 +229,7 @@ const MOCK_RESOURCES: Resource[] = [
     name: 'Yuki Tanaka',
     email: 'yuki.tanaka@fullui.jp',
     avatar: 'YT',
-    avatarColor: '#a78bfa',
+    avatarColor: 'var(--fg)',
     skills: ['React', 'Vue.js', 'Node.js', 'TypeScript', 'Python', 'MongoDB', 'Docker'],
     domain: 'Full-Stack',
     experience: 5,
@@ -246,13 +246,13 @@ const MOCK_RESOURCES: Resource[] = [
 // ─── Domain Config ────────────────────────────────────────────────────────────
 
 const DOMAIN_CONFIG: Record<Domain, { color: string; Icon: React.ComponentType<{ size?: number; color?: string }> }> = {
-  Frontend:    { color: '#60a5fa', Icon: Monitor },
-  Backend:     { color: '#818cf8', Icon: Server },
-  Mobile:      { color: '#34d399', Icon: Smartphone },
-  DevOps:      { color: '#fb923c', Icon: GitBranch },
-  Database:    { color: '#fbbf24', Icon: Database },
-  Design:      { color: '#f472b6', Icon: Palette },
-  'Full-Stack':{ color: '#a78bfa', Icon: Layers },
+  Frontend:    { color: 'var(--fg)', Icon: Monitor },
+  Backend:     { color: 'var(--fg)', Icon: Server },
+  Mobile:      { color: 'var(--fg)', Icon: Smartphone },
+  DevOps:      { color: 'var(--fg)', Icon: GitBranch },
+  Database:    { color: 'var(--fg)', Icon: Database },
+  Design:      { color: 'var(--fg)', Icon: Palette },
+  'Full-Stack':{ color: 'var(--fg)', Icon: Layers },
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -275,9 +275,9 @@ function AvatarCircle({ initials, color, size = 44 }: { initials: string; color:
       style={{
         width: size,
         height: size,
-        background: `linear-gradient(135deg, ${color}99, ${color})`,
+        background: `linear-gradient(135deg, color-mix(in srgb, ${color} 60%, transparent), ${color})`,
         fontSize: size * 0.3,
-        border: `1.5px solid ${color}55`,
+        border: `1.5px solid color-mix(in srgb, ${color} 33%, transparent)`,
       }}
     >
       {initials}
@@ -292,9 +292,9 @@ function AvailabilityBadge({ resource, today }: { resource: Resource; today: Dat
         className="flex items-center gap-1.5 text-mono-label px-2.5 py-1 rounded-full"
         style={{
           fontSize: '10px',
-          background: 'rgba(74,222,128,0.08)',
-          border: '1px solid rgba(74,222,128,0.25)',
-          color: '#4ade80',
+          background: 'rgb(var(--fg-rgb) / 0.08)',
+          border: '1px solid rgb(var(--fg-rgb) / 0.25)',
+          color: 'var(--fg)',
         }}
       >
         <span style={{ fontSize: 8 }}>●</span> Available Now
@@ -308,9 +308,9 @@ function AvailabilityBadge({ resource, today }: { resource: Resource; today: Dat
         className="flex items-center gap-1.5 text-mono-label px-2.5 py-1 rounded-full"
         style={{
           fontSize: '10px',
-          background: 'rgba(251,191,36,0.08)',
-          border: '1px solid rgba(251,191,36,0.25)',
-          color: '#fbbf24',
+          background: 'rgb(var(--fg-rgb) / 0.08)',
+          border: '1px solid rgb(var(--fg-rgb) / 0.25)',
+          color: 'var(--fg)',
         }}
       >
         <span style={{ fontSize: 9 }}>◷</span> Free in {days}d
@@ -323,8 +323,8 @@ function AvailabilityBadge({ resource, today }: { resource: Resource; today: Dat
         className="flex items-center gap-1.5 text-mono-label px-2.5 py-1 rounded-full"
         style={{
           fontSize: '10px',
-          background: 'rgba(156,163,175,0.08)',
-          border: '1px solid rgba(156,163,175,0.2)',
+          background: 'rgb(var(--fg-rgb) / 0.08)',
+          border: '1px solid rgb(var(--fg-rgb) / 0.2)',
           color: 'var(--text-muted)',
         }}
       >
@@ -342,9 +342,9 @@ function TrackBadge({ track }: { track: Track }) {
         className="text-mono-label px-2 py-0.5 rounded"
         style={{
           fontSize: '9px',
-          background: 'rgba(167,139,250,0.12)',
-          border: '1px solid rgba(167,139,250,0.3)',
-          color: '#c4b5fd',
+          background: 'rgb(var(--fg-rgb) / 0.12)',
+          border: '1px solid rgb(var(--fg-rgb) / 0.3)',
+          color: 'var(--fg)',
         }}
       >
         PROFESSIONAL
@@ -356,9 +356,9 @@ function TrackBadge({ track }: { track: Track }) {
       className="text-mono-label px-2 py-0.5 rounded"
       style={{
         fontSize: '9px',
-        background: 'rgba(251,191,36,0.1)',
-        border: '1px solid rgba(251,191,36,0.3)',
-        color: '#fbbf24',
+        background: 'rgb(var(--fg-rgb) / 0.1)',
+        border: '1px solid rgb(var(--fg-rgb) / 0.3)',
+        color: 'var(--fg)',
       }}
     >
       INTERN
@@ -385,7 +385,7 @@ function MemberCard({
 
   return (
     <div
-      className="glass-card rounded-xl p-5 flex flex-col gap-4 transition-all duration-200 hover:border-[#DC143C]"
+      className="glass-card rounded-xl p-5 flex flex-col gap-4 transition-all duration-200 hover:border-[var(--fg)]"
       style={{
         opacity: dimmed ? 0.3 : 1,
         transition: 'opacity 0.2s ease, border-color 0.2s ease',
@@ -405,8 +405,8 @@ function MemberCard({
               className="text-mono-label px-2 py-0.5 rounded"
               style={{
                 fontSize: '9px',
-                background: `${color}18`,
-                border: `1px solid ${color}40`,
+                background: `color-mix(in srgb, ${color} 9%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${color} 25%, transparent)`,
                 color,
               }}
             >
@@ -425,9 +425,9 @@ function MemberCard({
             className="glass-card-dark text-mono-label px-2 py-0.5 rounded transition-all"
             style={{
               fontSize: '10px',
-              color: selectedSkill === skill ? '#DC143C' : '#d1d5db',
-              border: selectedSkill === skill ? '1px solid rgba(220,20,60,0.5)' : undefined,
-              background: selectedSkill === skill ? 'rgba(220,20,60,0.08)' : undefined,
+              color: selectedSkill === skill ? 'var(--fg)' : 'rgb(var(--fg-rgb) / .55)',
+              border: selectedSkill === skill ? '1px solid rgb(var(--fg-rgb) / 0.5)' : undefined,
+              background: selectedSkill === skill ? 'rgb(var(--fg-rgb) / 0.08)' : undefined,
             }}
           >
             {skill}
@@ -454,7 +454,7 @@ function MemberCard({
           <span className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
             {resource.experience} yr exp
           </span>
-          <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: '#DC143C' }}>
+          <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--fg)' }}>
             {curr}{resource.hourlyRate}/hr
           </span>
         </div>
@@ -477,20 +477,20 @@ function MemberChip({
 }) {
   const dotColor =
     resource.status === 'available'
-      ? '#4ade80'
+      ? 'var(--fg)'
       : resource.status === 'ending_soon'
-      ? '#fbbf24'
-      : '#6b7280'
+      ? 'var(--fg)'
+      : 'rgb(var(--fg-rgb) / .55)'
 
   return (
     <div
       className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all shrink-0"
       style={{
         background: highlighted
-          ? 'rgba(220,20,60,0.1)'
+          ? 'rgb(var(--fg-rgb) / 0.1)'
           : 'var(--input-bg)',
         border: highlighted
-          ? '1px solid rgba(220,20,60,0.4)'
+          ? '1px solid rgb(var(--fg-rgb) / 0.4)'
           : '1px solid var(--border)',
       }}
     >
@@ -533,7 +533,7 @@ function DomainSection({
   return (
     <div
       className="glass-card rounded-xl overflow-hidden"
-      style={{ borderColor: collapsed ? 'var(--input-bg)' : `${color}25` }}
+      style={{ borderColor: collapsed ? 'var(--input-bg)' : `color-mix(in srgb, ${color} 15%, transparent)` }}
     >
       {/* Domain header */}
       <button
@@ -543,7 +543,7 @@ function DomainSection({
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: `${color}18`, border: `1px solid ${color}30` }}
+            style={{ background: `color-mix(in srgb, ${color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 19%, transparent)` }}
           >
             <Icon size={15} color={color} />
           </div>
@@ -552,8 +552,8 @@ function DomainSection({
             className="text-mono-label px-2 py-0.5 rounded-full"
             style={{
               fontSize: '10px',
-              background: `${color}18`,
-              border: `1px solid ${color}30`,
+              background: `color-mix(in srgb, ${color} 9%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${color} 19%, transparent)`,
               color,
             }}
           >
@@ -595,11 +595,11 @@ function DomainSection({
                   className="text-mono-label px-2.5 py-1 rounded transition-all"
                   style={{
                     fontSize: '10px',
-                    background: selectedSkill === skill ? 'rgba(220,20,60,0.12)' : 'var(--input-bg)',
+                    background: selectedSkill === skill ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--input-bg)',
                     border: selectedSkill === skill
-                      ? '1px solid rgba(220,20,60,0.45)'
-                      : `1px solid ${color}22`,
-                    color: selectedSkill === skill ? '#DC143C' : '#d1d5db',
+                      ? '1px solid rgb(var(--fg-rgb) / 0.45)'
+                      : `1px solid color-mix(in srgb, ${color} 13%, transparent)`,
+                    color: selectedSkill === skill ? 'var(--fg)' : 'rgb(var(--fg-rgb) / .55)',
                   }}
                 >
                   {skill}
@@ -695,7 +695,7 @@ export default function AdminResourcesPage() {
       availableNow,
       earliest,
       label: selectedSkill ?? activeGroup?.name ?? '',
-      color: activeGroup?.color ?? '#DC143C',
+      color: activeGroup?.color ?? 'var(--fg)',
     }
   }, [selectedSkill, selectedGroupId, activeGroup])
 
@@ -767,9 +767,9 @@ export default function AdminResourcesPage() {
       {/* ── Stat Chips ────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'TOTAL RESOURCES', value: stats.total, color: '#DC143C', icon: Users },
-          { label: 'AVAILABLE NOW', value: stats.available, color: '#4ade80', icon: Zap },
-          { label: 'ENDING SOON', value: stats.endingSoon, color: '#fbbf24', icon: null },
+          { label: 'TOTAL RESOURCES', value: stats.total, color: 'var(--fg)', icon: Users },
+          { label: 'AVAILABLE NOW', value: stats.available, color: 'var(--fg)', icon: Zap },
+          { label: 'ENDING SOON', value: stats.endingSoon, color: 'var(--fg)', icon: null },
           { label: 'ON PROJECT', value: stats.onProject, color: 'var(--text-muted)', icon: null },
         ].map(item => (
           <div key={item.label} className="glass-card metric-card rounded-lg">
@@ -791,17 +791,17 @@ export default function AdminResourcesPage() {
             style={
               view === v
                 ? {
-                    background: '#DC143C',
-                    color: 'var(--text-primary)',
-                    border: '1px solid #DC143C',
-                    fontFamily: 'JetBrains Mono, monospace',
+                    background: 'var(--fg)',
+                    color: 'var(--bg)',
+                    border: '1px solid var(--fg)',
+                    fontFamily: 'var(--font-mono)',
                     letterSpacing: '0.06em',
                   }
                 : {
                     background: 'var(--input-bg)',
                     color: 'var(--text-secondary)',
                     border: '1px solid var(--border)',
-                    fontFamily: 'JetBrains Mono, monospace',
+                    fontFamily: 'var(--font-mono)',
                     letterSpacing: '0.06em',
                   }
             }
@@ -840,8 +840,8 @@ export default function AdminResourcesPage() {
                   className="flex items-center gap-1.5 shrink-0 text-mono-label px-3 py-1.5 rounded-lg transition-all"
                   style={{
                     fontSize: '11px',
-                    background: active ? `${group.color}22` : 'var(--input-bg)',
-                    border: active ? `1px solid ${group.color}60` : '1px solid var(--border)',
+                    background: active ? `color-mix(in srgb, ${group.color} 13%, transparent)` : 'var(--input-bg)',
+                    border: active ? `1px solid color-mix(in srgb, ${group.color} 38%, transparent)` : '1px solid var(--border)',
                     color: active ? group.color : 'var(--text-secondary)',
                     fontWeight: active ? 700 : 400,
                   }}
@@ -858,8 +858,8 @@ export default function AdminResourcesPage() {
                 className="flex items-center gap-1.5 shrink-0 text-mono-label px-3 py-1.5 rounded-lg transition-all"
                 style={{
                   fontSize: '11px',
-                  background: selectedGroupId === '__unmapped__' ? 'rgba(156,163,175,0.15)' : 'var(--input-bg)',
-                  border: selectedGroupId === '__unmapped__' ? '1px solid rgba(156,163,175,0.4)' : '1px solid var(--border)',
+                  background: selectedGroupId === '__unmapped__' ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--input-bg)',
+                  border: selectedGroupId === '__unmapped__' ? '1px solid rgb(var(--fg-rgb) / 0.4)' : '1px solid var(--border)',
                   color: 'var(--text-muted)',
                 }}
               >
@@ -889,9 +889,9 @@ export default function AdminResourcesPage() {
                       className="shrink-0 text-mono-label px-2.5 py-1 rounded transition-all"
                       style={{
                         fontSize: '10px',
-                        background: isActive ? activeGroup.color : `${activeGroup.color}10`,
-                        border: `1px solid ${isActive ? activeGroup.color : `${activeGroup.color}30`}`,
-                        color: isActive ? '#fff' : activeGroup.color,
+                        background: isActive ? activeGroup.color : `color-mix(in srgb, ${activeGroup.color} 6%, transparent)`,
+                        border: `1px solid ${isActive ? activeGroup.color : `color-mix(in srgb, ${activeGroup.color} 19%, transparent)`}`,
+                        color: isActive ? 'var(--bg)' : activeGroup.color,
                       }}
                     >
                       {skill}
@@ -908,8 +908,8 @@ export default function AdminResourcesPage() {
         <div
           className="rounded-lg px-4 py-3 mb-6 flex flex-wrap items-center gap-3"
           style={{
-            background: `${infoBar.color}08`,
-            border: `1px solid ${infoBar.color}35`,
+            background: `color-mix(in srgb, ${infoBar.color} 3%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${infoBar.color} 21%, transparent)`,
           }}
         >
           <span className="text-mono-label" style={{ fontSize: '11px', color: infoBar.color, letterSpacing: '0.06em' }}>
@@ -917,12 +917,12 @@ export default function AdminResourcesPage() {
             <span className="font-bold" style={{ color: infoBar.color }}>{infoBar.label}</span>
           </span>
           <span className="text-mono-label px-2.5 py-0.5 rounded"
-            style={{ fontSize: '10px', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80' }}>
+            style={{ fontSize: '10px', background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
             {infoBar.availableNow} available now
           </span>
           {infoBar.earliest && (
             <span className="text-mono-label px-2.5 py-0.5 rounded"
-              style={{ fontSize: '10px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}>
+              style={{ fontSize: '10px', background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
               Next available: {infoBar.earliest}
             </span>
           )}

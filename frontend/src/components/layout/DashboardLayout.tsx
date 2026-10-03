@@ -41,8 +41,8 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
   if (!_hasHydrated) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-base)' }}>
       <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#DC143C', borderTopColor: 'transparent' }} />
-        <span className="text-mono-label" style={{ color: 'rgba(220,20,60,0.6)', fontSize: 10 }}>LOADING...</span>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--fg)', borderTopColor: 'transparent' }} />
+        <span className="text-mono-label" style={{ color: 'rgb(var(--fg-rgb) / 0.6)', fontSize: 10 }}>LOADING...</span>
       </div>
     </div>
   )
@@ -60,8 +60,8 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none fixed inset-0 z-0" />
-      <MorphBlob color="#8B0000" size={500} top="-100px" left="-100px" />
-      <MorphBlob color="#4A0000" size={400} bottom="-80px" right="-80px" delay="3s" />
+      <MorphBlob color="var(--fg)" size={500} top="-100px" left="-100px" />
+      <MorphBlob color="var(--surface)" size={400} bottom="-80px" right="-80px" delay="3s" />
 
       <Sidebar role={user.role} pathname={pathname} />
 
@@ -83,17 +83,17 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark'
-                ? <Sun size={16} className="text-[#DC143C]" />
-                : <Moon size={16} className="text-[#DC143C]" />
+                ? <Sun size={16} className="text-[var(--fg)]" />
+                : <Moon size={16} className="text-[var(--fg)]" />
               }
             </button>
 
             <button className="relative p-2 rounded text-secondary-ui hover:text-primary-ui transition-colors">
               <Bell size={18} />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#DC143C]" />
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[var(--fg)]" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#8B0000] flex items-center justify-center text-white text-xs font-bold uppercase">
+              <div className="w-7 h-7 rounded-full bg-[var(--fg)] flex items-center justify-center text-[var(--bg)] text-xs font-bold uppercase">
                 {user.name.charAt(0)}
               </div>
               <span className="text-sm font-medium text-primary-ui">{user.name}</span>

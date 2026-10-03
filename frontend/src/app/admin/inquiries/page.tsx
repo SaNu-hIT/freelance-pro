@@ -48,10 +48,10 @@ const MOCK: Inquiry[] = [
 ]
 
 const STATUS_META: Record<string, { label: string; bg: string; border: string; color: string }> = {
-  new:       { label: 'NEW',       bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.35)',  color: '#93c5fd' },
-  contacted: { label: 'CONTACTED', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.35)',  color: '#fcd34d' },
-  converted: { label: 'CONVERTED', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.35)',   color: '#86efac' },
-  closed:    { label: 'CLOSED',    bg: 'rgba(156,163,175,0.12)', border: 'rgba(156,163,175,0.35)', color: 'var(--text-muted)' },
+  new:       { label: 'NEW',       bg: 'rgb(var(--fg-rgb) / 0.12)',  border: 'rgb(var(--fg-rgb) / 0.35)',  color: 'var(--fg)' },
+  contacted: { label: 'CONTACTED', bg: 'rgb(var(--fg-rgb) / 0.12)',  border: 'rgb(var(--fg-rgb) / 0.35)',  color: 'var(--fg)' },
+  converted: { label: 'CONVERTED', bg: 'rgb(var(--fg-rgb) / 0.12)',   border: 'rgb(var(--fg-rgb) / 0.35)',   color: 'var(--fg)' },
+  closed:    { label: 'CLOSED',    bg: 'rgb(var(--fg-rgb) / 0.12)', border: 'rgb(var(--fg-rgb) / 0.35)', color: 'var(--text-muted)' },
 }
 
 const NEXT_STATUS: Record<string, string> = {
@@ -129,10 +129,10 @@ export default function AdminInquiriesPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'TOTAL', value: counts.total, color: '#DC143C' },
-          { label: 'PROJECT IDEAS', value: counts.ideas, color: '#a78bfa' },
-          { label: 'CALLBACKS', value: counts.callbacks, color: '#60a5fa' },
-          { label: 'NEW / UNREAD', value: counts.new, color: '#fbbf24' },
+          { label: 'TOTAL', value: counts.total, color: 'var(--fg)' },
+          { label: 'PROJECT IDEAS', value: counts.ideas, color: 'var(--fg)' },
+          { label: 'CALLBACKS', value: counts.callbacks, color: 'var(--fg)' },
+          { label: 'NEW / UNREAD', value: counts.new, color: 'var(--fg)' },
         ].map(({ label, value, color }) => (
           <div key={label} className="glass-card metric-card rounded-lg">
             <p className="text-mono-label mb-2">{label}</p>
@@ -206,9 +206,9 @@ export default function AdminInquiriesPage() {
                   <td>
                     <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-mono-label`} style={{
                       fontSize: 9,
-                      background: inq.type === 'project_idea' ? 'rgba(167,139,250,0.1)' : 'rgba(96,165,250,0.1)',
-                      border: `1px solid ${inq.type === 'project_idea' ? 'rgba(167,139,250,0.3)' : 'rgba(96,165,250,0.3)'}`,
-                      color: inq.type === 'project_idea' ? '#a78bfa' : '#60a5fa',
+                      background: inq.type === 'project_idea' ? 'rgb(var(--fg-rgb) / 0.1)' : 'rgb(var(--fg-rgb) / 0.1)',
+                      border: `1px solid ${inq.type === 'project_idea' ? 'rgb(var(--fg-rgb) / 0.3)' : 'rgb(var(--fg-rgb) / 0.3)'}`,
+                      color: inq.type === 'project_idea' ? 'var(--fg)' : 'var(--fg)',
                     }}>
                       {inq.type === 'project_idea' ? <><Sparkles size={9} /> IDEA</> : <><Phone size={9} /> CALLBACK</>}
                     </span>
@@ -267,17 +267,17 @@ export default function AdminInquiriesPage() {
       {/* Detail Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelected(null)} />
-          <div className="glass-card rounded-2xl p-8 relative z-10 w-full max-w-xl max-h-[90vh] overflow-y-auto" style={{ borderColor: 'rgba(220,20,60,0.3)' }}>
+          <div className="absolute inset-0 bg-[rgb(var(--bg-rgb)/.92)]" onClick={() => setSelected(null)} />
+          <div className="glass-card rounded-2xl p-8 relative z-10 w-full max-w-xl max-h-[90vh] overflow-y-auto" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.3)' }}>
 
             {/* Modal header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center`}
-                  style={{ background: selected.type === 'project_idea' ? 'rgba(167,139,250,0.12)' : 'rgba(96,165,250,0.12)' }}>
+                  style={{ background: selected.type === 'project_idea' ? 'rgb(var(--fg-rgb) / 0.12)' : 'rgb(var(--fg-rgb) / 0.12)' }}>
                   {selected.type === 'project_idea'
-                    ? <Sparkles size={20} style={{ color: '#a78bfa' }} />
-                    : <Phone size={20} style={{ color: '#60a5fa' }} />}
+                    ? <Sparkles size={20} style={{ color: 'var(--fg)' }} />
+                    : <Phone size={20} style={{ color: 'var(--fg)' }} />}
                 </div>
                 <div>
                   <h2 className="text-primary-ui font-bold text-xl">{selected.name}</h2>
@@ -297,13 +297,13 @@ export default function AdminInquiriesPage() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {selected.email && (
                 <div className="glass-card-dark rounded-lg p-3 flex items-center gap-2">
-                  <Mail size={14} className="text-[#DC143C] shrink-0" />
+                  <Mail size={14} className="text-[var(--fg)] shrink-0" />
                   <p className="text-sm text-primary-ui truncate">{selected.email}</p>
                 </div>
               )}
               {selected.phone && (
                 <div className="glass-card-dark rounded-lg p-3 flex items-center gap-2">
-                  <Phone size={14} className="text-[#DC143C] shrink-0" />
+                  <Phone size={14} className="text-[var(--fg)] shrink-0" />
                   <p className="text-sm text-primary-ui">{selected.phone}</p>
                 </div>
               )}

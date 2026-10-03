@@ -100,7 +100,7 @@ export default function AdminChatPage() {
               CLIENT MESSAGES
               {totalUnread > 0 && (
                 <span className="text-sm font-bold px-2.5 py-1 rounded-full animate-pulse"
-                  style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}>
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                   {totalUnread} new
                 </span>
               )}
@@ -147,27 +147,27 @@ export default function AdminChatPage() {
                       className="w-full text-left px-4 py-3.5 transition-all border-b border-theme"
                       style={{
                         background: isActive ? 'var(--crimson-dim)' : 'transparent',
-                        borderLeft: isActive ? '3px solid #DC143C' : '3px solid transparent',
+                        borderLeft: isActive ? '3px solid var(--fg)' : '3px solid transparent',
                       }}>
                       <div className="flex items-start gap-3">
                         {/* project icon */}
                         <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0"
                           style={{
-                            background: isActive ? 'rgba(220,20,60,0.15)' : 'rgba(96,165,250,0.1)',
-                            color: isActive ? '#DC143C' : '#60a5fa',
-                            border: `1px solid ${isActive ? 'rgba(220,20,60,0.3)' : 'rgba(96,165,250,0.2)'}`,
+                            background: isActive ? 'rgb(var(--fg-rgb) / 0.15)' : 'rgb(var(--fg-rgb) / 0.1)',
+                            color: isActive ? 'var(--fg)' : 'var(--fg)',
+                            border: `1px solid ${isActive ? 'rgb(var(--fg-rgb) / 0.3)' : 'rgb(var(--fg-rgb) / 0.2)'}`,
                           }}>
                           {proj.title.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1 mb-0.5">
                             <span className="font-semibold text-xs truncate"
-                              style={{ color: isActive ? '#DC143C' : 'var(--text-primary)' }}>
+                              style={{ color: isActive ? 'var(--fg)' : 'var(--text-primary)' }}>
                               {proj.title}
                             </span>
                             {unread > 0 && (
                               <span className="shrink-0 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center"
-                                style={{ background: '#DC143C', color: '#fff' }}>
+                                style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
                                 {unread}
                               </span>
                             )}
@@ -198,7 +198,7 @@ export default function AdminChatPage() {
               <MessageSquare size={40} strokeWidth={1.2} />
               <p className="text-sm font-medium">Select a project to view messages</p>
               {totalUnread > 0 && (
-                <p className="text-xs" style={{ color: '#DC143C' }}>
+                <p className="text-xs" style={{ color: 'var(--fg)' }}>
                   {totalUnread} unread message{totalUnread > 1 ? 's' : ''} waiting
                 </p>
               )}
@@ -209,13 +209,13 @@ export default function AdminChatPage() {
               <div className="px-6 py-4 border-b border-theme shrink-0 flex items-center gap-3"
                 style={{ background: 'var(--bg-sidebar)' }}>
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm"
-                  style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
                   {activeInfo?.title.charAt(0)}
                 </div>
                 <div>
                   <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{activeInfo?.title}</p>
                   <div className="flex items-center gap-1.5">
-                    <Circle size={6} fill="#4ade80" color="#4ade80" />
+                    <Circle size={6} fill="currentColor" color="var(--fg)" />
                     <p className="text-[10px] text-mono-label" style={{ color: 'var(--text-muted)' }}>
                       {convoMessages.length} message{convoMessages.length !== 1 ? 's' : ''}
                     </p>
@@ -249,8 +249,8 @@ export default function AdminChatPage() {
                           {/* avatar */}
                           <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
                             style={{
-                              background: isAdmin ? 'rgba(220,20,60,0.15)' : 'rgba(96,165,250,0.15)',
-                              color: isAdmin ? '#DC143C' : '#60a5fa',
+                              background: isAdmin ? 'rgb(var(--fg-rgb) / 0.15)' : 'rgb(var(--fg-rgb) / 0.15)',
+                              color: isAdmin ? 'var(--fg)' : 'var(--fg)',
                             }}>
                             {msg.sender.charAt(0)}
                           </div>
@@ -265,8 +265,8 @@ export default function AdminChatPage() {
                             </div>
                             <div className="px-4 py-3 rounded-2xl text-sm leading-relaxed"
                               style={{
-                                background: isAdmin ? 'rgba(220,20,60,0.10)' : 'var(--bg-elevated)',
-                                border: `1px solid ${isAdmin ? 'rgba(220,20,60,0.2)' : 'var(--border)'}`,
+                                background: isAdmin ? 'rgb(var(--fg-rgb) / 0.10)' : 'var(--bg-elevated)',
+                                border: `1px solid ${isAdmin ? 'rgb(var(--fg-rgb) / 0.2)' : 'var(--border)'}`,
                                 color: 'var(--text-primary)',
                                 borderBottomRightRadius: isAdmin ? 4 : undefined,
                                 borderBottomLeftRadius: !isAdmin ? 4 : undefined,
@@ -275,7 +275,7 @@ export default function AdminChatPage() {
                             </div>
                             {/* read receipt for admin messages */}
                             {isAdmin && (
-                              <span className="text-[10px] text-mono-label" style={{ color: msg.readByClient ? '#4ade80' : 'var(--text-muted)' }}>
+                              <span className="text-[10px] text-mono-label" style={{ color: msg.readByClient ? 'var(--fg)' : 'var(--text-muted)' }}>
                                 {msg.readByClient ? '✓✓ Seen' : '✓ Sent'}
                               </span>
                             )}
@@ -305,7 +305,7 @@ export default function AdminChatPage() {
                     onClick={sendReply}
                     disabled={!draftMsg.trim()}
                     className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40"
-                    style={{ background: '#DC143C', color: '#fff' }}>
+                    style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
                     <Send size={14} /> Send
                   </button>
                 </div>

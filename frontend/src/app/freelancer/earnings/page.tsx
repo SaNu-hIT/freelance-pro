@@ -72,10 +72,10 @@ export default function FreelancerEarningsPage() {
   const thisMonth = CHART_DATA[CHART_DATA.length - 1].earnings
 
   const stats = [
-    { label: 'Total Earned', value: `${curr}${totalEarned.toLocaleString()}`, icon: <TrendingUp size={20} className="text-[#DC143C]" />, color: '#DC143C' },
-    { label: 'Pending', value: `${curr}${pending.toLocaleString()}`, icon: <Clock size={20} className="text-amber-400" />, color: '#fbbf24' },
+    { label: 'Total Earned', value: `${curr}${totalEarned.toLocaleString()}`, icon: <TrendingUp size={20} className="text-[var(--fg)]" />, color: 'var(--fg)' },
+    { label: 'Pending', value: `${curr}${pending.toLocaleString()}`, icon: <Clock size={20} className="text-[var(--fg)]" />, color: 'var(--fg)' },
     { label: 'Total Deductions', value: `${curr}${totalDeductions.toLocaleString()}`, icon: <Minus size={20} className="text-[var(--text-muted)]" />, color: 'var(--text-muted)' },
-    { label: 'Net This Month', value: `${curr}${thisMonth.toLocaleString()}`, icon: <DollarSign size={20} className="text-green-400" />, color: '#4ade80' },
+    { label: 'Net This Month', value: `${curr}${thisMonth.toLocaleString()}`, icon: <DollarSign size={20} className="text-[var(--fg)]" />, color: 'var(--fg)' },
   ]
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -83,7 +83,7 @@ export default function FreelancerEarningsPage() {
       return (
         <div className="glass-card rounded p-3 text-sm">
           <p className="text-mono-label text-[10px] mb-1">{label}</p>
-          <p className="text-[#DC143C] font-bold">{curr}{payload[0].value.toLocaleString()}</p>
+          <p className="text-[var(--fg)] font-bold">{curr}{payload[0].value.toLocaleString()}</p>
         </div>
       )
     }
@@ -121,21 +121,21 @@ export default function FreelancerEarningsPage() {
           <h2 className="text-mono-label text-xs tracking-widest mb-6">MONTHLY EARNINGS</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={CHART_DATA} barCategoryGap="30%">
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(220,20,60,0.1)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--fg-rgb) / 0.1)" vertical={false} />
               <XAxis
                 dataKey="month"
-                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={v => `${curr}${v}`}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(220,20,60,0.05)' }} />
-              <Bar dataKey="earnings" fill="#DC143C" radius={[4, 4, 0, 0]} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgb(var(--fg-rgb) / 0.05)' }} />
+              <Bar dataKey="earnings" fill="currentColor" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -171,8 +171,8 @@ export default function FreelancerEarningsPage() {
                     <tr key={p.id}>
                       <td className="text-primary-ui font-medium">{proj?.title ?? p.projectId}</td>
                       <td className="text-primary-ui">{curr}{p.amount.toLocaleString()}</td>
-                      <td className="text-[#DC143C]">-{curr}{p.deductions.toLocaleString()}</td>
-                      <td className="text-green-400 font-bold">{curr}{p.netAmount.toLocaleString()}</td>
+                      <td className="text-[var(--fg)]">-{curr}{p.deductions.toLocaleString()}</td>
+                      <td className="text-[var(--fg)] font-bold">{curr}{p.netAmount.toLocaleString()}</td>
                       <td>
                         <span className={`status-badge ${stat.cls}`}>
                           <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-80" />

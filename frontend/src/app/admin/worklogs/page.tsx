@@ -115,18 +115,18 @@ function filterByDate(worklogs: Worklog[], filter: DateFilter): Worklog[] {
   })
 }
 
-const PRIORITY_COLORS: Record<string, string> = { low: '#4ade80', medium: '#fbbf24', high: '#fb923c', critical: '#f87171' }
+const PRIORITY_COLORS: Record<string, string> = { low: 'var(--fg)', medium: 'var(--fg)', high: 'var(--fg)', critical: 'var(--fg)' }
 
 function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
   const hasBlocker = !!w.blockers
   return (
-    <div className="glass-card rounded-xl overflow-hidden transition-all hover:border-[rgba(220,20,60,0.3)]"
-      style={{ borderColor: hasBlocker ? 'rgba(251,191,36,0.3)' : 'var(--input-bg)' }}>
+    <div className="glass-card rounded-xl overflow-hidden transition-all hover:border-[rgb(var(--fg-rgb)/0.3)]"
+      style={{ borderColor: hasBlocker ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--input-bg)' }}>
       {/* Card header */}
       <div className="flex items-start justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-            style={{ background: 'rgba(220,20,60,0.15)', color: '#DC143C', border: '1px solid rgba(220,20,60,0.3)' }}>
+            style={{ background: 'rgb(var(--fg-rgb) / 0.15)', color: 'var(--fg)', border: '1px solid rgb(var(--fg-rgb) / 0.3)' }}>
             {w.freelancer?.user.name.split(' ').map(n => n[0]).join('') ?? '??'}
           </div>
           <div>
@@ -137,15 +137,15 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgba(220,20,60,0.08)', border: '1px solid rgba(220,20,60,0.2)' }}>
-            <Clock size={11} style={{ color: '#DC143C' }} />
-            <span className="font-bold text-xs" style={{ color: '#DC143C' }}>{w.hoursWorked}h</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
+            <Clock size={11} style={{ color: 'var(--fg)' }} />
+            <span className="font-bold text-xs" style={{ color: 'var(--fg)' }}>{w.hoursWorked}h</span>
           </div>
           {w.project?.priority && (
             <span className="text-mono-label px-2 py-0.5 rounded text-xs" style={{
-              color: PRIORITY_COLORS[w.project.priority] ?? '#9ca3af',
-              background: `${PRIORITY_COLORS[w.project.priority] ?? '#9ca3af'}18`,
-              border: `1px solid ${PRIORITY_COLORS[w.project.priority] ?? '#9ca3af'}40`,
+              color: PRIORITY_COLORS[w.project.priority] ?? 'rgb(var(--fg-rgb) / .55)',
+              background: `color-mix(in srgb, ${PRIORITY_COLORS[w.project.priority] ?? 'rgb(var(--fg-rgb) / .55)'} 9%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${PRIORITY_COLORS[w.project.priority] ?? 'rgb(var(--fg-rgb) / .55)'} 25%, transparent)`,
               fontSize: '10px',
             }}>
               {w.project.priority.toUpperCase()}
@@ -158,7 +158,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
       <div className="px-5 pb-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROJECT PROGRESS</span>
-          <span className="text-xs font-bold" style={{ color: '#DC143C' }}>{w.progress}%</span>
+          <span className="text-xs font-bold" style={{ color: 'var(--fg)' }}>{w.progress}%</span>
         </div>
         <div className="progress-bar" style={{ height: 3 }}>
           <div className="progress-fill" style={{ width: `${w.progress}%` }} />
@@ -169,7 +169,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
         {/* Tasks */}
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <CheckCircle2 size={11} style={{ color: '#4ade80' }} />
+            <CheckCircle2 size={11} style={{ color: 'var(--fg)' }} />
             <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>TODAY'S WORK</span>
           </div>
           <p className="text-sm leading-relaxed line-clamp-3" style={{ color: 'var(--text-primary)' }}>
@@ -179,12 +179,12 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
 
         {/* Blockers */}
         {w.blockers && (
-          <div className="rounded-lg px-3 py-2.5" style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)' }}>
+          <div className="rounded-lg px-3 py-2.5" style={{ background: 'rgb(var(--fg-rgb) / 0.07)', border: '1px solid rgb(var(--fg-rgb) / 0.25)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <AlertTriangle size={11} style={{ color: '#fbbf24' }} />
-              <span className="text-mono-label" style={{ fontSize: '10px', color: '#fbbf24' }}>BLOCKER</span>
+              <AlertTriangle size={11} style={{ color: 'var(--fg)' }} />
+              <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--fg)' }}>BLOCKER</span>
             </div>
-            <p className="text-xs leading-relaxed" style={{ color: '#fbbf24' }}>{w.blockers}</p>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--fg)' }}>{w.blockers}</p>
           </div>
         )}
 
@@ -192,7 +192,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
         {w.nextSteps && (
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <ArrowRight size={11} style={{ color: '#60a5fa' }} />
+              <ArrowRight size={11} style={{ color: 'var(--fg)' }} />
               <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>NEXT</span>
             </div>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{w.nextSteps}</p>
@@ -201,7 +201,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
       </div>
 
       {/* Card footer */}
-      <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--input-bg)]" style={{ background: 'rgba(0,0,0,0.2)' }}>
+      <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--input-bg)]" style={{ background: 'rgb(var(--bg-rgb) / 0.2)' }}>
         <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
           {new Date(w.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           {w.fileUrls && w.fileUrls.length > 0 && (
@@ -283,12 +283,12 @@ export default function AdminWorklogsPage() {
       {/* Today's Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { icon: <Clock size={16} />, label: "HOURS TODAY", value: `${totalHoursToday}h`, color: '#DC143C' },
-          { icon: <Users size={16} />, label: "ACTIVE TODAY", value: activeFreelancersToday, color: '#60a5fa' },
-          { icon: <ShieldAlert size={16} />, label: "BLOCKERS", value: blockersToday, color: blockersToday > 0 ? '#fbbf24' : '#4ade80' },
+          { icon: <Clock size={16} />, label: "HOURS TODAY", value: `${totalHoursToday}h`, color: 'var(--fg)' },
+          { icon: <Users size={16} />, label: "ACTIVE TODAY", value: activeFreelancersToday, color: 'var(--fg)' },
+          { icon: <ShieldAlert size={16} />, label: "BLOCKERS", value: blockersToday, color: blockersToday > 0 ? 'var(--fg)' : 'var(--fg)' },
         ].map(({ icon, label, value, color }) => (
           <div key={label} className="glass-card-dark rounded-xl px-5 py-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: `color-mix(in srgb, ${color} 9%, transparent)`, color, border: `1px solid color-mix(in srgb, ${color} 19%, transparent)` }}>
               {icon}
             </div>
             <div>
@@ -338,7 +338,7 @@ export default function AdminWorklogsPage() {
           {[...Array(5)].map((_, i) => (
             <div key={i} className="glass-card rounded-xl p-5 animate-pulse space-y-3">
               <div className="flex gap-3">
-                <div className="w-9 h-9 rounded-full" style={{ background: 'rgba(220,20,60,0.1)' }} />
+                <div className="w-9 h-9 rounded-full" style={{ background: 'rgb(var(--fg-rgb) / 0.1)' }} />
                 <div className="flex-1 space-y-2">
                   <div className="h-3 rounded" style={{ background: 'var(--input-bg)', width: '60%' }} />
                   <div className="h-2 rounded" style={{ background: 'var(--input-bg)', width: '80%' }} />
@@ -372,8 +372,8 @@ export default function AdminWorklogsPage() {
                   <div key={date} className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ background: isToday ? '#DC143C' : 'var(--track-bg)' }} />
-                        <span className="font-bold text-sm" style={{ color: isToday ? '#DC143C' : 'var(--text-secondary)' }}>
+                        <div className="w-2 h-2 rounded-full" style={{ background: isToday ? 'var(--fg)' : 'var(--track-bg)' }} />
+                        <span className="font-bold text-sm" style={{ color: isToday ? 'var(--fg)' : 'var(--text-secondary)' }}>
                           {isToday ? 'TODAY — ' : ''}{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </span>
                       </div>
@@ -441,8 +441,8 @@ export default function AdminWorklogsPage() {
                     </td>
                     <td>
                       {w.blockers
-                        ? <div className="flex items-center gap-1.5"><AlertTriangle size={13} style={{ color: '#fbbf24' }} /><span className="text-xs" style={{ color: '#fbbf24' }}>Blocked</span></div>
-                        : <span className="text-mono-label" style={{ fontSize: '10px', color: '#4ade80' }}>Clear</span>
+                        ? <div className="flex items-center gap-1.5"><AlertTriangle size={13} style={{ color: 'var(--fg)' }} /><span className="text-xs" style={{ color: 'var(--fg)' }}>Blocked</span></div>
+                        : <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--fg)' }}>Clear</span>
                       }
                     </td>
                     <td>
@@ -461,8 +461,8 @@ export default function AdminWorklogsPage() {
       {/* Detail Modal */}
       {detailLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDetailLog(null)} />
-          <div className="glass-card rounded-xl relative z-10 w-full max-w-2xl overflow-hidden" style={{ borderColor: 'rgba(220,20,60,0.4)' }}>
+          <div className="absolute inset-0 bg-[rgb(var(--bg-rgb)/.92)]" onClick={() => setDetailLog(null)} />
+          <div className="glass-card rounded-xl relative z-10 w-full max-w-2xl overflow-hidden" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.4)' }}>
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--input-bg)]">
               <div>
                 <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>WORKLOG DETAIL</p>
@@ -500,12 +500,12 @@ export default function AdminWorklogsPage() {
               </div>
 
               {detailLog.blockers && (
-                <div className="rounded-lg p-4" style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.3)' }}>
+                <div className="rounded-lg p-4" style={{ background: 'rgb(var(--fg-rgb) / 0.07)', border: '1px solid rgb(var(--fg-rgb) / 0.3)' }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle size={14} style={{ color: '#fbbf24' }} />
-                    <p className="label-field" style={{ color: '#fbbf24', marginBottom: 0 }}>Blocker</p>
+                    <AlertTriangle size={14} style={{ color: 'var(--fg)' }} />
+                    <p className="label-field" style={{ color: 'var(--fg)', marginBottom: 0 }}>Blocker</p>
                   </div>
-                  <p className="text-sm" style={{ color: '#fbbf24' }}>{detailLog.blockers}</p>
+                  <p className="text-sm" style={{ color: 'var(--fg)' }}>{detailLog.blockers}</p>
                 </div>
               )}
 
@@ -522,7 +522,7 @@ export default function AdminWorklogsPage() {
                   <div className="space-y-2 mt-2">
                     {detailLog.fileUrls.map((url, i) => (
                       <div key={i} className="glass-card-dark rounded-lg p-3 flex items-center gap-3">
-                        <Paperclip size={14} style={{ color: '#DC143C' }} />
+                        <Paperclip size={14} style={{ color: 'var(--fg)' }} />
                         <span className="text-mono-label flex-1" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{url}</span>
                       </div>
                     ))}

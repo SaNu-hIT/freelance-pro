@@ -42,28 +42,28 @@ const ONBOARDING_STEPS = [
     icon: Code2,
     title: 'Create Your Profile',
     desc: 'Set up your account with skills, rate, and a short bio. Takes less than 3 minutes.',
-    color: '#DC143C',
+    color: 'var(--fg)',
   },
   {
     num: '02',
     icon: Upload,
     title: 'Submit Portfolio',
     desc: 'Upload links to your previous work — GitHub repos, live projects, case studies, or Dribbble shots.',
-    color: '#f97316',
+    color: 'var(--fg)',
   },
   {
     num: '03',
     icon: FileCheck,
     title: 'Manager Review',
     desc: 'Our project managers personally review your portfolio and verify your expertise before approval.',
-    color: '#eab308',
+    color: 'var(--fg)',
   },
   {
     num: '04',
     icon: BadgeCheck,
     title: 'Get Matched & Earn',
     desc: 'Once approved, you\'re added to the active talent pool and matched with relevant projects.',
-    color: '#4ade80',
+    color: 'var(--fg)',
   },
 ]
 
@@ -123,32 +123,32 @@ export default function FreelancerRegisterPage() {
   }
 
   const isIntern = track === 'intern'
-  const accentColor = isIntern ? '#c084fc' : '#DC143C'
-  const accentFaint = isIntern ? 'rgba(192,132,252,0.12)' : 'rgba(220,20,60,0.12)'
-  const accentBorder = isIntern ? 'rgba(192,132,252,0.25)' : 'rgba(220,20,60,0.25)'
+  const accentColor = isIntern ? 'var(--fg)' : 'var(--fg)'
+  const accentFaint = isIntern ? 'rgb(var(--fg-rgb) / 0.12)' : 'rgb(var(--fg-rgb) / 0.12)'
+  const accentBorder = isIntern ? 'rgb(var(--fg-rgb) / 0.25)' : 'rgb(var(--fg-rgb) / 0.25)'
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
-      <MorphBlob color="#8B0000" size={700} top="-200px" left="-200px" />
-      <MorphBlob color="#3b0764" size={500} bottom="-150px" right="-100px" delay="4s" />
+      <MorphBlob color="var(--fg)" size={700} top="-200px" left="-200px" />
+      <MorphBlob color="var(--surface)" size={500} bottom="-150px" right="-100px" delay="4s" />
 
       {/* ── Global top bar ── */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0 relative z-10" style={{ background: 'var(--bg-sidebar)' }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-          <div className="w-5 h-5" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
+          <div className="w-5 h-5" style={{ background: 'var(--fg)', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
+          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'var(--font-mono)' }}>FREELANCE_PRO</span>
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
-            style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--fg)', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
           >
             {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
           </button>
           <Link href="/register" className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
-            style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            style={{ fontFamily: 'var(--font-mono)' }}>
             <ArrowLeft size={11} /> BACK
           </Link>
         </div>
@@ -168,7 +168,7 @@ export default function FreelancerRegisterPage() {
           <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: 'var(--text-primary)' }}>
             JOIN THE<br />
             <span style={{
-              background: 'linear-gradient(to right, #DC143C, #f97316)',
+              background: 'var(--fg)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>
@@ -194,7 +194,7 @@ export default function FreelancerRegisterPage() {
                   {/* spine */}
                   <div className="flex flex-col items-center">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all"
-                      style={{ background: `${s.color}18`, border: `1px solid ${s.color}40` }}>
+                      style={{ background: `color-mix(in srgb, ${s.color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${s.color} 25%, transparent)` }}>
                       <Icon size={14} style={{ color: s.color }} />
                     </div>
                     {i < ONBOARDING_STEPS.length - 1 && (
@@ -223,9 +223,9 @@ export default function FreelancerRegisterPage() {
             { icon: Clock, val: '48h', label: 'AVG REVIEW TIME' },
           ].map(({ icon: Icon, val, label }) => (
             <div key={label} className="flex items-center gap-2">
-              <Icon size={12} style={{ color: 'rgba(220,20,60,0.6)' }} />
+              <Icon size={12} style={{ color: 'rgb(var(--fg-rgb) / 0.6)' }} />
               <div>
-                <div className="text-primary-ui text-xs font-bold" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>{val}</div>
+                <div className="text-primary-ui text-xs font-bold" style={{ fontFamily: 'var(--font-sans)' }}>{val}</div>
                 <div className="text-mono-label" style={{ fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>{label}</div>
               </div>
             </div>
@@ -237,11 +237,11 @@ export default function FreelancerRegisterPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10 overflow-y-auto">
         <div className="w-full max-w-[620px]">
 
-          <div className="glass-card rounded-xl p-8" style={{ borderColor: `${accentColor}30` }}>
+          <div className="glass-card rounded-xl p-8" style={{ borderColor: `color-mix(in srgb, ${accentColor} 19%, transparent)` }}>
 
             {/* Header */}
             <div className="mb-7">
-              <h1 className="text-primary-ui text-2xl font-bold mb-1" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>
+              <h1 className="text-primary-ui text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
                 {isIntern ? 'Intern Application' : 'Freelancer Registration'}
               </h1>
               <p className="text-mono-label" style={{ color: 'var(--text-muted)', fontSize: 10 }}>
@@ -252,8 +252,8 @@ export default function FreelancerRegisterPage() {
             {/* Track switcher */}
             <div className="flex gap-2 mb-7 p-1 rounded-xl" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
               {([
-                { value: 'freelancer', label: 'Professional', icon: Briefcase, color: '#DC143C' },
-                { value: 'intern', label: 'Intern', icon: GraduationCap, color: '#c084fc' },
+                { value: 'freelancer', label: 'Professional', icon: Briefcase, color: 'var(--fg)' },
+                { value: 'intern', label: 'Intern', icon: GraduationCap, color: 'var(--fg)' },
               ] as const).map(opt => {
                 const Icon = opt.icon
                 const active = track === opt.value
@@ -264,15 +264,15 @@ export default function FreelancerRegisterPage() {
                     onClick={() => { setTrack(opt.value); setError('') }}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
                     style={{
-                      background: active ? `${opt.color}18` : 'transparent',
-                      border: active ? `1px solid ${opt.color}50` : '1px solid transparent',
+                      background: active ? `color-mix(in srgb, ${opt.color} 9%, transparent)` : 'transparent',
+                      border: active ? `1px solid color-mix(in srgb, ${opt.color} 31%, transparent)` : '1px solid transparent',
                       color: active ? opt.color : 'var(--text-muted)',
                     }}
                   >
                     <Icon size={13} />
                     {opt.label}
                     {opt.value === 'intern' && (
-                      <span className="text-mono-label px-1.5 py-0.5 rounded" style={{ fontSize: 8, background: active ? 'rgba(192,132,252,0.15)' : 'var(--input-bg)', color: active ? '#c084fc' : 'var(--text-muted)', letterSpacing: '0.1em' }}>
+                      <span className="text-mono-label px-1.5 py-0.5 rounded" style={{ fontSize: 8, background: active ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--input-bg)', color: active ? 'var(--fg)' : 'var(--text-muted)', letterSpacing: '0.1em' }}>
                         ₹10K
                       </span>
                     )}
@@ -282,7 +282,7 @@ export default function FreelancerRegisterPage() {
             </div>
 
             {/* Track detail */}
-            <div className="mb-6 rounded-xl p-4" style={{ background: isIntern ? 'rgba(192,132,252,0.06)' : 'rgba(220,20,60,0.06)', border: `1px solid ${isIntern ? 'rgba(192,132,252,0.2)' : 'rgba(220,20,60,0.2)'}` }}>
+            <div className="mb-6 rounded-xl p-4" style={{ background: isIntern ? 'rgb(var(--fg-rgb) / 0.06)' : 'rgb(var(--fg-rgb) / 0.06)', border: `1px solid ${isIntern ? 'rgb(var(--fg-rgb) / 0.2)' : 'rgb(var(--fg-rgb) / 0.2)'}` }}>
               <ul className="space-y-1.5">
                 {(isIntern
                   ? [
@@ -297,7 +297,7 @@ export default function FreelancerRegisterPage() {
                     ]
                 ).map(item => (
                   <li key={item} className="flex items-start gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    <CheckCircle2 size={11} className="mt-0.5 shrink-0" style={{ color: isIntern ? 'rgba(192,132,252,0.7)' : 'rgba(220,20,60,0.6)' }} />
+                    <CheckCircle2 size={11} className="mt-0.5 shrink-0" style={{ color: isIntern ? 'rgb(var(--fg-rgb) / 0.7)' : 'rgb(var(--fg-rgb) / 0.6)' }} />
                     {item}
                   </li>
                 ))}
@@ -311,7 +311,7 @@ export default function FreelancerRegisterPage() {
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                     style={{
                       background: step >= s ? accentColor : 'var(--input-bg)',
-                      color: step >= s ? '#fff' : 'var(--text-muted)',
+                      color: step >= s ? 'var(--bg)' : 'var(--text-muted)',
                       border: step >= s ? 'none' : '1px solid var(--border)',
                     }}>
                     {step > s ? <CheckCircle2 size={14} /> : s}
@@ -332,10 +332,10 @@ export default function FreelancerRegisterPage() {
             {/* Intern info banner */}
             {isIntern && (
               <div className="mb-6 px-4 py-3 rounded-xl flex items-start gap-3"
-                style={{ background: 'rgba(192,132,252,0.07)', border: '1px solid rgba(192,132,252,0.2)' }}>
-                <Shield size={15} className="mt-0.5 shrink-0" style={{ color: '#c084fc' }} />
+                style={{ background: 'rgb(var(--fg-rgb) / 0.07)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
+                <Shield size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--fg)' }} />
                 <div>
-                  <p className="text-xs font-semibold mb-0.5" style={{ color: '#c084fc' }}>Intern Programme — ₹10,000 Security Deposit</p>
+                  <p className="text-xs font-semibold mb-0.5" style={{ color: 'var(--fg)' }}>Intern Programme — ₹10,000 Security Deposit</p>
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     A refundable deposit is collected to ensure commitment. It is <strong style={{ color: 'var(--text-primary)' }}>100% returned</strong> after you successfully complete the 6-month internship.
                   </p>
@@ -345,7 +345,7 @@ export default function FreelancerRegisterPage() {
 
             {error && (
               <div className="mb-5 px-4 py-3 rounded-lg flex items-start gap-2 text-sm"
-                style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}40`, color: accentColor }}>
+                style={{ background: `color-mix(in srgb, ${accentColor} 6%, transparent)`, border: `1px solid color-mix(in srgb, ${accentColor} 25%, transparent)`, color: accentColor }}>
                 <Zap size={14} className="mt-0.5 shrink-0" />
                 {error}
               </div>
@@ -379,7 +379,7 @@ export default function FreelancerRegisterPage() {
                     setStep(2)
                   }}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm mt-2 transition-all"
-                  style={{ background: accentColor, color: '#fff' }}
+                  style={{ background: accentColor, color: 'var(--bg)' }}
                 >
                   Continue to Profile <ChevronRight size={15} />
                 </button>
@@ -396,7 +396,7 @@ export default function FreelancerRegisterPage() {
                   <div className="input-field flex flex-wrap gap-2 min-h-[46px] cursor-text" onClick={() => document.getElementById('skill-input')?.focus()}>
                     {skills.map(s => (
                       <span key={s} className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium"
-                        style={{ background: accentFaint, border: `1px solid ${accentBorder}`, color: isIntern ? '#c084fc' : '#f87171' }}>
+                        style={{ background: accentFaint, border: `1px solid ${accentBorder}`, color: isIntern ? 'var(--fg)' : 'var(--fg)' }}>
                         {s}
                         <button type="button" onClick={() => removeSkill(s)} className="hover:text-primary-ui transition-colors"><X size={11} /></button>
                       </span>
@@ -441,7 +441,7 @@ export default function FreelancerRegisterPage() {
                   {isIntern && (
                     <div>
                       <label className="label-field">INTERNSHIP DURATION</label>
-                      <input className="input-field" value="6 Months" readOnly style={{ color: '#c084fc', cursor: 'default' }} />
+                      <input className="input-field" value="6 Months" readOnly style={{ color: 'var(--fg)', cursor: 'default' }} />
                     </div>
                   )}
                 </div>
@@ -482,15 +482,15 @@ export default function FreelancerRegisterPage() {
                 {isIntern && (
                   <div
                     className="flex items-start gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all"
-                    style={{ background: depositAck ? 'rgba(192,132,252,0.08)' : 'var(--row-hover-bg)', border: `1px solid ${depositAck ? 'rgba(192,132,252,0.35)' : 'var(--input-bg)'}` }}
+                    style={{ background: depositAck ? 'rgb(var(--fg-rgb) / 0.08)' : 'var(--row-hover-bg)', border: `1px solid ${depositAck ? 'rgb(var(--fg-rgb) / 0.35)' : 'var(--input-bg)'}` }}
                     onClick={() => setDepositAck(v => !v)}
                   >
                     <div className="w-5 h-5 rounded flex items-center justify-center mt-0.5 shrink-0 transition-all"
-                      style={{ background: depositAck ? '#c084fc' : 'var(--input-bg)', border: depositAck ? 'none' : '1px solid var(--border)' }}>
+                      style={{ background: depositAck ? 'var(--fg)' : 'var(--input-bg)', border: depositAck ? 'none' : '1px solid var(--border)' }}>
                       {depositAck && <CheckCircle2 size={13} style={{ color: 'var(--bg-base)' }} strokeWidth={2.5} />}
                     </div>
                     <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      I understand that a <strong style={{ color: '#c084fc' }}>₹10,000 refundable security deposit</strong> is required to join the Intern Programme, and will be fully returned upon completing the 6-month internship.
+                      I understand that a <strong style={{ color: 'var(--fg)' }}>₹10,000 refundable security deposit</strong> is required to join the Intern Programme, and will be fully returned upon completing the 6-month internship.
                     </p>
                   </div>
                 )}
@@ -505,7 +505,7 @@ export default function FreelancerRegisterPage() {
                     type="submit"
                     disabled={loading || (isIntern && !depositAck)}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: accentColor, color: '#fff' }}
+                    style={{ background: accentColor, color: 'var(--bg)' }}
                   >
                     {loading
                       ? <><Loader2 size={15} className="animate-spin" /> Creating Account...</>
@@ -521,7 +521,7 @@ export default function FreelancerRegisterPage() {
             <p className="mt-6 text-center text-mono-label" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
               ALREADY HAVE AN ACCOUNT?{' '}
               <Link href="/login" className="transition-colors" style={{ color: accentColor }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bg)')}
                 onMouseLeave={e => (e.currentTarget.style.color = accentColor)}>
                 SIGN IN →
               </Link>

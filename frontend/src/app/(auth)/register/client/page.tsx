@@ -17,12 +17,12 @@ import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 
 const DELIVERY_STEPS = [
-  { num: '01', icon: ClipboardList, title: 'Submit Your Enquiry', desc: 'Scope, timeline, and goals — no commitment needed.', color: '#60a5fa' },
-  { num: '02', icon: Users, title: 'Manager & Tech Lead Review', desc: 'We analyse requirements and identify the exact resources.', color: '#818cf8' },
-  { num: '03', icon: UserCheck, title: 'Freelancer Onboarding', desc: 'Right specialists are hand-picked from our vetted pool.', color: '#f97316' },
-  { num: '04', icon: FlaskConical, title: 'QA on Every Deliverable', desc: 'Dedicated QA review before anything reaches you.', color: '#eab308' },
-  { num: '05', icon: PackageCheck, title: 'Delivery & Sign-off', desc: 'Deliverables handed off with docs — you sign off each milestone.', color: '#4ade80' },
-  { num: '06', icon: BarChart3, title: 'Track Progress in Real Time', desc: 'Live worklogs, tasks, and sprint status in your dashboard.', color: '#2dd4bf' },
+  { num: '01', icon: ClipboardList, title: 'Submit Your Enquiry', desc: 'Scope, timeline, and goals — no commitment needed.', color: 'var(--fg)' },
+  { num: '02', icon: Users, title: 'Manager & Tech Lead Review', desc: 'We analyse requirements and identify the exact resources.', color: 'var(--fg)' },
+  { num: '03', icon: UserCheck, title: 'Freelancer Onboarding', desc: 'Right specialists are hand-picked from our vetted pool.', color: 'var(--fg)' },
+  { num: '04', icon: FlaskConical, title: 'QA on Every Deliverable', desc: 'Dedicated QA review before anything reaches you.', color: 'var(--fg)' },
+  { num: '05', icon: PackageCheck, title: 'Delivery & Sign-off', desc: 'Deliverables handed off with docs — you sign off each milestone.', color: 'var(--fg)' },
+  { num: '06', icon: BarChart3, title: 'Track Progress in Real Time', desc: 'Live worklogs, tasks, and sprint status in your dashboard.', color: 'var(--fg)' },
 ]
 
 const CLIENT_PERKS = [
@@ -62,57 +62,57 @@ export default function ClientRegisterPage() {
     }
   }
 
-  const accent = '#60a5fa'
-  const accentFaint = 'rgba(96,165,250,0.12)'
-  const accentBorder = 'rgba(96,165,250,0.25)'
+  const accent = 'var(--fg)'
+  const accentFaint = 'rgb(var(--fg-rgb) / 0.12)'
+  const accentBorder = 'rgb(var(--fg-rgb) / 0.25)'
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
 
       {/* canvas particle network */}
-      <ParticleNetwork count={60} dotColor="96,165,250" lineColor="96,165,250" className="z-0" />
+      <ParticleNetwork count={60} className="z-0" />
 
       {/* depth blobs */}
-      <MorphBlob color="#0d2644" size={700} top="-200px" left="-200px" />
-      <MorphBlob color="#1a1a4e" size={500} bottom="-150px" right="-100px" delay="4s" />
+      <MorphBlob color="var(--surface)" size={700} top="-200px" left="-200px" />
+      <MorphBlob color="var(--surface)" size={500} bottom="-150px" right="-100px" delay="4s" />
 
       {/* rotating wireframe cubes */}
-      <WireframeCube size={180} color="rgba(96,165,250,0.18)" duration={26} delay="0s"
+      <WireframeCube size={180} color="rgb(var(--fg-rgb) / 0.18)" duration={26} delay="0s"
         style={{ top: '8%', right: '5%', zIndex: 1 }} />
-      <WireframeCube size={90}  color="rgba(96,165,250,0.22)" duration={17} delay="-5s"
+      <WireframeCube size={90}  color="rgb(var(--fg-rgb) / 0.22)" duration={17} delay="-5s"
         style={{ top: '52%', right: '20%', zIndex: 1 }} />
-      <WireframeCube size={55}  color="rgba(96,165,250,0.28)" duration={13} delay="-2s"
+      <WireframeCube size={55}  color="rgb(var(--fg-rgb) / 0.28)" duration={13} delay="-2s"
         style={{ bottom: '10%', right: '38%', zIndex: 1 }} />
 
       {/* orbital rings */}
-      <OrbitalRing size={500} color="rgba(96,165,250,0.08)" tiltX={68} duration={16} delay="0s"
+      <OrbitalRing size={500} color="rgb(var(--fg-rgb) / 0.08)" tiltX={68} duration={16} delay="0s"
         style={{ top: '-100px', right: '-130px', zIndex: 1 }} />
-      <OrbitalRing size={280} color="rgba(129,140,248,0.12)" tiltX={62} duration={10} delay="-3s"
+      <OrbitalRing size={280} color="rgb(var(--fg-rgb) / 0.12)" tiltX={62} duration={10} delay="-3s"
         style={{ bottom: '4%', left: '-50px', zIndex: 1 }} />
 
       {/* floating hex glyphs */}
-      <FloatingGlyph size={100} color="rgba(96,165,250,0.13)" duration={19} delay="0s"
+      <FloatingGlyph size={100} color="rgb(var(--fg-rgb) / 0.13)" duration={19} delay="0s"
         style={{ top: '16%', right: '28%', zIndex: 1 }} />
-      <FloatingGlyph size={55}  color="rgba(96,165,250,0.18)" duration={13} delay="-4s" spin={false}
+      <FloatingGlyph size={55}  color="rgb(var(--fg-rgb) / 0.18)" duration={13} delay="-4s" spin={false}
         style={{ bottom: '18%', right: '8%', zIndex: 1 }} />
 
       {/* ── Global top bar ── */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0 relative z-10" style={{ background: 'var(--bg-sidebar)' }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-          <div className="w-5 h-5" style={{ background: '#DC143C', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
+          <div className="w-5 h-5" style={{ background: 'var(--fg)', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
+          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'var(--font-mono)' }}>FREELANCE_PRO</span>
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
-            style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--fg)', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
           >
             {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
           </button>
           <Link href="/register" className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
-            style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            style={{ fontFamily: 'var(--font-mono)' }}>
             <ArrowLeft size={11} /> BACK
           </Link>
         </div>
@@ -132,7 +132,7 @@ export default function ClientRegisterPage() {
           <h2 className="text-display leading-none mb-5" style={{ fontSize: '3.2rem', color: 'var(--text-primary)' }}>
             BUILD YOUR<br />
             <span style={{
-              background: 'linear-gradient(to right, #60a5fa, #818cf8)',
+              background: 'var(--fg)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>
@@ -157,7 +157,7 @@ export default function ClientRegisterPage() {
                 <div key={s.num} className="flex gap-4">
                   <div className="flex flex-col items-center">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: `${s.color}18`, border: `1px solid ${s.color}40` }}>
+                      style={{ background: `color-mix(in srgb, ${s.color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${s.color} 25%, transparent)` }}>
                       <Icon size={14} style={{ color: s.color }} />
                     </div>
                     {i < DELIVERY_STEPS.length - 1 && (
@@ -185,9 +185,9 @@ export default function ClientRegisterPage() {
             { icon: Clock, val: '48h', label: 'FIRST RESPONSE' },
           ].map(({ icon: Icon, val, label }) => (
             <div key={label} className="flex items-center gap-2">
-              <Icon size={12} style={{ color: 'rgba(96,165,250,0.5)' }} />
+              <Icon size={12} style={{ color: 'rgb(var(--fg-rgb) / 0.5)' }} />
               <div>
-                <div className="text-primary-ui text-xs font-bold" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>{val}</div>
+                <div className="text-primary-ui text-xs font-bold" style={{ fontFamily: 'var(--font-sans)' }}>{val}</div>
                 <div className="text-mono-label" style={{ fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>{label}</div>
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function ClientRegisterPage() {
                 <Building2 size={16} style={{ color: accent }} />
               </div>
               <div>
-                <h1 className="text-primary-ui text-2xl font-bold" style={{ fontFamily: 'Cabinet Grotesk, Inter, sans-serif' }}>
+                <h1 className="text-primary-ui text-2xl font-bold" style={{ fontFamily: 'var(--font-sans)' }}>
                   Client Registration
                 </h1>
                 <p className="text-mono-label" style={{ color: 'var(--text-muted)', fontSize: 10 }}>
@@ -219,17 +219,17 @@ export default function ClientRegisterPage() {
             {/* Process summary chips */}
             <div className="flex flex-wrap gap-2 mb-7">
               {[
-                { icon: ClipboardList, label: 'Enquiry', color: '#60a5fa' },
+                { icon: ClipboardList, label: 'Enquiry', color: 'var(--fg)' },
                 { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
-                { icon: Users, label: 'Manager Review', color: '#818cf8' },
+                { icon: Users, label: 'Manager Review', color: 'var(--fg)' },
                 { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
-                { icon: UserCheck, label: 'Team Assigned', color: '#f97316' },
+                { icon: UserCheck, label: 'Team Assigned', color: 'var(--fg)' },
                 { icon: ChevronRight, label: '', color: 'var(--text-muted)' },
-                { icon: FlaskConical, label: 'QA & Delivery', color: '#4ade80' },
+                { icon: FlaskConical, label: 'QA & Delivery', color: 'var(--fg)' },
               ].map(({ icon: Icon, label, color }, i) => (
                 label
                   ? <div key={i} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
-                      style={{ background: `${color}12`, border: `1px solid ${color}30`, color }}>
+                      style={{ background: `color-mix(in srgb, ${color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 19%, transparent)`, color }}>
                       <Icon size={11} />
                       {label}
                     </div>
@@ -239,7 +239,7 @@ export default function ClientRegisterPage() {
 
             {error && (
               <div className="mb-5 px-4 py-3 rounded-lg flex items-start gap-2 text-sm"
-                style={{ background: 'rgba(220,20,60,0.08)', border: '1px solid rgba(220,20,60,0.35)', color: '#f87171' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)' }}>
                 <Zap size={14} className="mt-0.5 shrink-0" />
                 {error}
               </div>
@@ -249,11 +249,11 @@ export default function ClientRegisterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-field" style={{ color: 'rgba(96,165,250,0.8)' }}>FULL NAME</label>
+                  <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>FULL NAME</label>
                   <input className="input-field" placeholder="Jane Smith" required value={name} onChange={e => setName(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label-field" style={{ color: 'rgba(96,165,250,0.8)' }}>
+                  <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
                     COMPANY <span style={{ color: 'var(--text-muted)' }}>OPTIONAL</span>
                   </label>
                   <input className="input-field" placeholder="Acme Corp" value={company} onChange={e => setCompany(e.target.value)} />
@@ -261,19 +261,19 @@ export default function ClientRegisterPage() {
               </div>
 
               <div>
-                <label className="label-field" style={{ color: 'rgba(96,165,250,0.8)' }}>WORK EMAIL</label>
+                <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>WORK EMAIL</label>
                 <input type="email" className="input-field" placeholder="jane@company.com" required value={email} onChange={e => setEmail(e.target.value)} />
               </div>
 
               <div>
-                <label className="label-field" style={{ color: 'rgba(96,165,250,0.8)' }}>PASSWORD</label>
+                <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>PASSWORD</label>
                 <input type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
                 <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>Minimum 6 characters</p>
               </div>
 
               {/* Project brief */}
               <div>
-                <label className="label-field flex items-center gap-1.5" style={{ color: 'rgba(96,165,250,0.8)' }}>
+                <label className="label-field flex items-center gap-1.5" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
                   <ClipboardList size={10} style={{ color: accent }} />
                   PROJECT BRIEF
                   <span style={{ color: 'var(--text-muted)' }}>OPTIONAL</span>
@@ -294,10 +294,10 @@ export default function ClientRegisterPage() {
               <div className="rounded-xl p-4 space-y-2.5" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
                 <p className="text-mono-label" style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.3em' }}>WHAT HAPPENS AFTER YOU REGISTER</p>
                 {[
-                  { icon: Users, text: 'Managers & tech leads review your brief and scope resources', color: '#818cf8' },
-                  { icon: UserCheck, text: 'Right freelancers are onboarded and assigned to your project', color: '#f97316' },
-                  { icon: FlaskConical, text: 'Every deliverable passes QA before it reaches you', color: '#eab308' },
-                  { icon: BarChart3, text: 'Track everything live in your client dashboard', color: '#2dd4bf' },
+                  { icon: Users, text: 'Managers & tech leads review your brief and scope resources', color: 'var(--fg)' },
+                  { icon: UserCheck, text: 'Right freelancers are onboarded and assigned to your project', color: 'var(--fg)' },
+                  { icon: FlaskConical, text: 'Every deliverable passes QA before it reaches you', color: 'var(--fg)' },
+                  { icon: BarChart3, text: 'Track everything live in your client dashboard', color: 'var(--fg)' },
                 ].map(({ icon: Icon, text, color }) => (
                   <div key={text} className="flex items-center gap-2.5">
                     <Icon size={12} className="shrink-0" style={{ color }} />
@@ -308,10 +308,10 @@ export default function ClientRegisterPage() {
 
               {/* Dashboard access highlight */}
               <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
-                style={{ background: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.2)' }}>
-                <BarChart3 size={14} className="mt-0.5 shrink-0" style={{ color: '#2dd4bf' }} />
+                style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
+                <BarChart3 size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--fg)' }} />
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  After registration you'll have access to a <strong style={{ color: '#2dd4bf' }}>live client dashboard</strong> — view freelancer worklogs, task status, sprint progress, QA reports, and payment history all in one place.
+                  After registration you'll have access to a <strong style={{ color: 'var(--fg)' }}>live client dashboard</strong> — view freelancer worklogs, task status, sprint progress, QA reports, and payment history all in one place.
                 </p>
               </div>
 
@@ -319,7 +319,7 @@ export default function ClientRegisterPage() {
                 type="submit"
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 font-bold text-sm py-3.5 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: accent, color: '#000' }}
+                style={{ background: accent, color: 'var(--bg)' }}
               >
                 {loading
                   ? <><Loader2 size={15} className="animate-spin" /> Creating Account...</>
@@ -331,7 +331,7 @@ export default function ClientRegisterPage() {
             <p className="mt-6 text-center text-mono-label" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
               ALREADY HAVE AN ACCOUNT?{' '}
               <Link href="/login" className="transition-colors" style={{ color: accent }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bg)')}
                 onMouseLeave={e => (e.currentTarget.style.color = accent)}>
                 SIGN IN →
               </Link>

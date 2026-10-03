@@ -36,7 +36,7 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
-const AVATAR_COLORS = ['#60a5fa', '#818cf8', '#34d399', '#fbbf24', '#f472b6', '#fb923c']
+const AVATAR_COLORS = ['var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)']
 
 export default function AdminClientsPage() {
   const [clients, setClients] = useState<ClientUser[]>([])
@@ -93,11 +93,11 @@ export default function AdminClientsPage() {
           <div className="flex items-center gap-3">
             {/* Stats chips */}
             {[
-              { label: 'Total', val: clients.length, color: '#60a5fa' },
-              { label: 'With Projects', val: clients.filter(c => (c.projectCount ?? 0) > 0).length, color: '#4ade80' },
+              { label: 'Total', val: clients.length, color: 'var(--fg)' },
+              { label: 'With Projects', val: clients.filter(c => (c.projectCount ?? 0) > 0).length, color: 'var(--fg)' },
             ].map(({ label, val, color }) => (
               <div key={label} className="px-3 py-2 rounded-lg text-center"
-                style={{ background: `${color}10`, border: `1px solid ${color}25` }}>
+                style={{ background: `color-mix(in srgb, ${color} 6%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 15%, transparent)` }}>
                 <div className="text-sm font-bold" style={{ color }}>{val}</div>
                 <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
               </div>
@@ -154,7 +154,7 @@ export default function AdminClientsPage() {
                   {/* Client */}
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: `${color}18`, border: `1px solid ${color}35`, color }}>
+                      style={{ background: `color-mix(in srgb, ${color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 21%, transparent)`, color }}>
                       {getInitials(c.name)}
                     </div>
                     <div className="min-w-0">
@@ -173,8 +173,8 @@ export default function AdminClientsPage() {
                   </div>
                   {/* Projects */}
                   <div className="flex items-center gap-1.5">
-                    <FolderKanban size={12} style={{ color: '#60a5fa' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#60a5fa' }}>{c.projectCount ?? 0}</span>
+                    <FolderKanban size={12} style={{ color: 'var(--fg)' }} />
+                    <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>{c.projectCount ?? 0}</span>
                   </div>
                   {/* Joined */}
                   <div className="flex items-center gap-1.5">
@@ -198,7 +198,7 @@ export default function AdminClientsPage() {
       {/* Detail drawer */}
       {detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(3,0,0,0.8)', backdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
           onClick={() => setDetail(null)}>
           <div className="glass-card rounded-xl p-7 w-full max-w-sm space-y-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
@@ -207,7 +207,7 @@ export default function AdminClientsPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0"
-                style={{ background: 'rgba(96,165,250,0.15)', border: '2px solid rgba(96,165,250,0.35)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.15)', border: '2px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)' }}>
                 {getInitials(detail.name)}
               </div>
               <div>
@@ -224,7 +224,7 @@ export default function AdminClientsPage() {
               ].map(({ icon: Icon, label, val }) => (
                 <div key={label} className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
                   style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
-                  <Icon size={13} style={{ color: '#60a5fa' }} />
+                  <Icon size={13} style={{ color: 'var(--fg)' }} />
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</span>
                   <span className="ml-auto text-sm text-primary-ui font-medium">{val}</span>
                 </div>
@@ -233,7 +233,7 @@ export default function AdminClientsPage() {
             <button
               onClick={() => setDetail(null)}
               className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
-              style={{ background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa' }}>
+              style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
               <Eye size={13} className="inline mr-1.5" />
               View Projects
             </button>

@@ -94,7 +94,7 @@ export default function ClientsPage() {
       <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <CrimsonCube size={24} />
-          <span className="text-display text-[#DC143C] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px #DC143C66' }}>
+          <span className="text-display text-[var(--fg)] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px rgb(var(--fg-rgb) / 0.4)' }}>
             FREELANCE_PRO
           </span>
         </Link>
@@ -105,7 +105,7 @@ export default function ClientsPage() {
         <div className="flex items-center gap-2">
           <Link href="/login"
             className="flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all"
-            style={{ border: '1px solid rgba(96,165,250,0.35)', color: '#60a5fa', background: 'rgba(96,165,250,0.06)' }}>
+            style={{ border: '1px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)', background: 'rgb(var(--fg-rgb) / 0.06)' }}>
             Login
           </Link>
           <a href="#get-started" className="btn-primary rounded flex items-center gap-2 text-sm">
@@ -117,16 +117,16 @@ export default function ClientsPage() {
       {/* Hero */}
       <section className="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
         <div className="grid-overlay pointer-events-none absolute inset-0 z-0" />
-        <MorphBlob color="#8B0000" size={700} top="-200px" left="-200px" />
-        <MorphBlob color="#3D0000" size={500} bottom="-100px" right="-100px" delay="2s" />
+        <MorphBlob color="var(--fg)" size={700} top="-200px" left="-200px" />
+        <MorphBlob color="var(--surface)" size={500} bottom="-100px" right="-100px" delay="2s" />
 
         <div className="max-w-7xl mx-auto px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
           <div>
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-6 flex items-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C] inline-block" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-6 flex items-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)] inline-block" />
               FOR AMBITIOUS CLIENTS
             </p>
-            <h1 className="text-display text-6xl md:text-7xl leading-none mb-6">
+            <h1 className="text-display-xl mb-6">
               <span className="block text-primary-ui">TURN YOUR</span>
               <span className="block text-gradient">IDEA INTO</span>
               <span className="block text-primary-ui">REALITY.</span>
@@ -147,10 +147,10 @@ export default function ClientsPage() {
           {/* Mini stats */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { value: '50+', label: 'PROJECTS DELIVERED', color: '#DC143C' },
-              { value: '94%', label: 'ON-TIME RATE', color: '#4ade80' },
-              { value: '48h', label: 'AVG MATCH TIME', color: '#fbbf24' },
-              { value: `${curr}2.4M`, label: 'TOTAL BUDGET MANAGED', color: '#a78bfa' },
+              { value: '50+', label: 'PROJECTS DELIVERED', color: 'var(--fg)' },
+              { value: '94%', label: 'ON-TIME RATE', color: 'var(--fg)' },
+              { value: '48h', label: 'AVG MATCH TIME', color: 'var(--fg)' },
+              { value: `${curr}2.4M`, label: 'TOTAL BUDGET MANAGED', color: 'var(--fg)' },
             ].map(({ value, label, color }) => (
               <div key={label} className="glass-card metric-card rounded-xl text-center">
                 <p className="text-3xl font-bold text-display mb-1" style={{ color }}>{value}</p>
@@ -165,8 +165,8 @@ export default function ClientsPage() {
       <section id="how-it-works" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
         <div className="max-w-7xl mx-auto px-12">
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" />PROCESS<span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" />PROCESS<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-primary-ui text-5xl font-bold">
               FROM IDEA TO <span className="text-gradient">DELIVERY</span>
@@ -176,12 +176,12 @@ export default function ClientsPage() {
             {howItWorks.map((step, i) => (
               <div key={step.num} className="relative">
                 {i < howItWorks.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgba(220,20,60,0.2)' }} />
+                  <div className="hidden lg:block absolute top-8 left-full w-full h-px z-0" style={{ background: 'rgb(var(--fg-rgb) / 0.2)' }} />
                 )}
                 <div className="glass-card p-6 rounded-xl relative z-10">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-display text-2xl font-bold" style={{ color: 'rgba(220,20,60,0.25)' }}>{step.num}</span>
-                    <span className="text-[#DC143C]">{step.icon}</span>
+                    <span className="text-display text-2xl font-bold" style={{ color: 'rgb(var(--fg-rgb) / 0.25)' }}>{step.num}</span>
+                    <span className="text-[var(--fg)]">{step.icon}</span>
                   </div>
                   <h3 className="text-primary-ui font-bold text-base mb-2">{step.title}</h3>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
@@ -196,8 +196,8 @@ export default function ClientsPage() {
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-12">
           <div className="text-center mb-16">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" />WHY US<span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" />WHY US<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-primary-ui text-5xl font-bold">
               THE <span className="text-gradient">DIFFERENCE</span>
@@ -205,8 +205,8 @@ export default function ClientsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {valueProps.map(({ icon, title, desc }) => (
-              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgba(220,20,60,0.4)] transition-all">
-                <div className="w-11 h-11 rounded-lg bg-[rgba(220,20,60,0.1)] flex items-center justify-center text-[#DC143C] mb-5 group-hover:bg-[rgba(220,20,60,0.18)] transition-colors">
+              <div key={title} className="glass-card p-6 rounded-xl group hover:border-[rgb(var(--fg-rgb)/0.4)] transition-all">
+                <div className="w-11 h-11 rounded-lg bg-[rgb(var(--fg-rgb)/0.1)] flex items-center justify-center text-[var(--fg)] mb-5 group-hover:bg-[rgb(var(--fg-rgb)/0.18)] transition-colors">
                   {icon}
                 </div>
                 <h3 className="text-primary-ui font-bold text-base mb-2">{title}</h3>
@@ -219,11 +219,11 @@ export default function ClientsPage() {
 
       {/* ─── GET STARTED SECTION — Tabbed Forms ─── */}
       <section id="get-started" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
-        <MorphBlob color="#8B0000" size={500} top="-100px" right="-100px" />
+        <MorphBlob color="var(--fg)" size={500} top="-100px" right="-100px" />
         <div className="max-w-3xl mx-auto px-12 relative z-10">
           <div className="text-center mb-12">
-            <p className="text-mono-label text-[#DC143C] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
-              <span className="w-8 h-px bg-[#DC143C]" />REACH OUT<span className="w-8 h-px bg-[#DC143C]" />
+            <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-[var(--fg)]" />REACH OUT<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
             <h2 className="text-display text-primary-ui text-5xl font-bold mb-4">
               LET&apos;S <span className="text-gradient">TALK</span>
@@ -239,7 +239,7 @@ export default function ClientsPage() {
               onClick={() => { setActiveTab('idea'); setSubmitted(null) }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'idea'
-                  ? 'bg-[#DC143C] text-primary-ui'
+                  ? 'bg-[var(--fg)] text-[var(--bg)]'
                   : 'text-[var(--text-secondary)] hover:text-primary-ui hover:bg-[var(--input-bg)]'
               }`}
             >
@@ -250,7 +250,7 @@ export default function ClientsPage() {
               onClick={() => { setActiveTab('callback'); setSubmitted(null) }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'callback'
-                  ? 'bg-[#DC143C] text-primary-ui'
+                  ? 'bg-[var(--fg)] text-[var(--bg)]'
                   : 'text-[var(--text-secondary)] hover:text-primary-ui hover:bg-[var(--input-bg)]'
               }`}
             >
@@ -262,9 +262,9 @@ export default function ClientsPage() {
           {/* ── Project Idea Form ── */}
           {activeTab === 'idea' && (
             submitted === 'idea' ? (
-              <div className="glass-card rounded-2xl p-12 text-center" style={{ borderColor: 'rgba(74,222,128,0.3)' }}>
-                <div className="w-16 h-16 rounded-full bg-[rgba(74,222,128,0.1)] flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle size={32} className="text-[#4ade80]" />
+              <div className="glass-card rounded-2xl p-12 text-center" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.3)' }}>
+                <div className="w-16 h-16 rounded-full bg-[rgb(var(--fg-rgb)/0.1)] flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle size={32} className="text-[var(--fg)]" />
                 </div>
                 <h3 className="text-primary-ui font-bold text-2xl mb-3">Idea Received!</h3>
                 <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -278,7 +278,7 @@ export default function ClientsPage() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleIdeaSubmit} className="glass-card rounded-2xl p-8 space-y-5" style={{ borderColor: 'rgba(220,20,60,0.2)' }}>
+              <form onSubmit={handleIdeaSubmit} className="glass-card rounded-2xl p-8 space-y-5" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.2)' }}>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="label-field">Your Name *</label>
@@ -383,7 +383,7 @@ export default function ClientsPage() {
                 >
                   {submitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-[rgb(var(--fg-rgb)/.30)] border-t-white rounded-full animate-spin" />
                       Submitting...
                     </>
                   ) : (
@@ -404,9 +404,9 @@ export default function ClientsPage() {
           {/* ── Callback Form ── */}
           {activeTab === 'callback' && (
             submitted === 'callback' ? (
-              <div className="glass-card rounded-2xl p-12 text-center" style={{ borderColor: 'rgba(74,222,128,0.3)' }}>
-                <div className="w-16 h-16 rounded-full bg-[rgba(74,222,128,0.1)] flex items-center justify-center mx-auto mb-6">
-                  <Phone size={32} className="text-[#4ade80]" />
+              <div className="glass-card rounded-2xl p-12 text-center" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.3)' }}>
+                <div className="w-16 h-16 rounded-full bg-[rgb(var(--fg-rgb)/0.1)] flex items-center justify-center mx-auto mb-6">
+                  <Phone size={32} className="text-[var(--fg)]" />
                 </div>
                 <h3 className="text-primary-ui font-bold text-2xl mb-3">Callback Scheduled!</h3>
                 <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -420,10 +420,10 @@ export default function ClientsPage() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleCallbackSubmit} className="glass-card rounded-2xl p-8 space-y-5" style={{ borderColor: 'rgba(220,20,60,0.2)' }}>
+              <form onSubmit={handleCallbackSubmit} className="glass-card rounded-2xl p-8 space-y-5" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.2)' }}>
                 <div className="text-center pb-2">
-                  <div className="w-14 h-14 rounded-full bg-[rgba(220,20,60,0.1)] flex items-center justify-center mx-auto mb-4">
-                    <Phone size={28} className="text-[#DC143C]" />
+                  <div className="w-14 h-14 rounded-full bg-[rgb(var(--fg-rgb)/0.1)] flex items-center justify-center mx-auto mb-4">
+                    <Phone size={28} className="text-[var(--fg)]" />
                   </div>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                     Prefer to talk? Leave your number and we&apos;ll call you back at your preferred time.
@@ -474,8 +474,8 @@ export default function ClientsPage() {
                         onClick={() => setCallbackForm(f => ({ ...f, preferredCallbackTime: time }))}
                         className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
                           callbackForm.preferredCallbackTime === time
-                            ? 'border-[#DC143C] bg-[rgba(220,20,60,0.12)] text-primary-ui'
-                            : 'border-[var(--track-bg)] text-[var(--text-secondary)] hover:border-[rgba(220,20,60,0.3)] hover:text-primary-ui'
+                            ? 'border-[var(--fg)] bg-[rgb(var(--fg-rgb)/0.12)] text-primary-ui'
+                            : 'border-[var(--track-bg)] text-[var(--text-secondary)] hover:border-[rgb(var(--fg-rgb)/0.3)] hover:text-primary-ui'
                         }`}
                       >
                         {time}
@@ -491,7 +491,7 @@ export default function ClientsPage() {
                 >
                   {submitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-[rgb(var(--fg-rgb)/.30)] border-t-white rounded-full animate-spin" />
                       Submitting...
                     </>
                   ) : (
@@ -516,7 +516,7 @@ export default function ClientsPage() {
         <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
             <CrimsonCube size={20} />
-            <span className="text-display text-[#DC143C] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
+            <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
           </Link>
           <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>

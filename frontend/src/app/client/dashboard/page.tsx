@@ -75,11 +75,11 @@ function isOverdue(iso: string) {
 }
 
 const activityColors: Record<string, string> = {
-  progress: '#DC143C',
-  approval: '#fbbf24',
-  complete: '#4ade80',
-  new: '#60a5fa',
-  payment: '#c084fc',
+  progress: 'var(--fg)',
+  approval: 'var(--fg)',
+  complete: 'var(--fg)',
+  new: 'var(--fg)',
+  payment: 'var(--fg)',
 }
 
 export default function ClientDashboardPage() {
@@ -121,10 +121,10 @@ export default function ClientDashboardPage() {
   const pendingApproval = projects.filter(p => p.status === 'pending_approval').length
 
   const stats = [
-    { label: 'Total Projects', value: totalProjects, icon: <FolderKanban size={20} className="text-[#DC143C]" /> },
-    { label: 'Active', value: activeProjects, icon: <Loader2 size={20} className="text-blue-400" /> },
-    { label: 'Completed', value: completedProjects, icon: <CheckCircle2 size={20} className="text-green-400" /> },
-    { label: 'Pending Approval', value: pendingApproval, icon: <Clock size={20} className="text-amber-400" /> },
+    { label: 'Total Projects', value: totalProjects, icon: <FolderKanban size={20} className="text-[var(--fg)]" /> },
+    { label: 'Active', value: activeProjects, icon: <Loader2 size={20} className="text-[var(--fg)]" /> },
+    { label: 'Completed', value: completedProjects, icon: <CheckCircle2 size={20} className="text-[var(--fg)]" /> },
+    { label: 'Pending Approval', value: pendingApproval, icon: <Clock size={20} className="text-[var(--fg)]" /> },
   ]
 
   function handleApprove(id: string) {
@@ -172,7 +172,7 @@ export default function ClientDashboardPage() {
           <div className="col-span-2 glass-card rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-mono-label text-xs tracking-widest">MY ACTIVE PROJECTS</h2>
-              <Link href="/client/projects" className="text-mono-label text-[10px] text-[#DC143C] hover:underline">VIEW ALL →</Link>
+              <Link href="/client/projects" className="text-mono-label text-[10px] text-[var(--fg)] hover:underline">VIEW ALL →</Link>
             </div>
             {loading ? (
               <div className="space-y-4">
@@ -197,7 +197,7 @@ export default function ClientDashboardPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         <StatusBadge status={p.status} />
-                        <Link href="/client/projects" className="text-mono-label text-[10px] text-[var(--text-muted)] hover:text-[#DC143C]">Details →</Link>
+                        <Link href="/client/projects" className="text-mono-label text-[10px] text-[var(--text-muted)] hover:text-[var(--fg)]">Details →</Link>
                       </div>
                     </div>
                     <div className="progress-bar mb-1">
@@ -205,7 +205,7 @@ export default function ClientDashboardPage() {
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-mono-label text-[10px]">{p.progress}% complete</span>
-                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[#DC143C]' : 'text-[var(--text-muted)]'}`}>
+                      <span className={`text-mono-label text-[10px] ${isOverdue(p.deadline) ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                         {isOverdue(p.deadline) && <AlertTriangle size={9} className="inline mr-1" />}
                         Due {fmtDate(p.deadline)}
                       </span>
@@ -220,11 +220,11 @@ export default function ClientDashboardPage() {
           <div className="glass-card rounded-xl p-5">
             <h2 className="text-mono-label text-xs tracking-widest mb-4">RECENT ACTIVITY</h2>
             <ul className="relative space-y-0">
-              <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[rgba(220,20,60,0.2)]" />
+              <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[rgb(var(--fg-rgb)/0.2)]" />
               {MOCK_ACTIVITY.map((a, i) => (
                 <li key={a.id} className="relative pl-6 pb-5 last:pb-0">
                   <span
-                    className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a0c] shrink-0"
+                    className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-[var(--surface)] shrink-0"
                     style={{ background: activityColors[a.type] ?? 'var(--text-muted)' }}
                   />
                   <p className="text-primary-ui text-xs leading-snug">{a.event}</p>
@@ -237,7 +237,7 @@ export default function ClientDashboardPage() {
 
         {/* Pending Approval */}
         {pendingProjects.length > 0 && (
-          <div className="glass-card rounded-xl p-5 border-l-4 border-[#DC143C]">
+          <div className="glass-card rounded-xl p-5 border-l-4 border-[var(--fg)]">
             <h2 className="text-mono-label text-xs tracking-widest mb-4">PENDING YOUR APPROVAL</h2>
             <div className="space-y-4">
               {pendingProjects.map(p => (
@@ -257,14 +257,14 @@ export default function ClientDashboardPage() {
                   <div className="flex gap-2 ml-4">
                     <button
                       onClick={() => handleApprove(p.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.3)] text-green-400 rounded text-mono-label text-[10px] hover:bg-[rgba(34,197,94,0.2)] transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
                     >
                       <CheckCheck size={13} />
                       APPROVE
                     </button>
                     <button
                       onClick={() => handleRequestChanges(p.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] text-red-400 rounded text-mono-label text-[10px] hover:bg-[rgba(239,68,68,0.2)] transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
                     >
                       <X size={13} />
                       CHANGES

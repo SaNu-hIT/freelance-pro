@@ -148,10 +148,10 @@ export default function FreelancerProfilePage() {
 
   /* ── approval badge ── */
   const approvalBg    = approvalStatus === 'approved'
-    ? { bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.25)', color: '#4ade80', icon: <CheckSquare size={18} /> }
+    ? { bg: 'rgb(var(--fg-rgb) / 0.06)', border: 'rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', icon: <CheckSquare size={18} /> }
     : approvalStatus === 'rejected'
-    ? { bg: 'rgba(248,113,113,0.06)', border: 'rgba(248,113,113,0.25)', color: '#f87171', icon: <AlertTriangle size={18} /> }
-    : { bg: 'rgba(251,191,36,0.06)', border: 'rgba(251,191,36,0.25)', color: '#fbbf24', icon: <Clock size={18} /> }
+    ? { bg: 'rgb(var(--fg-rgb) / 0.06)', border: 'rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', icon: <AlertTriangle size={18} /> }
+    : { bg: 'rgb(var(--fg-rgb) / 0.06)', border: 'rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', icon: <Clock size={18} /> }
 
   return (
     <DashboardLayout allowedRoles={['freelancer']}>
@@ -177,7 +177,7 @@ export default function FreelancerProfilePage() {
                   : 'Application Under Review'}
               </span>
               <span className="text-mono-label text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: `${approvalBg.color}18`, border: `1px solid ${approvalBg.border}`, color: approvalBg.color }}>
+                style={{ background: `color-mix(in srgb, ${approvalBg.color} 9%, transparent)`, border: `1px solid ${approvalBg.border}`, color: approvalBg.color }}>
                 {approvalStatus.toUpperCase()}
               </span>
             </div>
@@ -191,7 +191,7 @@ export default function FreelancerProfilePage() {
           </div>
           {approvalStatus === 'approved' && (
             <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-              style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80' }}>
+              style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
               <Shield size={12} /> ACTIVE
             </div>
           )}
@@ -204,12 +204,12 @@ export default function FreelancerProfilePage() {
           <div className="rounded-2xl p-6 flex flex-col items-center gap-4"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             {/* Avatar */}
-            <div className="relative w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-black"
-              style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}>
+            <div className="relative w-20 h-20 rounded-full flex items-center justify-center text-[var(--bg)] text-2xl font-black"
+              style={{ background: 'var(--fg)' }}>
               {initials}
               <span className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2`}
                 style={{
-                  background: approvalStatus === 'approved' ? '#4ade80' : approvalStatus === 'rejected' ? '#f87171' : '#fbbf24',
+                  background: approvalStatus === 'approved' ? 'var(--fg)' : approvalStatus === 'rejected' ? 'var(--fg)' : 'var(--fg)',
                   borderColor: 'var(--bg-card)',
                 }} />
             </div>
@@ -223,8 +223,8 @@ export default function FreelancerProfilePage() {
             <div className="w-full space-y-2.5 mt-1">
               {[
                 { label: 'MEMBER SINCE', value: user?.createdAt ? fmtDate(user.createdAt) : 'May 2024', color: 'var(--text-primary)' },
-                { label: 'EXPERIENCE',   value: `${profile.experience} years`,   color: '#DC143C' },
-                { label: 'HOURLY RATE',  value: `${curr}${profile.hourlyRate}/hr`, color: '#DC143C' },
+                { label: 'EXPERIENCE',   value: `${profile.experience} years`,   color: 'var(--fg)' },
+                { label: 'HOURLY RATE',  value: `${curr}${profile.hourlyRate}/hr`, color: 'var(--fg)' },
               ].map(row => (
                 <div key={row.label} className="rounded-xl p-3 flex justify-between items-center"
                   style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
@@ -236,7 +236,7 @@ export default function FreelancerProfilePage() {
               <div className="rounded-xl p-3 flex justify-between items-center"
                 style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                 <span className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>AVAILABILITY</span>
-                <span className="font-bold text-sm" style={{ color: '#60a5fa' }}>
+                <span className="font-bold text-sm" style={{ color: 'var(--fg)' }}>
                   {avail.hoursPerWeek}h/wk · {enabledDays.length}d
                 </span>
               </div>
@@ -248,7 +248,7 @@ export default function FreelancerProfilePage() {
               <div className="flex flex-wrap gap-2">
                 {profile.skills.map(skill => (
                   <span key={skill} className="px-2.5 py-1 rounded text-xs font-semibold"
-                    style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}>
+                    style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                     {skill}
                   </span>
                 ))}
@@ -263,9 +263,9 @@ export default function FreelancerProfilePage() {
 
             {saved && (
               <div className="flex items-center gap-2 rounded-xl p-3 mb-4"
-                style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
-                <CheckCircle size={15} style={{ color: '#4ade80' }} />
-                <span className="text-sm font-semibold" style={{ color: '#4ade80' }}>Profile saved!</span>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.25)' }}>
+                <CheckCircle size={15} style={{ color: 'var(--fg)' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Profile saved!</span>
               </div>
             )}
 
@@ -289,7 +289,7 @@ export default function FreelancerProfilePage() {
                   {profile.skills.map(skill => (
                     <span key={skill}
                       className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold"
-                      style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.3)', color: '#DC143C' }}>
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                       {skill}
                       <button type="button" onClick={() => removeSkill(skill)}><X size={11} /></button>
                     </span>
@@ -328,15 +328,15 @@ export default function FreelancerProfilePage() {
             style={{ background: 'var(--bg-sidebar)' }}>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)' }}>
-                <Calendar size={16} style={{ color: '#60a5fa' }} />
+                style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)' }}>
+                <Calendar size={16} style={{ color: 'var(--fg)' }} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Availability Schedule</p>
                   {approvalStatus !== 'approved' && (
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold"
-                      style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24' }}>
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                       <Lock size={9} /> LOCKED UNTIL APPROVED
                     </span>
                   )}
@@ -349,15 +349,15 @@ export default function FreelancerProfilePage() {
             {/* summary chips */}
             <div className="hidden md:flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
                 <Clock size={11} /> {avail.hoursPerWeek}h/week
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
                 <Zap size={11} /> {enabledDays.length} days active
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
-                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
                 <Globe size={11} /> {avail.timezone.split(' ')[0]}
               </div>
             </div>
@@ -368,9 +368,9 @@ export default function FreelancerProfilePage() {
 
             {approvalStatus !== 'approved' && (
               <div className="flex items-center gap-3 rounded-xl p-4"
-                style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)' }}>
-                <Lock size={15} style={{ color: '#fbbf24' }} />
-                <p className="text-sm" style={{ color: '#fbbf24' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
+                <Lock size={15} style={{ color: 'var(--fg)' }} />
+                <p className="text-sm" style={{ color: 'var(--fg)' }}>
                   Availability editing is unlocked once your application is approved.
                 </p>
               </div>
@@ -378,9 +378,9 @@ export default function FreelancerProfilePage() {
 
             {availSaved && (
               <div className="flex items-center gap-2 rounded-xl p-3"
-                style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)' }}>
-                <CheckCircle size={15} style={{ color: '#4ade80' }} />
-                <span className="text-sm font-semibold" style={{ color: '#4ade80' }}>Availability saved!</span>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.25)' }}>
+                <CheckCircle size={15} style={{ color: 'var(--fg)' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Availability saved!</span>
               </div>
             )}
 
@@ -429,9 +429,9 @@ export default function FreelancerProfilePage() {
                     <button key={d.key} type="button" onClick={() => toggleDay(d.key)}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                       style={{
-                        background: on ? 'rgba(96,165,250,0.12)' : 'var(--bg-elevated)',
-                        border: `1px solid ${on ? 'rgba(96,165,250,0.35)' : 'var(--border)'}`,
-                        color: on ? '#60a5fa' : 'var(--text-muted)',
+                        background: on ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--bg-elevated)',
+                        border: `1px solid ${on ? 'rgb(var(--fg-rgb) / 0.35)' : 'var(--border)'}`,
+                        color: on ? 'var(--fg)' : 'var(--text-muted)',
                       }}>
                       {d.short}
                     </button>
@@ -448,20 +448,20 @@ export default function FreelancerProfilePage() {
                       className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all"
                       style={{
                         background: slot.enabled ? 'var(--bg-elevated)' : 'transparent',
-                        border: `1px solid ${slot.enabled ? 'rgba(96,165,250,0.15)' : 'var(--border)'}`,
+                        border: `1px solid ${slot.enabled ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--border)'}`,
                         opacity: slot.enabled ? 1 : 0.45,
                       }}>
                       {/* day label + toggle */}
                       <button type="button" onClick={() => toggleDay(d.key)}
                         className="shrink-0 w-5 h-5 rounded flex items-center justify-center transition-all"
                         style={{
-                          background: slot.enabled ? 'rgba(96,165,250,0.15)' : 'var(--bg-card)',
-                          border: `1px solid ${slot.enabled ? 'rgba(96,165,250,0.4)' : 'var(--border)'}`,
+                          background: slot.enabled ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--bg-card)',
+                          border: `1px solid ${slot.enabled ? 'rgb(var(--fg-rgb) / 0.4)' : 'var(--border)'}`,
                         }}>
-                        {slot.enabled && <span style={{ color: '#60a5fa', fontSize: 11, fontWeight: 900 }}>✓</span>}
+                        {slot.enabled && <span style={{ color: 'var(--fg)', fontSize: 11, fontWeight: 900 }}>✓</span>}
                       </button>
                       <span className="w-24 text-xs font-semibold shrink-0"
-                        style={{ color: slot.enabled ? 'var(--text-primary)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                        style={{ color: slot.enabled ? 'var(--text-primary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                         {d.label}
                       </span>
 
@@ -478,7 +478,7 @@ export default function FreelancerProfilePage() {
                             disabled={!slot.enabled} />
                           {/* hours for this day */}
                           <span className="text-xs font-bold ml-auto shrink-0"
-                            style={{ color: '#60a5fa', fontFamily: 'JetBrains Mono, monospace' }}>
+                            style={{ color: 'var(--fg)', fontFamily: 'var(--font-mono)' }}>
                             {(() => {
                               const [fh, fm] = slot.from.split(':').map(Number)
                               const [th, tm] = slot.to.split(':').map(Number)
@@ -500,7 +500,7 @@ export default function FreelancerProfilePage() {
             <div className="flex items-center gap-3 pt-2">
               <button type="submit" disabled={availSaving}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-                style={{ background: '#60a5fa', color: '#000' }}>
+                style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
                 {availSaving ? 'Saving…' : <><CheckCircle size={14} /> Save Availability</>}
               </button>
               <button type="button" onClick={resetAvail}

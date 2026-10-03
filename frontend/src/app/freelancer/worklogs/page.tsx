@@ -285,7 +285,7 @@ export default function FreelancerWorklogsPage() {
   const backlogTasks  = tasks.filter(t => !t.sprintId)
   const workedCount   = workedTasks.size
   const pct           = timerSecs / MAX_SECS
-  const timerColor    = autoPaused ? '#f87171' : pct > 0.875 ? '#fb923c' : pct > 0.75 ? '#fbbf24' : '#DC143C'
+  const timerColor    = autoPaused ? 'var(--fg)' : pct > 0.875 ? 'var(--fg)' : pct > 0.75 ? 'var(--fg)' : 'var(--fg)'
 
   const activeTask    = tasks.find(t => t.id === activeTaskId)
 
@@ -299,10 +299,10 @@ export default function FreelancerWorklogsPage() {
           {/* Auto-pause banner */}
           {autoPaused && (
             <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
-              style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.35)' }}>
-              <AlertCircle size={15} className="mt-0.5 shrink-0" style={{ color: '#fb923c' }} />
+              style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.35)' }}>
+              <AlertCircle size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--fg)' }} />
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#fb923c' }}>Session auto-paused at 8 hours</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Session auto-paused at 8 hours</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                   Sessions are capped at 8 hours. Review your hours and submit.
                 </p>
@@ -317,7 +317,7 @@ export default function FreelancerWorklogsPage() {
               {timerRunning && (
                 <button onClick={stopTimer}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                  style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171' }}>
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.4)', color: 'var(--fg)' }}>
                   <Square size={11} fill="currentColor" /> Stop Work
                 </button>
               )}
@@ -346,7 +346,7 @@ export default function FreelancerWorklogsPage() {
                 style={{ color: 'var(--text-muted)' }} />
               {timerRunning && (
                 <span className="absolute -top-2 right-6 text-xs px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C', fontSize: 9, letterSpacing: '0.08em' }}>
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', fontSize: 9, letterSpacing: '0.08em' }}>
                   LOCKED
                 </span>
               )}
@@ -354,20 +354,20 @@ export default function FreelancerWorklogsPage() {
 
             {/* Clock + progress */}
             <div className="px-4 py-3.5 rounded-xl"
-              style={{ background: 'var(--row-hover-bg)', border: `1px solid ${timerRunning ? `${timerColor}40` : autoPaused ? 'rgba(251,146,60,0.3)' : 'var(--input-bg)'}`, transition: 'border-color 0.4s' }}>
+              style={{ background: 'var(--row-hover-bg)', border: `1px solid ${timerRunning ? `color-mix(in srgb, ${timerColor} 25%, transparent)` : autoPaused ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--input-bg)'}`, transition: 'border-color 0.4s' }}>
 
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2.5">
                   <Clock size={14} style={{ color: timerRunning ? timerColor : 'var(--text-muted)' }} />
                   <span className="font-mono text-2xl font-bold tracking-widest"
-                    style={{ color: timerRunning ? '#fff' : timerSecs > 0 ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    style={{ color: timerRunning ? 'var(--bg)' : timerSecs > 0 ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                     {fmtDuration(timerSecs)}
                   </span>
                   {timerRunning && <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: timerColor }} />}
                 </div>
                 {hoursWorked !== '' && !timerRunning && (
                   <span className="text-sm font-bold px-2.5 py-1 rounded-lg"
-                    style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80' }}>
+                    style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                     {hoursWorked}h logged
                   </span>
                 )}
@@ -395,7 +395,7 @@ export default function FreelancerWorklogsPage() {
               {/* Active task indicator */}
               {timerRunning && activeTask && (
                 <div className="mt-2.5 flex items-center gap-2 px-2.5 py-1.5 rounded-lg"
-                  style={{ background: `${timerColor}10`, border: `1px solid ${timerColor}30` }}>
+                  style={{ background: `color-mix(in srgb, ${timerColor} 6%, transparent)`, border: `1px solid color-mix(in srgb, ${timerColor} 19%, transparent)` }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: timerColor }} />
                   <span className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                     {activeTask.title}
@@ -407,9 +407,9 @@ export default function FreelancerWorklogsPage() {
             {/* 8h warnings */}
             {timerRunning && pct > 0.75 && (
               <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg"
-                style={{ background: pct > 0.875 ? 'rgba(251,146,60,0.08)' : 'rgba(251,191,36,0.06)', border: `1px solid ${pct > 0.875 ? 'rgba(251,146,60,0.3)' : 'rgba(251,191,36,0.2)'}` }}>
-                <AlertTriangle size={12} style={{ color: pct > 0.875 ? '#fb923c' : '#fbbf24' }} />
-                <p className="text-xs" style={{ color: pct > 0.875 ? '#fb923c' : '#fbbf24' }}>
+                style={{ background: pct > 0.875 ? 'rgb(var(--fg-rgb) / 0.08)' : 'rgb(var(--fg-rgb) / 0.06)', border: `1px solid ${pct > 0.875 ? 'rgb(var(--fg-rgb) / 0.3)' : 'rgb(var(--fg-rgb) / 0.2)'}` }}>
+                <AlertTriangle size={12} style={{ color: pct > 0.875 ? 'var(--fg)' : 'var(--fg)' }} />
+                <p className="text-xs" style={{ color: pct > 0.875 ? 'var(--fg)' : 'var(--fg)' }}>
                   {pct > 0.875
                     ? `Auto-pause in ~${Math.ceil((MAX_SECS - timerSecs) / 60)} min`
                     : 'Session will auto-pause at 8 hours'}
@@ -435,12 +435,12 @@ export default function FreelancerWorklogsPage() {
           <div className="glass-card rounded-xl p-5 flex-1">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <CheckSquare size={13} style={{ color: '#DC143C' }} />
+                <CheckSquare size={13} style={{ color: 'var(--fg)' }} />
                 <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)', letterSpacing: '0.1em' }}>TASKS</p>
               </div>
               {workedCount > 0 && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded"
-                  style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.3)', color: '#f87171' }}>
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
                   {workedCount} worked
                 </span>
               )}
@@ -474,7 +474,7 @@ export default function FreelancerWorklogsPage() {
                         className="w-full flex items-center gap-2 px-3 py-2.5 transition-colors"
                         style={{ background: 'var(--row-hover-bg)' }}
                         onClick={() => toggleSprintCollapse(sprint.id)}>
-                        <Layers size={11} style={{ color: '#DC143C' }} />
+                        <Layers size={11} style={{ color: 'var(--fg)' }} />
                         <span className="flex-1 text-left text-xs font-semibold"
                           style={{ color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>
                           {sprint.name}
@@ -490,7 +490,7 @@ export default function FreelancerWorklogsPage() {
                           return (
                             <div className="flex items-center gap-1.5 shrink-0">
                               <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--input-bg)' }}>
-                                <div style={{ width: `${pct}%`, height: '100%', background: pct === 100 ? '#4ade80' : '#DC143C', borderRadius: 99 }} />
+                                <div style={{ width: `${pct}%`, height: '100%', background: pct === 100 ? 'var(--fg)' : 'var(--fg)', borderRadius: 99 }} />
                               </div>
                               <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{pct}%</span>
                             </div>
@@ -558,8 +558,8 @@ export default function FreelancerWorklogsPage() {
             {/* Auto-summary */}
             {tasksCompleted && (
               <div className="mt-4 px-3 py-2.5 rounded-xl"
-                style={{ background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.18)' }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: 'rgba(74,222,128,0.6)', letterSpacing: '0.08em' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.05)', border: '1px solid rgb(var(--fg-rgb) / 0.18)' }}>
+                <p className="text-xs font-semibold mb-1" style={{ color: 'rgb(var(--fg-rgb) / 0.6)', letterSpacing: '0.08em' }}>
                   AUTO SUMMARY
                 </p>
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{tasksCompleted}</p>
@@ -571,18 +571,18 @@ export default function FreelancerWorklogsPage() {
           <form onSubmit={handleSubmit} className="glass-card rounded-xl p-5 space-y-4">
             {success && (
               <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-                style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)' }}>
-                <CheckCircle size={14} style={{ color: '#4ade80' }} />
-                <span className="text-sm font-semibold" style={{ color: '#4ade80' }}>Worklog submitted!</span>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)' }}>
+                <CheckCircle size={14} style={{ color: 'var(--fg)' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Worklog submitted!</span>
               </div>
             )}
 
             {submitError && (
               <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl"
-                style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.3)' }}>
-                <AlertCircle size={14} className="shrink-0 mt-0.5" style={{ color: '#f87171' }} />
+                style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.3)' }}>
+                <AlertCircle size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--fg)' }} />
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#f87171' }}>Submission failed</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Submission failed</p>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{submitError}</p>
                 </div>
                 <button onClick={() => setSubmitError('')} className="ml-auto shrink-0" style={{ color: 'var(--text-muted)' }}>
@@ -595,14 +595,14 @@ export default function FreelancerWorklogsPage() {
             <div className="flex items-center justify-between px-4 py-3 rounded-xl"
               style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2">
-                <CheckCircle size={13} style={{ color: '#4ade80' }} />
+                <CheckCircle size={13} style={{ color: 'var(--fg)' }} />
                 <span className="text-sm font-medium text-primary-ui">Project Progress</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-24 rounded-full overflow-hidden" style={{ height: 4, background: 'var(--input-bg)' }}>
-                  <div style={{ width: `${progress}%`, height: '100%', background: progress === 100 ? '#4ade80' : '#DC143C', borderRadius: 99, transition: 'width 0.3s' }} />
+                  <div style={{ width: `${progress}%`, height: '100%', background: progress === 100 ? 'var(--fg)' : 'var(--fg)', borderRadius: 99, transition: 'width 0.3s' }} />
                 </div>
-                <span className="text-sm font-bold" style={{ color: progress === 100 ? '#4ade80' : '#DC143C' }}>{progress}%</span>
+                <span className="text-sm font-bold" style={{ color: progress === 100 ? 'var(--fg)' : 'var(--fg)' }}>{progress}%</span>
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {alreadyDone + newlyDone}/{totalTasks} tasks
                 </span>
@@ -611,7 +611,7 @@ export default function FreelancerWorklogsPage() {
 
             <div>
               <label className="label-field flex items-center gap-1.5">
-                <AlertTriangle size={10} style={{ color: '#fb923c' }} />
+                <AlertTriangle size={10} style={{ color: 'var(--fg)' }} />
                 Blockers <span style={{ color: 'var(--text-muted)' }}>optional</span>
               </label>
               <textarea className="input-field resize-none text-sm" rows={2}
@@ -650,7 +650,7 @@ export default function FreelancerWorklogsPage() {
           <div className="glass-card rounded-xl flex flex-col overflow-hidden h-full">
             <div className="px-5 py-4 border-b border-[var(--input-bg)] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
-                <Timer size={14} style={{ color: '#DC143C' }} />
+                <Timer size={14} style={{ color: 'var(--fg)' }} />
                 <h2 className="text-primary-ui font-bold text-base">My Worklogs</h2>
               </div>
               <div className="flex items-center gap-2">
@@ -684,13 +684,13 @@ export default function FreelancerWorklogsPage() {
                       <div key={w.id}
                         className="px-5 py-3.5 flex items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group">
                         <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-bold text-sm"
-                          style={{ background: 'rgba(220,20,60,0.12)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
+                          style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
                           {w.hoursWorked}h
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <p className="text-sm font-semibold text-primary-ui truncate">{p?.title ?? 'Project'}</p>
-                            {w.blockers && <AlertTriangle size={11} style={{ color: '#fb923c' }} />}
+                            {w.blockers && <AlertTriangle size={11} style={{ color: 'var(--fg)' }} />}
                           </div>
                           <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{w.tasksCompleted}</p>
                         </div>
@@ -698,7 +698,7 @@ export default function FreelancerWorklogsPage() {
                           <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{fmtDate(w.date)}</p>
                           <div className="flex items-center gap-1.5">
                             <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--input-bg)' }}>
-                              <div style={{ width: `${w.progress}%`, height: '100%', background: '#DC143C', borderRadius: 99 }} />
+                              <div style={{ width: `${w.progress}%`, height: '100%', background: 'var(--fg)', borderRadius: 99 }} />
                             </div>
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{w.progress}%</span>
                           </div>
@@ -721,7 +721,7 @@ export default function FreelancerWorklogsPage() {
       {/* View Log Modal */}
       {viewLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(3,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgb(var(--bg-rgb) / 0.85)' }}
           onClick={() => setViewLog(null)}>
           <div className="glass-card rounded-xl p-6 max-w-md w-full space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
@@ -730,9 +730,9 @@ export default function FreelancerWorklogsPage() {
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'HOURS', value: `${viewLog.hoursWorked}h`, color: '#DC143C' },
-                { label: 'PROGRESS', value: `${viewLog.progress}%`, color: '#4ade80' },
-                { label: 'DATE', value: fmtDate(viewLog.date), color: '#fbbf24' },
+                { label: 'HOURS', value: `${viewLog.hoursWorked}h`, color: 'var(--fg)' },
+                { label: 'PROGRESS', value: `${viewLog.progress}%`, color: 'var(--fg)' },
+                { label: 'DATE', value: fmtDate(viewLog.date), color: 'var(--fg)' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="rounded-lg px-3 py-2.5 text-center"
                   style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}>
@@ -747,9 +747,9 @@ export default function FreelancerWorklogsPage() {
             </div>
             {viewLog.blockers && (
               <div className="px-3 py-2.5 rounded-lg"
-                style={{ background: 'rgba(251,146,60,0.07)', border: '1px solid rgba(251,146,60,0.25)' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.07)', border: '1px solid rgb(var(--fg-rgb) / 0.25)' }}>
                 <p className="label-field mb-1 flex items-center gap-1">
-                  <AlertTriangle size={10} style={{ color: '#fb923c' }} /> Blocker
+                  <AlertTriangle size={10} style={{ color: 'var(--fg)' }} /> Blocker
                 </p>
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{viewLog.blockers}</p>
               </div>
@@ -789,10 +789,10 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
     <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all"
       style={{
         background: isActive
-          ? 'rgba(220,20,60,0.07)'
+          ? 'rgb(var(--fg-rgb) / 0.07)'
           : worked ? 'var(--row-hover-bg)' : 'transparent',
         border: isActive
-          ? '1px solid rgba(220,20,60,0.3)'
+          ? '1px solid rgb(var(--fg-rgb) / 0.3)'
           : worked ? '1px solid var(--border)' : '1px solid transparent',
         opacity: isDone && !worked ? 0.4 : 1,
       }}>
@@ -803,14 +803,14 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
         className="shrink-0"
         title="Mark as worked on this session">
         {worked
-          ? <CheckSquare size={14} style={{ color: isActive ? '#DC143C' : 'rgba(220,20,60,0.6)' }} />
+          ? <CheckSquare size={14} style={{ color: isActive ? 'var(--fg)' : 'rgb(var(--fg-rgb) / 0.6)' }} />
           : <SquareIcon size={14} style={{ color: 'var(--text-muted)' }} />}
       </button>
 
       {/* Task title */}
       <span className="flex-1 text-sm leading-snug"
         style={{
-          color: isActive ? '#fff' : worked ? 'var(--text-primary)' : 'var(--text-secondary)',
+          color: isActive ? 'var(--bg)' : worked ? 'var(--text-primary)' : 'var(--text-secondary)',
           textDecoration: isDone ? 'line-through' : 'none',
           fontWeight: isActive ? 500 : 400,
         }}>
@@ -827,9 +827,9 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
             className="px-1.5 py-0.5 rounded text-xs transition-all"
             style={{
               fontSize: 10,
-              background: markDone ? 'rgba(74,222,128,0.15)' : 'var(--input-bg)',
-              border: `1px solid ${markDone ? 'rgba(74,222,128,0.4)' : 'var(--track-bg)'}`,
-              color: markDone ? '#4ade80' : 'var(--text-muted)',
+              background: markDone ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--input-bg)',
+              border: `1px solid ${markDone ? 'rgb(var(--fg-rgb) / 0.4)' : 'var(--track-bg)'}`,
+              color: markDone ? 'var(--fg)' : 'var(--text-muted)',
             }}>
             {markDone ? '✓' : 'DONE'}
           </button>
@@ -838,9 +838,9 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
         {/* Already completed badge + time */}
         {isDone && (
           <div className="flex items-center gap-1.5 shrink-0">
-            <span style={{ fontSize: 10, color: 'rgba(74,222,128,0.6)' }}>✓</span>
+            <span style={{ fontSize: 10, color: 'rgb(var(--fg-rgb) / 0.6)' }}>✓</span>
             {task.completedAt && (
-              <span style={{ fontSize: 10, color: 'rgba(74,222,128,0.4)', fontFamily: 'JetBrains Mono, monospace' }}>
+              <span style={{ fontSize: 10, color: 'rgb(var(--fg-rgb) / 0.4)', fontFamily: 'var(--font-mono)' }}>
                 {new Date(task.completedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
               </span>
             )}
@@ -851,13 +851,13 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
         {isActive && timerRunning && (
           <>
             <span className="font-mono text-xs font-bold"
-              style={{ color: '#DC143C', fontFamily: 'JetBrains Mono, monospace', minWidth: 44, textAlign: 'right' }}>
+              style={{ color: 'var(--fg)', fontFamily: 'var(--font-mono)', minWidth: 44, textAlign: 'right' }}>
               {fmtMini(timerSecs)}
             </span>
             <button
               onClick={onStop}
               className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold transition-all"
-              style={{ background: 'rgba(248,113,113,0.15)', border: '1px solid rgba(248,113,113,0.4)', color: '#f87171' }}
+              style={{ background: 'rgb(var(--fg-rgb) / 0.15)', border: '1px solid rgb(var(--fg-rgb) / 0.4)', color: 'var(--fg)' }}
               title="Stop timer">
               <Square size={11} fill="currentColor" />
             </button>
@@ -870,9 +870,9 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
             onClick={onStart}
             className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={{
-              background: timerRunning ? 'var(--row-hover-bg)' : 'rgba(220,20,60,0.1)',
-              border: `1px solid ${timerRunning ? 'var(--input-bg)' : 'rgba(220,20,60,0.3)'}`,
-              color: timerRunning ? 'var(--text-muted)' : '#DC143C',
+              background: timerRunning ? 'var(--row-hover-bg)' : 'rgb(var(--fg-rgb) / 0.1)',
+              border: `1px solid ${timerRunning ? 'var(--input-bg)' : 'rgb(var(--fg-rgb) / 0.3)'}`,
+              color: timerRunning ? 'var(--text-muted)' : 'var(--fg)',
             }}
             title={timerRunning ? 'Switch to this task' : 'Start timer for this task'}>
             <Play size={10} fill="currentColor" />

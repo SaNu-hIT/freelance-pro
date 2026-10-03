@@ -19,9 +19,9 @@ const MOCK_FREELANCERS: FreelancerProfile[] = [
 ]
 
 const STATUS_COLORS = {
-  active: { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', color: '#4ade80' },
-  pending: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', color: '#fbbf24' },
-  inactive: { bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.3)', color: 'var(--text-muted)' },
+  active: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' },
+  pending: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' },
+  inactive: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--text-muted)' },
 }
 
 function getInitials(name: string) {
@@ -80,8 +80,8 @@ export default function AdminFreelancersPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         {[
-          { label: 'TEAM SIZE', value: counts.total, color: '#DC143C' },
-          { label: 'ACTIVE', value: counts.active, color: '#4ade80' },
+          { label: 'TEAM SIZE', value: counts.total, color: 'var(--fg)' },
+          { label: 'ACTIVE', value: counts.active, color: 'var(--fg)' },
         ].map(item => (
           <div key={item.label} className="glass-card metric-card rounded-lg">
             <p className="text-mono-label mb-2">{item.label}</p>
@@ -119,7 +119,7 @@ export default function AdminFreelancersPage() {
           <button
             onClick={() => setViewMode('grid')}
             className="p-1.5 rounded transition-all"
-            style={{ background: viewMode === 'grid' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'grid' ? '#DC143C' : 'var(--text-muted)' }}
+            style={{ background: viewMode === 'grid' ? 'rgb(var(--fg-rgb) / 0.15)' : 'transparent', color: viewMode === 'grid' ? 'var(--fg)' : 'var(--text-muted)' }}
             title="Grid view"
           >
             <LayoutGrid size={14} />
@@ -127,7 +127,7 @@ export default function AdminFreelancersPage() {
           <button
             onClick={() => setViewMode('list')}
             className="p-1.5 rounded transition-all"
-            style={{ background: viewMode === 'list' ? 'rgba(220,20,60,0.15)' : 'transparent', color: viewMode === 'list' ? '#DC143C' : 'var(--text-muted)' }}
+            style={{ background: viewMode === 'list' ? 'rgb(var(--fg-rgb) / 0.15)' : 'transparent', color: viewMode === 'list' ? 'var(--fg)' : 'var(--text-muted)' }}
             title="List view"
           >
             <List size={14} />
@@ -168,14 +168,14 @@ export default function AdminFreelancersPage() {
             return (
               <div
                 key={f.id}
-                className="glass-card rounded-xl p-6 flex flex-col gap-4 transition-all hover:border-[#DC143C] cursor-pointer"
+                className="glass-card rounded-xl p-6 flex flex-col gap-4 transition-all hover:border-[var(--fg)] cursor-pointer"
                 onClick={() => router.push(`/admin/freelancers/${f.id}`)}
               >
                 {/* Avatar + Name */}
                 <div className="flex items-start gap-4">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-primary-ui font-bold text-sm"
-                    style={{ background: 'linear-gradient(135deg, #8B0000, #DC143C)' }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 font-bold text-sm"
+                    style={{ background: 'var(--fg)', color: 'var(--bg)' }}
                   >
                     {getInitials(f.user.name)}
                   </div>
@@ -220,7 +220,7 @@ export default function AdminFreelancersPage() {
                 <div className="flex items-center gap-4 text-mono-label pt-2 border-t border-[var(--input-bg)]" style={{ fontSize: '11px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>{f.experience} yr exp</span>
                   <span className="text-crimson font-bold">{curr}{f.hourlyRate}/hr</span>
-                  <span className="ml-auto text-xs" style={{ color: '#60a5fa' }}>View →</span>
+                  <span className="ml-auto text-xs" style={{ color: 'var(--fg)' }}>View →</span>
                 </div>
               </div>
             )
@@ -248,13 +248,13 @@ export default function AdminFreelancersPage() {
                     className="cursor-pointer"
                     style={{ transition: 'background 0.15s' }}
                     onClick={() => router.push(`/admin/freelancers/${f.id}`)}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,20,60,0.04)')}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgb(var(--fg-rgb) / 0.04)')}
                     onMouseLeave={e => (e.currentTarget.style.background = '')}
                   >
                     <td>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                          style={{ background: 'linear-gradient(135deg,#8B0000,#DC143C)', color: '#fff' }}>
+                          style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
                           {getInitials(f.user.name)}
                         </div>
                         <div className="min-w-0">

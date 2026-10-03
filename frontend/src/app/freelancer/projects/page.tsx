@@ -141,8 +141,8 @@ export default function FreelancerProjectsPage() {
               onClick={() => setFilter(f.value)}
               className={`px-4 py-1.5 rounded text-mono-label text-[10px] tracking-widest border transition-all ${
                 filter === f.value
-                  ? 'bg-[#DC143C] border-[#DC143C] text-primary-ui'
-                  : 'border-[rgba(220,20,60,0.2)] text-[var(--text-muted)] hover:border-[#DC143C] hover:text-primary-ui'
+                  ? 'bg-[var(--fg)] border-[var(--fg)] text-[var(--bg)]'
+                  : 'border-[rgb(var(--fg-rgb)/0.2)] text-[var(--text-muted)] hover:border-[var(--fg)] hover:text-primary-ui'
               }`}
             >
               {f.label}
@@ -168,7 +168,7 @@ export default function FreelancerProjectsPage() {
               const nearDeadline = days >= 0 && days <= 7
               const overdue = days < 0
               return (
-                <div key={p.id} className="glass-card rounded-lg p-5 flex flex-col gap-3 hover:border-[#DC143C] transition-all">
+                <div key={p.id} className="glass-card rounded-lg p-5 flex flex-col gap-3 hover:border-[var(--fg)] transition-all">
                   {/* Title + status */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -185,7 +185,7 @@ export default function FreelancerProjectsPage() {
                   <p className="text-[var(--track-bg)] text-sm line-clamp-2 leading-relaxed">{p.description}</p>
 
                   {/* Deadline */}
-                  <div className={`flex items-center gap-1.5 text-mono-label text-[10px] ${overdue ? 'text-[#DC143C]' : nearDeadline ? 'text-amber-400' : 'text-[var(--text-muted)]'}`}>
+                  <div className={`flex items-center gap-1.5 text-mono-label text-[10px] ${overdue ? 'text-[var(--fg)]' : nearDeadline ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                     {(overdue || nearDeadline) && <AlertTriangle size={11} />}
                     <Calendar size={10} />
                     {overdue
@@ -199,7 +199,7 @@ export default function FreelancerProjectsPage() {
                   <div>
                     <div className="flex justify-between mb-1">
                       <span className="text-mono-label text-[10px]">PROGRESS</span>
-                      <span className="text-mono-label text-[10px] text-[#DC143C]">{p.progress}%</span>
+                      <span className="text-mono-label text-[10px] text-[var(--fg)]">{p.progress}%</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill" style={{ width: `${p.progress}%` }} />
@@ -235,7 +235,7 @@ export default function FreelancerProjectsPage() {
       {modal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(3,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgb(var(--bg-rgb) / 0.85)' }}
           onClick={() => setModal(null)}
         >
           <div
@@ -269,7 +269,7 @@ export default function FreelancerProjectsPage() {
               </div>
               <div className="glass-card-dark rounded p-3">
                 <p className="text-mono-label text-[10px] mb-1">DEADLINE</p>
-                <p className={`text-sm font-semibold ${daysUntil(modal.deadline) < 0 ? 'text-[#DC143C]' : 'text-primary-ui'}`}>
+                <p className={`text-sm font-semibold ${daysUntil(modal.deadline) < 0 ? 'text-[var(--fg)]' : 'text-primary-ui'}`}>
                   {fmtDate(modal.deadline)}
                 </p>
               </div>
@@ -278,7 +278,7 @@ export default function FreelancerProjectsPage() {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-mono-label text-[10px]">PROGRESS</span>
-                <span className="text-mono-label text-[10px] text-[#DC143C]">{modal.progress}%</span>
+                <span className="text-mono-label text-[10px] text-[var(--fg)]">{modal.progress}%</span>
               </div>
               <div className="progress-bar h-2">
                 <div className="progress-fill" style={{ width: `${modal.progress}%` }} />

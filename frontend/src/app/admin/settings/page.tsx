@@ -23,9 +23,9 @@ const SECTIONS = [
 ]
 
 const GROUP_COLOR_OPTIONS = [
-  '#60a5fa', '#818cf8', '#34d399', '#fb923c',
-  '#fbbf24', '#f472b6', '#a78bfa', '#4ade80',
-  '#f87171', '#38bdf8', '#DC143C', '#e879f9',
+  'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)',
+  'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)',
+  'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)',
 ]
 
 export default function AdminSettingsPage() {
@@ -132,9 +132,9 @@ export default function AdminSettingsPage() {
                     onClick={() => setActive(s.id)}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
                     style={{
-                      background: isActive ? (isDanger ? 'rgba(220,20,60,0.1)' : 'rgba(220,20,60,0.1)') : 'transparent',
-                      color: isActive ? (isDanger ? '#f87171' : '#DC143C') : isDanger ? 'rgba(248,113,113,0.6)' : 'var(--text-secondary)',
-                      border: isActive ? `1px solid ${isDanger ? 'rgba(248,113,113,0.25)' : 'rgba(220,20,60,0.25)'}` : '1px solid transparent',
+                      background: isActive ? (isDanger ? 'rgb(var(--fg-rgb) / 0.1)' : 'rgb(var(--fg-rgb) / 0.1)') : 'transparent',
+                      color: isActive ? (isDanger ? 'var(--fg)' : 'var(--fg)') : isDanger ? 'rgb(var(--fg-rgb) / 0.6)' : 'var(--text-secondary)',
+                      border: isActive ? `1px solid ${isDanger ? 'rgb(var(--fg-rgb) / 0.25)' : 'rgb(var(--fg-rgb) / 0.25)'}` : '1px solid transparent',
                     }}
                   >
                     <Icon size={14} />
@@ -155,18 +155,18 @@ export default function AdminSettingsPage() {
             <>
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
-                  <User size={16} style={{ color: '#DC143C' }} /> Profile Information
+                  <User size={16} style={{ color: 'var(--fg)' }} /> Profile Information
                 </h2>
                 <div className="flex items-center gap-5 mb-6 pb-6 border-b border-[var(--input-bg)]">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-primary-ui shrink-0"
-                    style={{ background: 'rgba(220,20,60,0.2)', border: '2px solid rgba(220,20,60,0.4)' }}>
+                    style={{ background: 'rgb(var(--fg-rgb) / 0.2)', border: '2px solid rgb(var(--fg-rgb) / 0.4)' }}>
                     {name.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="text-primary-ui font-semibold">{name}</p>
                     <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>Administrator</p>
                     <button className="text-xs px-3 py-1.5 rounded-lg transition-all"
-                      style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.25)', color: '#DC143C' }}>
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
                       Change Avatar
                     </button>
                   </div>
@@ -199,7 +199,7 @@ export default function AdminSettingsPage() {
             <>
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
-                  <Lock size={16} style={{ color: '#DC143C' }} /> Change Password
+                  <Lock size={16} style={{ color: 'var(--fg)' }} /> Change Password
                 </h2>
                 <div className="space-y-4 max-w-md">
                   <div>
@@ -218,7 +218,7 @@ export default function AdminSettingsPage() {
               </div>
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-1 flex items-center gap-2">
-                  <Shield size={16} style={{ color: '#DC143C' }} /> Two-Factor Authentication
+                  <Shield size={16} style={{ color: 'var(--fg)' }} /> Two-Factor Authentication
                 </h2>
                 <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Add an extra layer of security to your account.</p>
                 <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
@@ -226,7 +226,7 @@ export default function AdminSettingsPage() {
                     <p className="text-sm font-medium text-primary-ui">Authenticator App</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Use Google Authenticator or similar</p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(156,163,175,0.12)', border: '1px solid rgba(156,163,175,0.25)', color: 'var(--text-muted)' }}>Not enabled</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--text-muted)' }}>Not enabled</span>
                 </div>
               </div>
               <SaveBar saved={saved} onSave={handleSave} />
@@ -238,7 +238,7 @@ export default function AdminSettingsPage() {
             <>
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
-                  <Bell size={16} style={{ color: '#DC143C' }} /> Notification Preferences
+                  <Bell size={16} style={{ color: 'var(--fg)' }} /> Notification Preferences
                 </h2>
                 <div className="space-y-3">
                   {(Object.entries(notifs) as [keyof typeof notifs, boolean][]).map(([key, val]) => {
@@ -261,8 +261,8 @@ export default function AdminSettingsPage() {
                         <button
                           onClick={() => setNotifs(prev => ({ ...prev, [key]: !prev[key] }))}
                           className="relative w-10 h-5 rounded-full transition-all shrink-0"
-                          style={{ background: val ? '#DC143C' : 'var(--track-bg)' }}>
-                          <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
+                          style={{ background: val ? 'var(--fg)' : 'var(--track-bg)' }}>
+                          <span className="absolute top-0.5 w-4 h-4 rounded-full bg-[var(--fg)] transition-all"
                             style={{ left: val ? '22px' : '2px' }} />
                         </button>
                       </div>
@@ -279,7 +279,7 @@ export default function AdminSettingsPage() {
             <>
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
-                  <Globe size={16} style={{ color: '#DC143C' }} /> Platform Settings
+                  <Globe size={16} style={{ color: 'var(--fg)' }} /> Platform Settings
                 </h2>
                 <div className="space-y-4">
                   {([
@@ -291,16 +291,16 @@ export default function AdminSettingsPage() {
                     const isDanger = key === 'maintenanceMode'
                     return (
                       <div key={key} className="flex items-center justify-between p-4 rounded-xl"
-                        style={{ background: isDanger ? 'rgba(220,20,60,0.04)' : 'var(--row-hover-bg)', border: `1px solid ${isDanger ? 'rgba(220,20,60,0.15)' : 'var(--input-bg)'}` }}>
+                        style={{ background: isDanger ? 'rgb(var(--fg-rgb) / 0.04)' : 'var(--row-hover-bg)', border: `1px solid ${isDanger ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--input-bg)'}` }}>
                         <div>
-                          <p className="text-sm font-medium" style={{ color: isDanger ? '#f87171' : 'var(--text-primary)' }}>{title}</p>
+                          <p className="text-sm font-medium" style={{ color: isDanger ? 'var(--fg)' : 'var(--text-primary)' }}>{title}</p>
                           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                         </div>
                         <button
                           onClick={() => setPlatformField(key, !val)}
                           className="relative w-10 h-5 rounded-full transition-all shrink-0"
-                          style={{ background: val ? '#DC143C' : 'var(--track-bg)' }}>
-                          <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
+                          style={{ background: val ? 'var(--fg)' : 'var(--track-bg)' }}>
+                          <span className="absolute top-0.5 w-4 h-4 rounded-full bg-[var(--fg)] transition-all"
                             style={{ left: val ? '22px' : '2px' }} />
                         </button>
                       </div>
@@ -341,7 +341,7 @@ export default function AdminSettingsPage() {
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div>
                     <h2 className="text-primary-ui font-bold text-base flex items-center gap-2 mb-1">
-                      <Tags size={16} style={{ color: '#DC143C' }} /> Skill Groups
+                      <Tags size={16} style={{ color: 'var(--fg)' }} /> Skill Groups
                     </h2>
                     <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                       Map raw skills into categories. Used in Resources to replace the cluttered skill list with clean group filters.
@@ -373,7 +373,7 @@ export default function AdminSettingsPage() {
                   <button
                     onClick={() => { if (newGroupName.trim()) { addGroup(newGroupName.trim()); setNewGroupName('') } }}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold shrink-0 transition-all"
-                    style={{ background: '#DC143C', color: '#fff' }}
+                    style={{ background: 'var(--fg)', color: 'var(--bg)' }}
                   >
                     <Plus size={14} /> Add Group
                   </button>
@@ -401,13 +401,13 @@ export default function AdminSettingsPage() {
                       >
                         <div
                           className="w-4 h-4 rounded-full cursor-pointer ring-2 ring-offset-1 transition-all hover:scale-110"
-                          style={{ background: group.color, boxShadow: `0 0 6px ${group.color}60, 0 0 0 2px ${group.color}40` }}
+                          style={{ background: group.color, boxShadow: `0 0 6px color-mix(in srgb, ${group.color} 38%, transparent), 0 0 0 2px color-mix(in srgb, ${group.color} 25%, transparent)` }}
                           title="Change color"
                         />
                         {isColorOpen && (
                           <div
                             className="absolute top-6 left-0 z-20 p-2 rounded-xl grid grid-cols-4 gap-1.5"
-                            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+                            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgb(var(--bg-rgb) / 0.4)' }}
                             onClick={e => e.stopPropagation()}
                           >
                             {GROUP_COLOR_OPTIONS.map(c => (
@@ -440,7 +440,7 @@ export default function AdminSettingsPage() {
                       {/* Skill count badge */}
                       <span
                         className="text-mono-label px-2 py-0.5 rounded-full shrink-0"
-                        style={{ fontSize: '10px', background: `${group.color}18`, border: `1px solid ${group.color}30`, color: group.color }}
+                        style={{ fontSize: '10px', background: `color-mix(in srgb, ${group.color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${group.color} 19%, transparent)`, color: group.color }}
                       >
                         {group.skills.length} skills
                       </span>
@@ -458,7 +458,7 @@ export default function AdminSettingsPage() {
                         <button
                           onClick={() => { if (confirm(`Delete "${group.name}"?`)) removeGroup(group.id) }}
                           className="p-1.5 rounded transition-all hover:bg-[var(--bg-elevated)]"
-                          style={{ color: '#f87171' }}
+                          style={{ color: 'var(--fg)' }}
                           title="Delete group"
                         >
                           <X size={12} />
@@ -483,7 +483,7 @@ export default function AdminSettingsPage() {
                             <span
                               key={skill}
                               className="flex items-center gap-1.5 text-mono-label px-2.5 py-1 rounded-lg"
-                              style={{ fontSize: '11px', background: `${group.color}12`, border: `1px solid ${group.color}30`, color: group.color }}
+                              style={{ fontSize: '11px', background: `color-mix(in srgb, ${group.color} 7%, transparent)`, border: `1px solid color-mix(in srgb, ${group.color} 19%, transparent)`, color: group.color }}
                             >
                               {skill}
                               <button
@@ -509,7 +509,7 @@ export default function AdminSettingsPage() {
                           <button
                             onClick={() => handleAddSkill(group.id)}
                             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0"
-                            style={{ background: `${group.color}18`, border: `1px solid ${group.color}30`, color: group.color }}
+                            style={{ background: `color-mix(in srgb, ${group.color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${group.color} 19%, transparent)`, color: group.color }}
                           >
                             <Plus size={12} />
                           </button>
@@ -531,8 +531,8 @@ export default function AdminSettingsPage() {
 
           {/* ── Danger Zone ── */}
           {active === 'danger' && (
-            <div className="glass-card rounded-xl p-6" style={{ borderColor: 'rgba(220,20,60,0.25)' }}>
-              <h2 className="text-base font-bold mb-1 flex items-center gap-2" style={{ color: '#f87171' }}>
+            <div className="glass-card rounded-xl p-6" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.25)' }}>
+              <h2 className="text-base font-bold mb-1 flex items-center gap-2" style={{ color: 'var(--fg)' }}>
                 <AlertTriangle size={16} /> Danger Zone
               </h2>
               <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
@@ -545,13 +545,13 @@ export default function AdminSettingsPage() {
                   { title: 'Delete admin account', desc: 'Permanently remove your admin account from the system', btn: 'Delete Account' },
                 ].map(({ title, desc, btn }) => (
                   <div key={title} className="flex items-center justify-between p-4 rounded-xl"
-                    style={{ background: 'rgba(220,20,60,0.04)', border: '1px solid rgba(220,20,60,0.15)' }}>
+                    style={{ background: 'rgb(var(--fg-rgb) / 0.04)', border: '1px solid rgb(var(--fg-rgb) / 0.15)' }}>
                     <div>
                       <p className="text-sm font-medium text-primary-ui">{title}</p>
                       <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                     </div>
                     <button className="text-xs px-3 py-2 rounded-lg shrink-0 ml-4 transition-all"
-                      style={{ background: 'rgba(220,20,60,0.1)', border: '1px solid rgba(220,20,60,0.3)', color: '#f87171' }}
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}
                       onClick={() => alert('This action is disabled in demo mode.')}>
                       {btn}
                     </button>
@@ -577,7 +577,7 @@ function SaveBar({ saved, onSave }: { saved: boolean; onSave: () => void }) {
       <button
         onClick={onSave}
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-        style={{ background: saved ? 'rgba(74,222,128,0.15)' : '#DC143C', color: saved ? '#4ade80' : '#fff', border: saved ? '1px solid rgba(74,222,128,0.35)' : 'none' }}>
+        style={{ background: saved ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--fg)', color: saved ? 'var(--fg)' : 'var(--bg)', border: saved ? '1px solid rgb(var(--fg-rgb) / 0.35)' : 'none' }}>
         {saved ? <><CheckCircle2 size={14} /> Saved</> : <><Save size={14} /> Save Changes</>}
       </button>
     </div>

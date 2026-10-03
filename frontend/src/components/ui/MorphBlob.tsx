@@ -9,7 +9,7 @@ interface MorphBlobProps {
 }
 
 export function MorphBlob({
-  color = '#8B0000',
+  color = 'var(--fg)',
   size = 400,
   top,
   right,

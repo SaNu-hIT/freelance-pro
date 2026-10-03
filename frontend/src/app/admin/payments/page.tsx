@@ -15,9 +15,9 @@ const MOCK_PAYMENTS: Payment[] = [
 ]
 
 const STATUS_STYLES: Record<PaymentStatus, { bg: string; border: string; color: string; label: string }> = {
-  paid: { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', color: '#4ade80', label: 'Paid' },
-  pending: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', color: '#fbbf24', label: 'Pending' },
-  partial: { bg: 'rgba(220,20,60,0.1)', border: 'rgba(220,20,60,0.3)', color: '#DC143C', label: 'Partial' },
+  paid: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)', label: 'Paid' },
+  pending: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)', label: 'Pending' },
+  partial: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)', label: 'Partial' },
 }
 
 interface EditForm {
@@ -103,22 +103,22 @@ export default function AdminPaymentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         <div className="glass-card metric-card rounded-xl flex items-start gap-4">
           <div className="w-10 h-10 rounded-lg bg-[var(--skeleton)] flex items-center justify-center shrink-0">
-            <DollarSign size={18} style={{ color: '#4ade80' }} />
+            <DollarSign size={18} style={{ color: 'var(--fg)' }} />
           </div>
           <div>
             <p className="text-mono-label mb-1">TOTAL DISBURSED</p>
-            <p className="text-2xl font-bold" style={{ color: '#4ade80' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--fg)' }}>
               {curr}{totalDisbursed.toLocaleString()}
             </p>
           </div>
         </div>
         <div className="glass-card metric-card rounded-xl flex items-start gap-4">
           <div className="w-10 h-10 rounded-lg bg-[var(--skeleton)] flex items-center justify-center shrink-0">
-            <DollarSign size={18} style={{ color: '#fbbf24' }} />
+            <DollarSign size={18} style={{ color: 'var(--fg)' }} />
           </div>
           <div>
             <p className="text-mono-label mb-1">PENDING</p>
-            <p className="text-2xl font-bold" style={{ color: '#fbbf24' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--fg)' }}>
               {curr}{totalPending.toLocaleString()}
             </p>
           </div>
@@ -202,7 +202,7 @@ export default function AdminPaymentsPage() {
                         <span className="text-primary-ui font-medium">{curr}{p.amount.toLocaleString()}</span>
                       </td>
                       <td>
-                        <span style={{ color: p.deductions > 0 ? '#f87171' : '#9ca3af' }}>
+                        <span style={{ color: p.deductions > 0 ? 'var(--fg)' : 'rgb(var(--fg-rgb) / .55)' }}>
                           {p.deductions > 0 ? `-${curr}${p.deductions.toLocaleString()}` : '—'}
                         </span>
                       </td>
@@ -243,8 +243,8 @@ export default function AdminPaymentsPage() {
       {/* Edit Modal */}
       {editingPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setEditingPayment(null)} />
-          <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-lg" style={{ borderColor: 'rgba(220,20,60,0.4)' }}>
+          <div className="absolute inset-0 bg-[rgb(var(--bg-rgb)/.92)]" onClick={() => setEditingPayment(null)} />
+          <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-lg" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.4)' }}>
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-mono-label mb-0.5">EDIT PAYMENT</p>

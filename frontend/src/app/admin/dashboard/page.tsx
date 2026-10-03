@@ -85,7 +85,7 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, trend = 'neutral', loading, highlight }: MetricCardProps) {
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
-  const trendColor = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#6b7280'
+  const trendColor = trend === 'up' ? 'var(--fg)' : trend === 'down' ? 'var(--fg)' : 'rgb(var(--fg-rgb) / .55)'
 
   if (loading) {
     return (
@@ -102,7 +102,7 @@ function MetricCard({ label, value, trend = 'neutral', loading, highlight }: Met
   return (
     <div
       className="glass-card metric-card rounded-lg"
-      style={highlight ? { borderColor: 'rgba(220,20,60,0.5)' } : {}}
+      style={highlight ? { borderColor: 'rgb(var(--fg-rgb) / 0.5)' } : {}}
     >
       <p className="text-mono-label mb-3">{label}</p>
       <p className="text-2xl font-bold text-primary-ui mb-2">{value}</p>
@@ -211,7 +211,7 @@ export default function AdminDashboardPage() {
                         <p className="font-medium text-primary-ui text-sm truncate max-w-[180px]">{p.title}</p>
                       </td>
                       <td>
-                        <span className="text-mono-label" style={{ color: '#aaa', fontSize: '11px' }}>
+                        <span className="text-mono-label" style={{ color: 'rgb(var(--fg-rgb) / .55)', fontSize: '11px' }}>
                           {p.client?.name ?? '—'}
                         </span>
                       </td>
@@ -294,7 +294,7 @@ export default function AdminDashboardPage() {
       {/* Bottom Row: Alerts + Pending */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Delayed / Blocked Alert */}
-        <div className="glass-card rounded-xl p-6" style={{ borderColor: 'rgba(220,20,60,0.5)' }}>
+        <div className="glass-card rounded-xl p-6" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.5)' }}>
           <div className="flex items-center gap-3 mb-5">
             <div className="w-8 h-8 rounded-lg bg-[var(--skeleton)] flex items-center justify-center">
               <AlertTriangle size={16} className="text-crimson" />
@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {delayed.length === 0 ? (
-            <p className="text-mono-label text-center py-4" style={{ color: '#4ade80' }}>
+            <p className="text-mono-label text-center py-4" style={{ color: 'var(--fg)' }}>
               ✓ No delayed or blocked projects
             </p>
           ) : (
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
                 <div
                   key={p.id}
                   className="glass-card-dark rounded-lg p-4 flex items-center justify-between"
-                  style={{ borderColor: p.status === 'blocked' ? 'rgba(239,68,68,0.3)' : 'rgba(249,115,22,0.3)' }}
+                  style={{ borderColor: p.status === 'blocked' ? 'rgb(var(--fg-rgb) / 0.3)' : 'rgb(var(--fg-rgb) / 0.3)' }}
                 >
                   <div>
                     <p className="text-primary-ui text-sm font-medium">{p.title}</p>

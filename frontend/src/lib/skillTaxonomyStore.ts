@@ -11,13 +11,13 @@ export interface SkillGroup {
 
 // Shown immediately while the real fetch is in-flight
 export const DEFAULT_SKILL_GROUPS: SkillGroup[] = [
-  { id: 'mobile',    name: 'Mobile Development', color: '#34d399', order: 0, skills: ['Flutter', 'Dart', 'React Native', 'Expo', 'iOS', 'Android', 'Firebase', 'Firestore'] },
-  { id: 'frontend',  name: 'Frontend',            color: '#60a5fa', order: 1, skills: ['React', 'Vue.js', 'Angular', 'TypeScript', 'Tailwind CSS', 'CSS', 'Next.js', 'GraphQL', 'Figma'] },
-  { id: 'backend',   name: 'Backend',             color: '#818cf8', order: 2, skills: ['Node.js', 'NestJS', 'Python', 'Django', 'FastAPI', 'PHP', 'Laravel', 'REST API', 'GraphQL'] },
-  { id: 'ecommerce', name: 'E-Commerce / CMS',    color: '#a78bfa', order: 3, skills: ['WordPress', 'Shopify', 'WooCommerce', 'Magento', 'Webflow', 'Strapi', 'Contentful'] },
-  { id: 'devops',    name: 'Cloud / DevOps',      color: '#fb923c', order: 4, skills: ['AWS', 'GCP', 'Azure', 'Docker', 'Kubernetes', 'Terraform', 'CI/CD'] },
-  { id: 'database',  name: 'Database',            color: '#fbbf24', order: 5, skills: ['PostgreSQL', 'MongoDB', 'Redis', 'MySQL', 'Firebase', 'Firestore'] },
-  { id: 'design',    name: 'Design',              color: '#f472b6', order: 6, skills: ['Figma', 'UI/UX', 'Adobe XD', 'CSS'] },
+  { id: 'mobile',    name: 'Mobile Development', color: 'var(--fg)', order: 0, skills: ['Flutter', 'Dart', 'React Native', 'Expo', 'iOS', 'Android', 'Firebase', 'Firestore'] },
+  { id: 'frontend',  name: 'Frontend',            color: 'var(--fg)', order: 1, skills: ['React', 'Vue.js', 'Angular', 'TypeScript', 'Tailwind CSS', 'CSS', 'Next.js', 'GraphQL', 'Figma'] },
+  { id: 'backend',   name: 'Backend',             color: 'var(--fg)', order: 2, skills: ['Node.js', 'NestJS', 'Python', 'Django', 'FastAPI', 'PHP', 'Laravel', 'REST API', 'GraphQL'] },
+  { id: 'ecommerce', name: 'E-Commerce / CMS',    color: 'var(--fg)', order: 3, skills: ['WordPress', 'Shopify', 'WooCommerce', 'Magento', 'Webflow', 'Strapi', 'Contentful'] },
+  { id: 'devops',    name: 'Cloud / DevOps',      color: 'var(--fg)', order: 4, skills: ['AWS', 'GCP', 'Azure', 'Docker', 'Kubernetes', 'Terraform', 'CI/CD'] },
+  { id: 'database',  name: 'Database',            color: 'var(--fg)', order: 5, skills: ['PostgreSQL', 'MongoDB', 'Redis', 'MySQL', 'Firebase', 'Firestore'] },
+  { id: 'design',    name: 'Design',              color: 'var(--fg)', order: 6, skills: ['Figma', 'UI/UX', 'Adobe XD', 'CSS'] },
 ]
 
 interface SkillTaxonomyStore {
@@ -37,9 +37,9 @@ interface SkillTaxonomyStore {
 }
 
 const GROUP_COLORS = [
-  '#60a5fa', '#818cf8', '#34d399', '#fb923c',
-  '#fbbf24', '#f472b6', '#a78bfa', '#4ade80',
-  '#f87171', '#38bdf8',
+  'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)',
+  'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)',
+  'var(--fg)', 'var(--fg)',
 ]
 
 export const useSkillTaxonomyStore = create<SkillTaxonomyStore>()((set, get) => ({

@@ -20,9 +20,9 @@ const roleRoutes: Record<UserRole, string> = {
 }
 
 const DEMO_ACCOUNTS = [
-  { label: 'Admin',      email: 'admin@freelancepro.com',  password: 'Admin@123', role: 'admin'      as UserRole, icon: ShieldCheck, desc: 'Full platform control',  color: '#DC143C' },
-  { label: 'Freelancer', email: 'alex@freelancepro.dev',   password: 'Test@123',  role: 'freelancer' as UserRole, icon: Code2,       desc: 'Projects & worklogs',   color: '#c084fc' },
-  { label: 'Client',     email: 'acme@corp.com',           password: 'Test@123',  role: 'client'     as UserRole, icon: Building2,   desc: 'Track your projects',   color: '#60a5fa' },
+  { label: 'Admin',      email: 'admin@freelancepro.com',  password: 'Admin@123', role: 'admin'      as UserRole, icon: ShieldCheck, desc: 'Full platform control',  color: 'var(--fg)' },
+  { label: 'Freelancer', email: 'alex@freelancepro.dev',   password: 'Test@123',  role: 'freelancer' as UserRole, icon: Code2,       desc: 'Projects & worklogs',   color: 'var(--fg)' },
+  { label: 'Client',     email: 'acme@corp.com',           password: 'Test@123',  role: 'client'     as UserRole, icon: Building2,   desc: 'Track your projects',   color: 'var(--fg)' },
 ]
 
 const FEATURES = [
@@ -73,20 +73,20 @@ export default function LoginPage() {
       {/* ── Global top bar ── */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0" style={{ background: 'var(--bg-sidebar)' }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-          <div className="w-5 h-5 bg-[#DC143C]" style={{ clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' }} />
-          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>FREELANCE_PRO</span>
+          <div className="w-5 h-5 bg-[var(--fg)]" style={{ clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' }} />
+          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'var(--font-mono)' }}>FREELANCE_PRO</span>
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all"
-            style={{ fontFamily: 'JetBrains Mono,monospace', color: '#DC143C', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--fg)', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}
           >
             {theme === 'dark' ? <><Sun size={11} /><span>LIGHT</span></> : <><Moon size={11} /><span>DARK</span></>}
           </button>
           <Link href="/register"
             className="px-3 py-1.5 rounded text-[10px] font-bold tracking-widest transition-all text-secondary-ui border-theme border"
-            style={{ fontFamily: 'JetBrains Mono,monospace' }}>
+            style={{ fontFamily: 'var(--font-mono)' }}>
             REGISTER →
           </Link>
         </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
 
           {/* Main copy */}
           <div>
-            <p className="text-mono-label text-[#DC143C] mb-3 text-[10px] tracking-[0.2em]">FREELANCER MANAGEMENT PLATFORM</p>
+            <p className="text-mono-label text-[var(--fg)] mb-3 text-[10px] tracking-[0.2em]">FREELANCER MANAGEMENT PLATFORM</p>
             <h2 className="text-3xl font-bold text-primary-ui mb-3 leading-snug">
               Manage your entire<br />freelance operation<br />in one place
             </h2>
@@ -117,7 +117,7 @@ export default function LoginPage() {
                 <div key={text} className="flex items-start gap-3">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                     style={{ background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)' }}>
-                    <Icon size={13} className="text-[#DC143C]" />
+                    <Icon size={13} className="text-[var(--fg)]" />
                   </div>
                   <p className="text-sm text-secondary-ui leading-relaxed">{text}</p>
                 </div>
@@ -138,10 +138,10 @@ export default function LoginPage() {
           {/* Status */}
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ade80] opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4ade80]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--fg)] opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--fg)]" />
             </span>
-            <span className="text-xs text-muted-ui" style={{ fontFamily: 'JetBrains Mono,monospace' }}>All systems operational</span>
+            <span className="text-xs text-muted-ui" style={{ fontFamily: 'var(--font-mono)' }}>All systems operational</span>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function LoginPage() {
 
             {error && (
               <div className="mb-5 px-4 py-3 rounded-lg flex items-start gap-2.5 text-sm"
-                style={{ background: 'rgba(220,20,60,0.07)', border: '1px solid rgba(220,20,60,0.25)', color: '#f87171' }}>
+                style={{ background: 'rgb(var(--fg-rgb) / 0.07)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
                 <AlertCircle size={15} className="mt-0.5 shrink-0" /> {error}
               </div>
             )}
@@ -177,8 +177,8 @@ export default function LoginPage() {
                   className="input-field" placeholder="••••••••" required autoComplete="current-password" />
               </div>
               <button type="submit" disabled={busy}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: '#DC143C', marginTop: 6 }}>
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm text-[var(--bg)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'var(--fg)', marginTop: 6 }}>
                 {loading ? <><Loader2 size={15} className="animate-spin" /> Signing in…</> : <><ArrowRight size={15} /> Sign in</>}
               </button>
             </form>
@@ -186,7 +186,7 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px border-t border-theme" />
-              <span className="text-xs text-muted-ui whitespace-nowrap" style={{ fontFamily: 'JetBrains Mono,monospace' }}>OR TRY A DEMO</span>
+              <span className="text-xs text-muted-ui whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)' }}>OR TRY A DEMO</span>
               <div className="flex-1 h-px border-t border-theme" />
             </div>
 
@@ -199,15 +199,15 @@ export default function LoginPage() {
                   <button key={acc.label} onClick={() => handleDemo(acc)} disabled={busy}
                     className="flex flex-col items-center gap-2 rounded-xl py-4 px-2 transition-all duration-150 disabled:cursor-not-allowed group"
                     style={{
-                      background: active ? `${acc.color}12` : 'var(--bg-elevated)',
-                      border: `1px solid ${active ? `${acc.color}50` : 'var(--border)'}`,
+                      background: active ? `color-mix(in srgb, ${acc.color} 7%, transparent)` : 'var(--bg-elevated)',
+                      border: `1px solid ${active ? `color-mix(in srgb, ${acc.color} 31%, transparent)` : 'var(--border)'}`,
                       opacity: demoLoading && !active ? 0.35 : 1,
                     }}
-                    onMouseEnter={e => { if (!busy) { e.currentTarget.style.borderColor = `${acc.color}45`; e.currentTarget.style.background = `${acc.color}0d` } }}
+                    onMouseEnter={e => { if (!busy) { e.currentTarget.style.borderColor = `color-mix(in srgb, ${acc.color} 27%, transparent)`; e.currentTarget.style.background = `color-mix(in srgb, ${acc.color} 5%, transparent)` } }}
                     onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-elevated)' } }}
                   >
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                      style={{ background: `${acc.color}15`, border: `1px solid ${acc.color}30` }}>
+                      style={{ background: `color-mix(in srgb, ${acc.color} 8%, transparent)`, border: `1px solid color-mix(in srgb, ${acc.color} 19%, transparent)` }}>
                       {active
                         ? <Loader2 size={15} className="animate-spin" style={{ color: acc.color }} />
                         : <Icon size={15} style={{ color: acc.color }} strokeWidth={1.8} />
@@ -224,7 +224,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-muted-ui">
               No account?{' '}
-              <Link href="/register" className="font-semibold transition-colors hover:opacity-80" style={{ color: '#DC143C' }}>
+              <Link href="/register" className="font-semibold transition-colors hover:opacity-80" style={{ color: 'var(--fg)' }}>
                 Register here
               </Link>
             </p>
