@@ -5,16 +5,18 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useAuthStore, useCurrencySymbol } from '@/lib/store'
 import { useFreelancerStore, AvailabilityConfig, DayKey, DEFAULT_AVAILABILITY } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 import {
   CheckCircle, X, Clock, Calendar, Globe, Zap,
   Shield, AlertTriangle, CheckSquare, Lock,
 } from 'lucide-react'
 
-const INITIAL_PROFILE = {
-  bio: 'Full-stack developer with a passion for building scalable, user-friendly applications. Specializing in React, Node.js, and cloud architecture.',
-  skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'AWS', 'Docker', 'GraphQL'],
-  experience: 5,
-  hourlyRate: 85,
+const EMPTY_PROFILE = {
+  bio: '',
+  skills: [] as string[],
+  experience: 0,
+  hourlyRate: 0,
   skillInput: '',
 }
 
@@ -45,46 +47,58 @@ export default function FreelancerProfilePage() {
   const userId = user?.id ?? 'demo-freelancer'
 
   /* ── profile state ── */
-  const [profile, setProfile] = useState(INITIAL_PROFILE)
+  const [profile, setProfile] = useState(EMPTY_PROFILE)
+  const [memberSince, setMemberSince] = useState<string | null>(null)
   const [saved,   setSaved]   = useState(false)
   const [saving,  setSaving]  = useState(false)
+  const [loadError, setLoadError] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   /* ── approval (derived from API, no store) ── */
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending')
   const [rejectionReason, setRejectionReason] = useState<string | undefined>()
   const [profileId, setProfileId] = useState<string | null>(null)
 
-  useEffect(() => {
-    freelancersApi.getAll().then(res => {
-      const list = res.data?.data ?? res.data ?? []
-      const fp = Array.isArray(list) ? list[0] : list
-      if (!fp) return
-      setProfileId(fp.id ?? null)
-      const stage = fp.onboardingStage ?? fp.status
-      if (stage === 'approved' || fp.status === 'active') {
-        setApprovalStatus('approved')
-      } else if (stage === 'rejected' || fp.status === 'inactive') {
-        setApprovalStatus('rejected')
-        setRejectionReason(fp.rejectionReason ?? undefined)
-      }
-    }).catch(() => {})
-  }, [userId])
-
   /* ── availability ── */
-  const fetchAvailability = useFreelancerStore(s => s.fetchAvailability)
-  const getAvailability   = useFreelancerStore(s => s.getAvailability)
-  const storeSetAvail     = useFreelancerStore(s => s.setAvailability)
+  const storeSetAvail = useFreelancerStore(s => s.setAvailability)
   const [avail, setAvail] = useState<AvailabilityConfig>(DEFAULT_AVAILABILITY)
   const [availSaved,  setAvailSaved]  = useState(false)
   const [availSaving, setAvailSaving] = useState(false)
+  const [availError,  setAvailError]  = useState('')
 
-  // Load availability from DB once we have the profile ID
   useEffect(() => {
-    if (!profileId) return
-    fetchAvailability(profileId).then(() => {
-      setAvail(getAvailability(profileId))
-    })
-  }, [profileId]) // eslint-disable-line
+    async function load() {
+      try {
+        const res = await freelancersApi.getAll()
+        const list = res.data?.data ?? res.data ?? []
+        const fp = Array.isArray(list) ? list[0] : list
+        if (!fp) { setLoadError('No freelancer profile was found for your account.'); return }
+        setProfileId(fp.id ?? null)
+        setProfile({
+          bio: fp.bio ?? '',
+          skills: fp.skills ?? [],
+          // decimals arrive as strings
+          experience: Number(fp.experience) || 0,
+          hourlyRate: Number(fp.hourlyRate) || 0,
+          skillInput: '',
+        })
+        setMemberSince(fp.user?.createdAt ?? fp.createdAt ?? null)
+        const stage = fp.onboardingStage ?? fp.status
+        if (stage === 'approved' || fp.status === 'active') {
+          setApprovalStatus('approved')
+        } else if (stage === 'rejected' || fp.status === 'inactive') {
+          setApprovalStatus('rejected')
+          setRejectionReason(fp.rejectionReason ?? undefined)
+        }
+        // An empty body means no schedule has been saved yet: start from the default
+        const aRes = await freelancersApi.getAvailability(fp.id)
+        if (aRes.data) setAvail({ ...DEFAULT_AVAILABILITY, ...(aRes.data as AvailabilityConfig) })
+      } catch (err) {
+        setLoadError(apiError(err, 'Could not load your profile.'))
+      }
+    }
+    load()
+  }, [userId])
 
   const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -107,10 +121,26 @@ export default function FreelancerProfilePage() {
   }
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    setSaving(true)
-    await new Promise(r => setTimeout(r, 700))
-    setSaving(false); setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    if (!profileId) return
+    if (!Number.isFinite(profile.experience) || !Number.isFinite(profile.hourlyRate)) {
+      setSaveError('Experience and hourly rate must be numbers.')
+      return
+    }
+    setSaving(true); setSaveError('')
+    try {
+      await freelancersApi.update(profileId, {
+        bio: profile.bio,
+        skills: profile.skills,
+        experience: profile.experience,
+        hourlyRate: profile.hourlyRate,
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (err) {
+      setSaveError(apiError(err, 'Could not save your profile.'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   /* ── availability handlers ── */
@@ -129,10 +159,17 @@ export default function FreelancerProfilePage() {
   async function handleSaveAvail(e: React.FormEvent) {
     e.preventDefault()
     if (!profileId) return
-    setAvailSaving(true)
-    await storeSetAvail(profileId, avail)
-    setAvailSaving(false); setAvailSaved(true)
-    setTimeout(() => setAvailSaved(false), 3000)
+    setAvailSaving(true); setAvailError('')
+    try {
+      // Rejects (and reverts the store copy) when the save fails
+      await storeSetAvail(profileId, avail)
+      setAvailSaved(true)
+      setTimeout(() => setAvailSaved(false), 3000)
+    } catch (err) {
+      setAvailError(apiError(err, 'Could not save your availability.'))
+    } finally {
+      setAvailSaving(false)
+    }
   }
   function resetAvail() { setAvail(DEFAULT_AVAILABILITY) }
 
@@ -162,6 +199,8 @@ export default function FreelancerProfilePage() {
           <p className="text-mono-label mb-1" style={{ color: 'var(--text-muted)' }}>FREELANCER</p>
           <h1 className="text-display text-4xl text-primary-ui">MY PROFILE</h1>
         </div>
+
+        {loadError && <ErrorBanner title="Profile failed to load" message={loadError} />}
 
         {/* ── Approval status banner ── */}
         <div className="rounded-2xl p-5 flex items-start gap-4"
@@ -222,7 +261,7 @@ export default function FreelancerProfilePage() {
             {/* Info grid */}
             <div className="w-full space-y-2.5 mt-1">
               {[
-                { label: 'MEMBER SINCE', value: user?.createdAt ? fmtDate(user.createdAt) : 'May 2024', color: 'var(--text-primary)' },
+                { label: 'MEMBER SINCE', value: memberSince ? fmtDate(memberSince) : '—', color: 'var(--text-primary)' },
                 { label: 'EXPERIENCE',   value: `${profile.experience} years`,   color: 'var(--fg)' },
                 { label: 'HOURLY RATE',  value: `${curr}${profile.hourlyRate}/hr`, color: 'var(--fg)' },
               ].map(row => (
@@ -269,6 +308,8 @@ export default function FreelancerProfilePage() {
               </div>
             )}
 
+            {saveError && <div className="mb-4"><ErrorBanner title="Profile not saved" message={saveError} onClose={() => setSaveError('')} /></div>}
+
             <form onSubmit={handleSave} className="space-y-5">
               <div>
                 <label className="label-field">Bio</label>
@@ -312,7 +353,7 @@ export default function FreelancerProfilePage() {
                 </div>
               </div>
 
-              <button type="submit" disabled={saving} className="btn-primary w-full rounded disabled:opacity-50">
+              <button type="submit" disabled={saving || !profileId} className="btn-primary w-full rounded disabled:opacity-50">
                 {saving ? 'SAVING…' : 'SAVE PROFILE'}
               </button>
             </form>
@@ -383,6 +424,8 @@ export default function FreelancerProfilePage() {
                 <span className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>Availability saved!</span>
               </div>
             )}
+
+            {availError && <ErrorBanner title="Availability not saved" message={availError} onClose={() => setAvailError('')} />}
 
             {/* top row: hours/week + timezone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

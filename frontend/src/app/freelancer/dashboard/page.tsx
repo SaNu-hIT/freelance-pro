@@ -5,20 +5,13 @@ import Link from 'next/link'
 import { useAuthStore, useCurrencySymbol } from '@/lib/store'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi, worklogsApi } from '@/lib/api'
-import { Project, Worklog, ProjectStatus } from '@/lib/types'
+import { projectsApi, worklogsApi, paymentsApi, tasksApi } from '@/lib/api'
+import { Project, Worklog, ProjectStatus, Payment, ProjectTask } from '@/lib/types'
 import { Briefcase, Clock, DollarSign, CheckSquare, Square, AlertTriangle, Shield, ChevronRight } from 'lucide-react'
 import { useFreelancerStore } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
-import { localDate } from '@/lib/utils'
-
-const TASKS = [
-  { id: 1, label: 'Review PR feedback on product listing', projectId: '1', done: true },
-  { id: 2, label: 'Fix mobile nav overflow bug', projectId: '1', done: false },
-  { id: 3, label: 'Write unit tests for auth endpoints', projectId: '2', done: false },
-  { id: 4, label: 'Push chart hotfix to staging', projectId: '3', done: true },
-  { id: 5, label: 'Update progress in Freelance Pro', projectId: '2', done: false },
-]
+import { localDate, apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 function isOverdue(deadline: string) {
   return new Date(deadline) < new Date()
@@ -39,21 +32,9 @@ export default function FreelancerDashboardPage() {
   const getAvailability   = useFreelancerStore(s => s.getAvailability)
   const userId = user?.id ?? 'demo-freelancer'
 
-  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending')
+  // null until the profile has loaded, so a failed load doesn't show a made-up status
+  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const [profileId, setProfileId] = useState<string | null>(null)
-
-  // Load approval status and profile ID from backend
-  useEffect(() => {
-    freelancersApi.getAll().then(res => {
-      const list = res.data?.data ?? res.data ?? []
-      const fp = Array.isArray(list) ? list[0] : list
-      if (!fp) return
-      setProfileId(fp.id ?? null)
-      const stage = fp.onboardingStage ?? fp.status
-      if (stage === 'approved' || fp.status === 'active') setApprovalStatus('approved')
-      else if (stage === 'rejected' || fp.status === 'inactive') setApprovalStatus('rejected')
-    }).catch(() => {})
-  }, [userId])
 
   // Load availability when profileId is known
   useEffect(() => {
@@ -64,7 +45,10 @@ export default function FreelancerDashboardPage() {
   const activeDays = Object.values(avail.schedule).filter(d => d.enabled).length
   const [projects, setProjects] = useState<Project[]>([])
   const [worklogs, setWorklogs] = useState<Worklog[]>([])
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [tasks, setTasks] = useState<ProjectTask[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -79,15 +63,30 @@ export default function FreelancerDashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [pRes, wRes] = await Promise.all([
+        const [fRes, pRes, wRes, payRes] = await Promise.all([
+          freelancersApi.getAll(),
           projectsApi.getAll(),
           worklogsApi.getAll({ limit: 1000 }),
+          paymentsApi.getAll(),
         ])
-        setProjects(pRes.data?.data ?? pRes.data ?? [])
+        const list = fRes.data?.data ?? fRes.data ?? []
+        const fp = Array.isArray(list) ? list[0] : list
+        if (fp) {
+          setProfileId(fp.id ?? null)
+          const stage = fp.onboardingStage ?? fp.status
+          if (stage === 'approved' || fp.status === 'active') setApprovalStatus('approved')
+          else if (stage === 'rejected' || fp.status === 'inactive') setApprovalStatus('rejected')
+          else setApprovalStatus('pending')
+        }
+        const projs: Project[] = pRes.data?.data ?? pRes.data ?? []
+        setProjects(projs)
         setWorklogs(wRes.data?.data ?? wRes.data ?? [])
-      } catch {
-        setProjects([])
-        setWorklogs([])
+        setPayments(payRes.data?.data ?? payRes.data ?? [])
+        // Only tasks the admin assigned to this freelancer, across their projects
+        const taskLists = await Promise.all(projs.map(p => tasksApi.getByProject(p.id)))
+        setTasks(taskLists.flatMap(r => (r.data ?? []) as ProjectTask[]).filter(t => fp && t.assignedFreelancerId === fp.id))
+      } catch (err) {
+        setError(apiError(err, 'Could not load your dashboard.'))
       } finally {
         setLoading(false)
       }
@@ -107,9 +106,13 @@ export default function FreelancerDashboardPage() {
     .filter(w => new Date(w.date + 'T00:00:00') >= weekStart)
     .reduce((s, w) => s + w.hoursWorked, 0)
 
-  const pendingEarnings = projects
-    .filter(p => ['in_progress', 'assigned'].includes(p.status))
-    .reduce((s, p) => s + (p.budget * p.progress) / 100, 0)
+  // Payments the admin has recorded for you that are not fully paid yet
+  const pendingEarnings = payments
+    .filter(p => p.status === 'pending' || p.status === 'partial')
+    .reduce((s, p) => s + Number(p.netAmount), 0)
+
+  // Open tasks first
+  const myTasks = [...tasks].sort((a, b) => Number(a.completed) - Number(b.completed))
 
   const assignedCount = projects.filter(p => ['assigned', 'in_progress'].includes(p.status)).length
 
@@ -136,8 +139,10 @@ export default function FreelancerDashboardPage() {
           <span className="text-mono-label text-xs text-[var(--text-muted)]">{today}</span>
         </div>
 
+        {error && <ErrorBanner title="Dashboard failed to load" message={error} />}
+
         {/* ── Approval status ── */}
-        {approvalStatus !== 'approved' && (
+        {(approvalStatus === 'pending' || approvalStatus === 'rejected') && (
           <Link href="/freelancer/profile"
             className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:opacity-90"
             style={{
@@ -191,6 +196,7 @@ export default function FreelancerDashboardPage() {
           </div>
         )}
 
+        {!error && (<>
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           {loading
@@ -212,28 +218,28 @@ export default function FreelancerDashboardPage() {
           {/* Today's Tasks */}
           <div className="space-y-4">
             <div className="glass-card rounded-lg p-5">
-              <h2 className="text-mono-label text-xs tracking-widest mb-4">TODAY'S TASKS</h2>
+              <h2 className="text-mono-label text-xs tracking-widest mb-4">MY TASKS</h2>
               {loading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="h-8 bg-[var(--input-bg)] rounded animate-pulse" />
                   ))}
                 </div>
-              ) : TASKS.length === 0 ? (
-                <p className="text-mono-label text-center py-6">NO TASKS FOUND</p>
+              ) : myTasks.length === 0 ? (
+                <p className="text-mono-label text-center py-6">NO TASKS ASSIGNED TO YOU</p>
               ) : (
                 <ul className="space-y-2">
-                  {TASKS.map((task) => {
+                  {myTasks.map((task) => {
                     const proj = projects.find(p => p.id === task.projectId)
                     const overdue = proj ? isOverdue(proj.deadline) : false
                     return (
                       <li key={task.id} className="flex items-start gap-3 py-2 border-b border-[var(--input-bg)] last:border-0">
-                        <span className={`mt-0.5 shrink-0 ${task.done ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
-                          {task.done ? <CheckSquare size={15} /> : <Square size={15} />}
+                        <span className={`mt-0.5 shrink-0 ${task.completed ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
+                          {task.completed ? <CheckSquare size={15} /> : <Square size={15} />}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${task.done ? 'line-through text-[var(--text-muted)]' : 'text-primary-ui'}`}>
-                            {task.label}
+                          <p className={`text-sm ${task.completed ? 'line-through text-[var(--text-muted)]' : 'text-primary-ui'}`}>
+                            {task.title}
                           </p>
                           {proj && (
                             <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
@@ -346,6 +352,7 @@ export default function FreelancerDashboardPage() {
             </table>
           )}
         </div>
+        </>)}
       </div>
     </DashboardLayout>
   )
