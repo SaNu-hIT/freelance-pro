@@ -627,9 +627,6 @@ export default function ClientProjectsPage() {
                                     <p className="font-semibold text-sm text-primary-ui">{m.user?.name}</p>
                                     <p className="text-mono-label text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>{m.skills?.slice(0, 3).join(' · ')}</p>
                                   </div>
-                                  <div className="text-right shrink-0">
-                                    <p className="font-bold text-sm" style={{ color: 'var(--fg)' }}>{currency}{m.hourlyRate}/hr</p>
-                                  </div>
                                 </div>
                               )
                             })}
