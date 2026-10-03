@@ -91,10 +91,10 @@ export default function ClientsPage() {
     <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
       {/* Header */}
-      <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-12 py-5 flex items-center justify-between">
+      <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-4 md:px-12 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <CrimsonCube size={24} />
-          <span className="text-display text-[var(--fg)] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px rgb(var(--fg-rgb) / 0.4)' }}>
+          <span className="hidden sm:inline text-display text-[var(--fg)] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px rgb(var(--fg-rgb) / 0.4)' }}>
             FREELANCE_PRO
           </span>
         </Link>
@@ -120,7 +120,7 @@ export default function ClientsPage() {
         <MorphBlob color="var(--fg)" size={700} top="-200px" left="-200px" />
         <MorphBlob color="var(--surface)" size={500} bottom="-100px" right="-100px" delay="2s" />
 
-        <div className="max-w-7xl mx-auto px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
           <div>
             <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-6 flex items-center gap-2">
               <span className="w-8 h-px bg-[var(--fg)] inline-block" />
@@ -134,7 +134,7 @@ export default function ClientsPage() {
             <p className="text-lg leading-relaxed max-w-lg mb-10" style={{ color: 'var(--text-secondary)' }}>
               Tell us what you want to build. We&apos;ll match you with the right specialists, manage the execution, and deliver on time — with full transparency at every step.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <a href="#get-started" className="btn-primary flex items-center gap-2 text-base py-3 px-6 rounded">
                 Submit Your Project <ArrowRight size={18} />
               </a>
@@ -163,12 +163,12 @@ export default function ClientsPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
-        <div className="max-w-7xl mx-auto px-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-12">
           <div className="text-center mb-16">
             <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[var(--fg)]" />PROCESS<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
-            <h2 className="text-display text-primary-ui text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-4xl md:text-5xl font-bold">
               FROM IDEA TO <span className="text-gradient">DELIVERY</span>
             </h2>
           </div>
@@ -194,12 +194,12 @@ export default function ClientsPage() {
 
       {/* Value Props */}
       <section className="py-24">
-        <div className="max-w-7xl mx-auto px-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-12">
           <div className="text-center mb-16">
             <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[var(--fg)]" />WHY US<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
-            <h2 className="text-display text-primary-ui text-5xl font-bold">
+            <h2 className="text-display text-primary-ui text-4xl md:text-5xl font-bold">
               THE <span className="text-gradient">DIFFERENCE</span>
             </h2>
           </div>
@@ -220,12 +220,12 @@ export default function ClientsPage() {
       {/* ─── GET STARTED SECTION — Tabbed Forms ─── */}
       <section id="get-started" className="py-24 relative" style={{ background: 'var(--bg-sidebar)' }}>
         <MorphBlob color="var(--fg)" size={500} top="-100px" right="-100px" />
-        <div className="max-w-3xl mx-auto px-12 relative z-10">
+        <div className="max-w-3xl mx-auto px-4 md:px-12 relative z-10">
           <div className="text-center mb-12">
             <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-3 flex items-center justify-center gap-2">
               <span className="w-8 h-px bg-[var(--fg)]" />REACH OUT<span className="w-8 h-px bg-[var(--fg)]" />
             </p>
-            <h2 className="text-display text-primary-ui text-5xl font-bold mb-4">
+            <h2 className="text-display text-primary-ui text-4xl md:text-5xl font-bold mb-4">
               LET&apos;S <span className="text-gradient">TALK</span>
             </h2>
             <p className="text-base" style={{ color: 'var(--text-secondary)' }}>
@@ -513,7 +513,7 @@ export default function ClientsPage() {
 
       {/* Footer */}
       <footer className="glass-card-dark border-t border-[var(--input-bg)]">
-        <div className="max-w-7xl mx-auto px-12 py-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
             <CrimsonCube size={20} />
             <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
@@ -524,7 +524,7 @@ export default function ClientsPage() {
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><ExternalLink size={18} /></a>
           </div>
         </div>
-        <div className="border-t border-[var(--input-bg)] px-12 py-4 flex items-center justify-between">
+        <div className="border-t border-[var(--input-bg)] px-4 md:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
             <Link href="/" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>HOME</Link>
