@@ -1,10 +1,11 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let users: any;
   let projects: any;
+  let profiles: any;
   let service: UsersService;
   let stored: any;
 
@@ -32,7 +33,12 @@ describe('UsersService', () => {
         getRawMany: jest.fn().mockResolvedValue([{ clientId: 'c1', count: '3' }]),
       })),
     };
-    service = new UsersService(users, projects);
+    profiles = {
+      create: jest.fn((x: any) => x),
+      save: jest.fn((x: any) => Promise.resolve({ ...x, id: 'p9' })),
+      findOne: jest.fn((q: any) => Promise.resolve({ id: q.where.id, user: { id: 'f9' } })),
+    };
+    service = new UsersService(users, projects, profiles);
   });
 
   it('lists users with their project counts', async () => {
@@ -77,5 +83,26 @@ describe('UsersService', () => {
   it('refuses a client email that is already registered', async () => {
     users.findOne.mockResolvedValue({ id: 'u2' });
     await expect(service.createClient({ name: 'A', email: 'taken@x.co', password: 'temppass1' })).rejects.toThrow(ConflictException);
+  });
+
+  it('creates an approved, active freelancer profile', async () => {
+    users.create = jest.fn((x: any) => x);
+    users.save = jest.fn((x: any) => Promise.resolve({ ...x, id: 'f9' }));
+    const out = await service.createFreelancer({ name: 'Dev', email: 'd@x.co', password: 'temppass1', skills: ['React'], hourlyRate: 40 });
+    expect(users.save.mock.calls[0][0].role).toBe('freelancer');
+    const profile = profiles.save.mock.calls[0][0];
+    expect(profile).toMatchObject({ userId: 'f9', status: 'active', onboardingStage: 'approved', skills: ['React'], hourlyRate: 40, track: 'professional' });
+    expect(out).toEqual({ id: 'p9', user: { id: 'f9' } });
+  });
+
+  it('resets a password for an existing user only', async () => {
+    await expect(service.resetPassword('nope', 'newpass12')).rejects.toThrow(NotFoundException);
+    users.findOne.mockResolvedValue({ id: 'c1' });
+    await service.resetPassword('c1', 'newpass12');
+    expect(await bcrypt.compare('newpass12', users.update.mock.calls[0][1].password)).toBe(true);
+  });
+
+  it('404s an admin edit of a missing user', async () => {
+    await expect(service.adminUpdate('nope', { name: 'X' })).rejects.toThrow(NotFoundException);
   });
 });

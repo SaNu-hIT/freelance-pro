@@ -118,7 +118,14 @@ export const usersApi = {
   list: (role?: 'admin' | 'freelancer' | 'client') => api.get('/users', { params: role ? { role } : {} }),
   createClient: (data: { name: string; email: string; password: string; company?: string; phone?: string }) =>
     api.post('/users/clients', data),
-  me: () => api.get('/users/me'),
+  createFreelancer: (data: {
+    name: string; email: string; password: string; phone?: string; skills?: string[]; experience?: number
+    hourlyRate?: number; bio?: string; portfolioUrl?: string; track?: 'professional' | 'intern'
+  }) => api.post('/users/freelancers', data),
+  update: (id: string, data: { name?: string; email?: string; phone?: string; company?: string }) =>
+    api.patch(`/users/${id}`, data),
+  resetPassword: (id: string, newPassword: string) => api.patch(`/users/${id}/password`, { newPassword }),
+  me:() => api.get('/users/me'),
   updateMe: (data: { name?: string; email?: string; phone?: string; company?: string; notificationPrefs?: Record<string, boolean> }) =>
     api.patch('/users/me', data),
   changePassword: (currentPassword: string, newPassword: string) =>

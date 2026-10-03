@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft, ExternalLink, Mail, Clock, DollarSign, Star,
   Calendar, AlertTriangle, CheckCircle2, Circle, ChevronRight,
-  Layers, Activity, Shield, Zap, Globe,
+  Layers, Activity, Shield, Zap, Globe, Pencil, X,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi, projectsApi, worklogsApi, tasksApi } from '@/lib/api'
@@ -14,6 +14,8 @@ import { useCurrencySymbol } from '@/lib/store'
 import { DEFAULT_AVAILABILITY, AvailabilityConfig, DayKey } from '@/lib/freelancerStore'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import { EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
+import { EditFreelancerProfileForm } from '@/components/admin/FreelancerForms'
 
 const DAY_LABELS: { key: DayKey; short: string }[] = [
   { key: 'mon', short: 'Mon' },
@@ -109,6 +111,7 @@ export default function FreelancerDetailPage() {
   const [loading, setLoading]   = useState(true)
   const [avail, setAvail]         = useState<AvailabilityConfig>(DEFAULT_AVAILABILITY)
   const [error, setError]         = useState('')
+  const [editing, setEditing]     = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -244,6 +247,9 @@ export default function FreelancerDetailPage() {
                   </span>
                 )}
               </div>
+              <button onClick={() => setEditing(true)} className="btn-ghost flex items-center gap-1.5 rounded text-xs" style={{ marginTop: 12, padding: '6px 14px' }}>
+                <Pencil size={12} /> Edit details
+              </button>
             </div>
 
             {/* Bio */}
@@ -563,6 +569,29 @@ export default function FreelancerDetailPage() {
       </div>
       {/* end two-column */}
 
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
+          onClick={() => setEditing(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="edit-freelancer-title"
+            className="glass-card rounded-xl p-7 w-full max-w-lg space-y-5 max-h-full overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 id="edit-freelancer-title" className="text-primary-ui font-bold text-base">Edit {profile.user.name}</h3>
+              <button onClick={() => setEditing(false)} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+            </div>
+            <p className="text-mono-label">ACCOUNT</p>
+            <EditAccountForm user={profile.user} onSaved={u => setProfile(p => (p ? { ...p, user: { ...p.user, ...u } } : p))} />
+            <div className="pt-4 border-t border-[var(--input-bg)] space-y-3">
+              <p className="text-mono-label">PROFILE</p>
+              <EditFreelancerProfileForm profile={profile} onSaved={next => setProfile(p => (p ? { ...p, ...next, user: p.user } : p))} />
+            </div>
+            <div className="pt-4 border-t border-[var(--input-bg)] space-y-3">
+              <p className="text-mono-label">PASSWORD</p>
+              <ResetPasswordForm userId={profile.userId} />
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

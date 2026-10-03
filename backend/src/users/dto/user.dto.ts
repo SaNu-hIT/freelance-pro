@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsIn, IsNumber, IsObject, IsOptional, IsString, Min, MinLength } from 'class-validator';
 
 export class ListUsersQuery {
   @IsOptional()
@@ -49,6 +49,62 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   phone?: string;
+}
+
+// Admin creates an approved freelancer: account plus profile in one step
+export class CreateFreelancerDto extends CreateClientDto {
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  experience?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  hourlyRate?: number;
+
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @IsString()
+  portfolioUrl?: string;
+
+  @IsOptional()
+  @IsIn(['professional', 'intern'])
+  track?: string;
+}
+
+// Admin edits another user's account details
+export class AdminUpdateUserDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  company?: string;
+}
+
+export class AdminResetPasswordDto {
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
 }
 
 export class ChangePasswordDto {

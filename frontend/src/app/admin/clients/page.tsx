@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react'
 import {
   Search, Building2, Mail, Phone, FolderKanban,
-  Eye, X, Calendar, MoreHorizontal,
+  Eye, X, Calendar, MoreHorizontal, UserPlus, Pencil,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { usersApi } from '@/lib/api'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import NewClientForm from '@/components/admin/NewClientForm'
+import { EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
 
 interface ClientUser {
   id: string
@@ -36,6 +38,8 @@ export default function AdminClientsPage() {
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<ClientUser | null>(null)
   const [error, setError] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -82,6 +86,10 @@ export default function AdminClientsPage() {
                 <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
               </div>
             ))}
+            <button onClick={() => setAdding(true)}
+              className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded text-sm">
+              <UserPlus size={14} /> Add Client
+            </button>
           </div>
         </div>
 
@@ -151,7 +159,7 @@ export default function AdminClientsPage() {
                   {/* Company */}
                   <div className="flex items-center gap-1.5">
                     <Building2 size={12} style={{ color: 'var(--text-muted)' }} />
-                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{c.company ?? '—'}</span>
+                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{c.company || '—'}</span>
                   </div>
                   {/* Projects */}
                   <div className="flex items-center gap-1.5">
@@ -165,7 +173,7 @@ export default function AdminClientsPage() {
                   </div>
                   {/* Actions */}
                   <button
-                    onClick={() => setDetail(c)}
+                    onClick={() => { setDetail(c); setEditing(false) }}
                     className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
                     style={{ color: 'var(--text-muted)' }}>
                     <MoreHorizontal size={14} />
@@ -177,16 +185,54 @@ export default function AdminClientsPage() {
         </div>
       </div>
 
+      {/* Add client */}
+      {adding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
+          onClick={() => setAdding(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="add-client-title"
+            className="glass-card rounded-xl p-7 w-full max-w-lg space-y-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 id="add-client-title" className="text-primary-ui font-bold text-base">Add Client</h3>
+              <button onClick={() => setAdding(false)} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+            </div>
+            <NewClientForm onCreated={c => {
+              setClients(prev => [c, ...prev])
+              setAdding(false)
+            }} />
+          </div>
+        </div>
+      )}
+
       {/* Detail drawer */}
       {detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
           style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
           onClick={() => setDetail(null)}>
-          <div className="glass-card rounded-xl p-7 w-full max-w-sm space-y-5" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="client-detail-title"
+            className={`glass-card rounded-xl p-7 w-full ${editing ? 'max-w-lg' : 'max-w-sm'} space-y-5 max-h-full overflow-y-auto`}
+            onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="text-primary-ui font-bold text-base">Client Detail</h3>
-              <button onClick={() => setDetail(null)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+              <h3 id="client-detail-title" className="text-primary-ui font-bold text-base">{editing ? 'Edit Client' : 'Client Detail'}</h3>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setEditing(e => !e)} className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--fg)' }}>
+                  {editing ? 'Done' : <><Pencil size={12} /> Edit</>}
+                </button>
+                <button onClick={() => setDetail(null)} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+              </div>
             </div>
+            {editing ? (
+              <>
+                <EditAccountForm user={detail} showCompany onSaved={u => {
+                  const next = { ...detail, ...u, projectCount: detail.projectCount }
+                  setDetail(next)
+                  setClients(prev => prev.map(c => (c.id === next.id ? next : c)))
+                }} />
+                <div className="pt-4 border-t border-[var(--input-bg)]">
+                  <ResetPasswordForm userId={detail.id} />
+                </div>
+              </>
+            ) : (<>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0"
                 style={{ background: 'rgb(var(--fg-rgb) / 0.15)', border: '2px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)' }}>
@@ -194,13 +240,13 @@ export default function AdminClientsPage() {
               </div>
               <div>
                 <p className="text-primary-ui font-semibold text-base">{detail.name}</p>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{detail.company ?? 'Individual'}</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{detail.company || 'Individual'}</p>
               </div>
             </div>
             <div className="space-y-2.5">
               {[
                 { icon: Mail, label: 'Email', val: detail.email },
-                { icon: Phone, label: 'Phone', val: detail.phone ?? 'Not provided' },
+                { icon: Phone, label: 'Phone', val: detail.phone || 'Not provided' },
                 { icon: FolderKanban, label: 'Projects', val: String(detail.projectCount ?? 0) },
                 { icon: Calendar, label: 'Joined', val: fmtDate(detail.createdAt) },
               ].map(({ icon: Icon, label, val }) => (
@@ -219,6 +265,7 @@ export default function AdminClientsPage() {
               <Eye size={13} className="inline mr-1.5" />
               View Projects
             </button>
+            </>)}
           </div>
         </div>
       )}

@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, User, LayoutGrid, List } from 'lucide-react'
+import { Search, User, LayoutGrid, List, UserPlus, X } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
 import { FreelancerProfile } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import { NewFreelancerForm } from '@/components/admin/FreelancerForms'
 
 const STATUS_COLORS = {
   active: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' },
@@ -30,6 +31,7 @@ export default function AdminFreelancersPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [error, setError] = useState('')
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -66,10 +68,15 @@ export default function AdminFreelancersPage() {
   return (
     <DashboardLayout allowedRoles={['admin']}>
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-mono-label mb-1">TALENT POOL</p>
-        <h1 className="text-display text-4xl text-primary-ui">OUR TEAM</h1>
-        <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved freelancers on the platform</p>
+      <div className="mb-8 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-mono-label mb-1">TALENT POOL</p>
+          <h1 className="text-display text-4xl text-primary-ui">OUR TEAM</h1>
+          <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved freelancers on the platform</p>
+        </div>
+        <button onClick={() => setAdding(true)} className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded text-sm">
+          <UserPlus size={14} /> Add Freelancer
+        </button>
       </div>
 
       {error && (
@@ -287,6 +294,26 @@ export default function AdminFreelancersPage() {
         </div>
       )}
 
+      {adding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: 'rgb(var(--bg-rgb) / 0.92)' }}
+          onClick={() => setAdding(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="add-freelancer-title"
+            className="glass-card rounded-xl p-7 w-full max-w-lg space-y-5 max-h-full overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 id="add-freelancer-title" className="text-primary-ui font-bold text-base">Add Freelancer</h3>
+              <button onClick={() => setAdding(false)} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Joins the team as approved and active. Share the temporary password with them.
+            </p>
+            <NewFreelancerForm onCreated={f => {
+              setFreelancers(prev => [f, ...prev])
+              setAdding(false)
+            }} />
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }
