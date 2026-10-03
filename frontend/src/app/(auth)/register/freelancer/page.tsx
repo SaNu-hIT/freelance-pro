@@ -523,7 +523,7 @@ export default function FreelancerRegisterPage() {
             <p className="mt-6 text-center text-mono-label" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
               ALREADY HAVE AN ACCOUNT?{' '}
               <Link href="/login" className="transition-colors" style={{ color: accentColor }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bg)')}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
                 onMouseLeave={e => (e.currentTarget.style.color = accentColor)}>
                 SIGN IN →
               </Link>

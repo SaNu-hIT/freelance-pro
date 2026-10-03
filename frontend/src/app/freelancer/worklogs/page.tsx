@@ -360,7 +360,7 @@ export default function FreelancerWorklogsPage() {
                 <div className="flex items-center gap-2.5">
                   <Clock size={14} style={{ color: timerRunning ? timerColor : 'var(--text-muted)' }} />
                   <span className="font-mono text-2xl font-bold tracking-widest"
-                    style={{ color: timerRunning ? 'var(--bg)' : timerSecs > 0 ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    style={{ color: timerRunning ? 'var(--text-primary)' : timerSecs > 0 ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                     {fmtDuration(timerSecs)}
                   </span>
                   {timerRunning && <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: timerColor }} />}
@@ -810,7 +810,7 @@ function TaskRow({ task, worked, markDone, isActive, timerRunning, timerSecs,
       {/* Task title */}
       <span className="flex-1 text-sm leading-snug"
         style={{
-          color: isActive ? 'var(--bg)' : worked ? 'var(--text-primary)' : 'var(--text-secondary)',
+          color: isActive ? 'var(--text-primary)' : worked ? 'var(--text-primary)' : 'var(--text-secondary)',
           textDecoration: isDone ? 'line-through' : 'none',
           fontWeight: isActive ? 500 : 400,
         }}>
