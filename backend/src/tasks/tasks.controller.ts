@@ -18,6 +18,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { TasksService } from './tasks.service';
 import { ProjectsService } from '../projects/projects.service';
 
+import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
@@ -36,14 +37,14 @@ export class TasksController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('admin')
-  create(@Body() body: { projectId: string; title: string; order?: number; sprintId?: string; assignedFreelancerId?: string }) {
+  create(@Body() body: CreateTaskDto) {
     return this.tasksService.create(body);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() body: { title?: string; completed?: boolean; order?: number; sprintId?: string | null; assignedFreelancerId?: string | null },
+    @Body() body: UpdateTaskDto,
     @Request() req: any,
   ) {
     const user = req.user;
