@@ -31,7 +31,12 @@ export class Worklog {
   @Column('date')
   date: string;
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  // Postgres returns decimals as strings; convert so clients can sum hours.
+  @Column('decimal', {
+    precision: 5,
+    scale: 2,
+    transformer: { to: (v: number) => v, from: (v: string | null) => (v === null ? null : parseFloat(v)) },
+  })
   hoursWorked: number;
 
   @Column('text')
