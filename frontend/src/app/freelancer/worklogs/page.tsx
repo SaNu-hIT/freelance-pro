@@ -254,16 +254,22 @@ export default function FreelancerWorklogsPage() {
     setSubmitting(true)
     setSubmitError('')
     try {
+      // Keep the session times only if the hours still fit inside them (a manual edit upward breaks the link)
+      const sessionMax = startISO && endISO
+        ? Math.max(0.25, Math.ceil(((new Date(endISO).getTime() - new Date(startISO).getTime()) / 3600000) * 4) / 4)
+        : 0
+      const keepSession = Number(hoursWorked) <= sessionMax
       const payload = {
         projectId: selectedProject,
         date: today,
         hoursWorked: Number(hoursWorked),
         tasksCompleted: tasksCompleted || 'General work session',
-        progress,
+        // With no tasks there is nothing to measure, so leave the project's progress alone
+        progress: totalTasks > 0 ? progress : undefined,
         blockers: blockers || undefined,
         nextSteps: nextSteps || undefined,
-        startedAt: startISO && endISO ? startISO : undefined,
-        endedAt: startISO && endISO ? endISO : undefined,
+        startedAt: keepSession ? startISO : undefined,
+        endedAt: keepSession ? endISO : undefined,
       }
       await worklogsApi.create(payload as unknown as Record<string, unknown>)
       // Re-fetch so the list always shows exactly what the server has (avoids shape mismatch from optimistic update)
