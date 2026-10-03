@@ -60,6 +60,14 @@ export class UsersController {
     return this.usersService.adminUpdate(id, dto);
   }
 
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  async adminDelete(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    await this.usersService.adminDelete(req.user.id, id);
+    return { deleted: true };
+  }
+
   @Patch(':id/password')
   @UseGuards(RolesGuard)
   @Roles('admin')

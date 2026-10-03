@@ -105,4 +105,43 @@ describe('UsersService', () => {
   it('404s an admin edit of a missing user', async () => {
     await expect(service.adminUpdate('nope', { name: 'X' })).rejects.toThrow(NotFoundException);
   });
+
+  describe('adminDelete', () => {
+    let tx: any;
+    beforeEach(() => {
+      tx = { delete: jest.fn() };
+      users.manager = {
+        count: jest.fn().mockResolvedValue(0),
+        query: jest.fn().mockResolvedValue([{ n: '0' }]),
+        transaction: jest.fn((fn: any) => fn(tx)),
+      };
+      profiles.findOne = jest.fn().mockResolvedValue(null);
+    });
+
+    it('deletes a client with no history', async () => {
+      users.findOne.mockResolvedValue({ id: 'c1', role: 'client', name: 'Acme' });
+      await service.adminDelete('admin', 'c1');
+      expect(tx.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it('deletes a freelancer profile before the user', async () => {
+      users.findOne.mockResolvedValue({ id: 'f1', role: 'freelancer', name: 'Dev' });
+      profiles.findOne.mockResolvedValue({ id: 'p1', userId: 'f1' });
+      await service.adminDelete('admin', 'f1');
+      expect(tx.delete.mock.calls.map((c: any[]) => c[1])).toEqual(['p1', 'f1']);
+    });
+
+    it('refuses anyone with linked work and says what blocks it', async () => {
+      users.findOne.mockResolvedValue({ id: 'c1', role: 'client', name: 'Acme' });
+      projects.count.mockResolvedValue(2);
+      await expect(service.adminDelete('admin', 'c1')).rejects.toThrow('linked to 2 projects');
+      expect(tx.delete).not.toHaveBeenCalled();
+    });
+
+    it('never deletes admins or the caller', async () => {
+      await expect(service.adminDelete('a1', 'a1')).rejects.toThrow(BadRequestException);
+      users.findOne.mockResolvedValue({ id: 'a2', role: 'admin', name: 'Other' });
+      await expect(service.adminDelete('a1', 'a2')).rejects.toThrow(BadRequestException);
+    });
+  });
 });

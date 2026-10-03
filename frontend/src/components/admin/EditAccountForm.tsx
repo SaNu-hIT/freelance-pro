@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Clock, KeyRound } from 'lucide-react'
+import { Check, Clock, KeyRound, Trash2 } from 'lucide-react'
 import { usersApi } from '@/lib/api'
 import { apiError } from '@/lib/utils'
 import { User } from '@/lib/types'
@@ -134,6 +134,53 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
         className="btn-ghost flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
         {saving ? <><Clock size={13} className="animate-spin" /> Resetting…</> : <><KeyRound size={13} /> Reset password</>}
       </button>
+    </div>
+  )
+}
+
+// Admin deletes a client or freelancer; the server refuses anyone with linked work and says why
+export function DeleteUserButton({ user, onDeleted }: { user: Pick<User, 'id' | 'name'>; onDeleted: () => void }) {
+  const [confirming, setConfirming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    setError('')
+    try {
+      await usersApi.remove(user.id)
+      onDeleted()
+    } catch (err) {
+      setError(apiError(err, 'Could not delete this account.'))
+      setConfirming(false)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      {error && <ErrorBanner title="Not deleted" message={error} onClose={() => setError('')} />}
+      {confirming ? (
+        <div className="space-y-3">
+          <p className="text-sm text-primary-ui">
+            Delete <strong>{user.name}</strong>? Their account and login are removed. This cannot be undone.
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={handleDelete} disabled={deleting}
+              className="btn-primary flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
+              {deleting ? <><Clock size={13} className="animate-spin" /> Deleting…</> : <><Trash2 size={13} /> Yes, delete</>}
+            </button>
+            <button type="button" onClick={() => setConfirming(false)} disabled={deleting}
+              className="btn-ghost px-4 py-2 rounded text-sm">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" onClick={() => setConfirming(true)}
+          className="btn-ghost flex items-center gap-2 px-4 py-2 rounded text-sm">
+          <Trash2 size={13} /> Delete account
+        </button>
+      )}
     </div>
   )
 }

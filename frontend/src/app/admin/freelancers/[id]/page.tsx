@@ -14,7 +14,7 @@ import { useCurrencySymbol } from '@/lib/store'
 import { DEFAULT_AVAILABILITY, AvailabilityConfig, DayKey } from '@/lib/freelancerStore'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
+import { DeleteUserButton, EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
 import { EditFreelancerProfileForm } from '@/components/admin/FreelancerForms'
 
 const DAY_LABELS: { key: DayKey; short: string }[] = [
@@ -588,6 +588,10 @@ export default function FreelancerDetailPage() {
             <div className="pt-4 border-t border-[var(--input-bg)] space-y-3">
               <p className="text-mono-label">PASSWORD</p>
               <ResetPasswordForm userId={profile.userId} />
+            </div>
+            <div className="pt-4 border-t border-[var(--input-bg)] space-y-3">
+              <p className="text-mono-label">DELETE</p>
+              <DeleteUserButton user={profile.user} onDeleted={() => router.push('/admin/freelancers')} />
             </div>
           </div>
         </div>

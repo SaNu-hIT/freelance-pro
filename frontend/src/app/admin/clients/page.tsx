@@ -10,7 +10,7 @@ import { usersApi } from '@/lib/api'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import NewClientForm from '@/components/admin/NewClientForm'
-import { EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
+import { DeleteUserButton, EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
 
 interface ClientUser {
   id: string
@@ -230,6 +230,12 @@ export default function AdminClientsPage() {
                 }} />
                 <div className="pt-4 border-t border-[var(--input-bg)]">
                   <ResetPasswordForm userId={detail.id} />
+                </div>
+                <div className="pt-4 border-t border-[var(--input-bg)]">
+                  <DeleteUserButton user={detail} onDeleted={() => {
+                    setClients(prev => prev.filter(c => c.id !== detail.id))
+                    setDetail(null)
+                  }} />
                 </div>
               </>
             ) : (<>

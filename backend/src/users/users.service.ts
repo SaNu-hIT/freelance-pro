@@ -11,6 +11,11 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
+import { Worklog } from '../entities/worklog.entity';
+import { Payment } from '../entities/payment.entity';
+import { ProjectTask } from '../entities/project-task.entity';
+import { ProjectRequest } from '../entities/project-request.entity';
+import { ProjectDocument } from '../entities/project-document.entity';
 import { AdminUpdateUserDto, CreateClientDto, CreateFreelancerDto, UpdateMeDto } from './dto/user.dto';
 
 @Injectable()
@@ -88,6 +93,44 @@ export class UsersService {
   async adminUpdate(id: string, dto: AdminUpdateUserDto): Promise<User | null> {
     if (!(await this.usersRepository.findOne({ where: { id } }))) throw new NotFoundException('User not found');
     return this.updateProfile(id, dto);
+  }
+
+  // Admin removes a client or freelancer. Anyone with work history is refused so records never lose their owner.
+  async adminDelete(actorId: string, id: string): Promise<void> {
+    if (actorId === id) throw new BadRequestException('You cannot delete your own account here');
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.role === 'admin') throw new BadRequestException('Admin accounts cannot be deleted here');
+
+    const m = this.usersRepository.manager;
+    const profile = await this.profilesRepository.findOne({ where: { userId: id } });
+    const counts: [string, number][] = [
+      ['projects', await this.projectsRepository.count({ where: { clientId: id } })],
+      ['requests', await m.count(ProjectRequest, { where: { fromUserId: id } })],
+      ['documents', await m.count(ProjectDocument, { where: { uploadedById: id } })],
+    ];
+    if (profile) {
+      const teamRows: { n: string }[] = await m.query(
+        'SELECT COUNT(*) AS n FROM project_team_members WHERE "freelancerId" = $1',
+        [profile.id],
+      );
+      counts.push(
+        ['assigned projects', (await this.projectsRepository.count({ where: { assignedTo: profile.id } })) + Number(teamRows[0]?.n ?? 0)],
+        ['work logs', await m.count(Worklog, { where: { freelancerId: profile.id } })],
+        ['payments', await m.count(Payment, { where: { freelancerId: profile.id } })],
+        ['tasks', await m.count(ProjectTask, { where: { assignedFreelancerId: profile.id } })],
+      );
+    }
+    const blockers = counts.filter(([, n]) => n > 0).map(([label, n]) => `${n} ${label}`);
+    if (blockers.length) {
+      const advice = user.role === 'freelancer' ? 'Deactivate them instead.' : 'Delete or reassign them first.';
+      throw new ConflictException(`Cannot delete ${user.name}: linked to ${blockers.join(', ')}. ${advice}`);
+    }
+
+    await m.transaction(async (tx) => {
+      if (profile) await tx.delete(FreelancerProfile, profile.id);
+      await tx.delete(User, id);
+    });
   }
 
   async resetPassword(id: string, newPassword: string): Promise<void> {
