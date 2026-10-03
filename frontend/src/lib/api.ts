@@ -35,11 +35,14 @@ export const authApi = {
 }
 
 export const projectsApi = {
-  getAll: (params?: Record<string, unknown>) => api.get('/projects', { params }),
+  // The API pages 20 by default; screens here want every project they can see
+  getAll: (params?: Record<string, unknown>) => api.get('/projects', { params: { limit: 1000, ...params } }),
   getOne: (id: string) => api.get(`/projects/${id}`),
   create: (data: Record<string, unknown>) => api.post('/projects', data),
   update: (id: string, data: Record<string, unknown>) => api.patch(`/projects/${id}`, data),
   delete: (id: string) => api.delete(`/projects/${id}`),
+  approve: (id: string) => api.post(`/projects/${id}/approve`),
+  requestChanges: (id: string, message: string) => api.post(`/projects/${id}/request-changes`, { message }),
 }
 
 export const worklogsApi = {
@@ -72,6 +75,7 @@ export const sprintsApi = {
   create: (data: { projectId: string; name: string; order?: number; startDate?: string; endDate?: string }) => api.post('/sprints', data),
   update: (id: string, data: { name?: string; order?: number; startDate?: string; endDate?: string }) => api.patch(`/sprints/${id}`, data),
   delete: (id: string) => api.delete(`/sprints/${id}`),
+  approve: (id: string) => api.patch(`/sprints/${id}/approve`),
 }
 
 export const tasksApi = {
@@ -108,6 +112,48 @@ export const skillGroupsApi = {
   delete:      (id: string)                          => api.delete(`/skill-groups/${id}`),
   addSkill:    (id: string, skill: string)           => api.post(`/skill-groups/${id}/skills`, { skill }),
   removeSkill: (id: string, skill: string)           => api.delete(`/skill-groups/${id}/skills/${encodeURIComponent(skill)}`),
+}
+
+export const usersApi = {
+  list: (role?: 'admin' | 'freelancer' | 'client') => api.get('/users', { params: role ? { role } : {} }),
+  me: () => api.get('/users/me'),
+  updateMe: (data: { name?: string; email?: string; phone?: string; company?: string; notificationPrefs?: Record<string, boolean> }) =>
+    api.patch('/users/me', data),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.patch('/users/me/password', { currentPassword, newPassword }),
+  deleteMe: (password: string) => api.delete('/users/me', { data: { password } }),
+}
+
+export const projectRequestsApi = {
+  list: (params?: { projectId?: string; kind?: 'question' | 'change' | 'escalation'; status?: 'open' | 'resolved' }) =>
+    api.get('/project-requests', { params }),
+  create: (data: { projectId: string; kind: 'question' | 'change' | 'escalation'; subject: string; body: string; urgency?: 'normal' | 'high' | 'critical' }) =>
+    api.post('/project-requests', data),
+  resolve: (id: string, reply?: string) => api.patch(`/project-requests/${id}/resolve`, { reply }),
+}
+
+export const documentsApi = {
+  list: (projectId?: string) => api.get('/documents', { params: projectId ? { projectId } : {} }),
+  upload: (projectId: string, file: File, meta?: { type?: string; status?: string; description?: string }) => {
+    const form = new FormData()
+    form.append('projectId', projectId)
+    Object.entries(meta ?? {}).forEach(([k, v]) => v && form.append(k, v))
+    form.append('file', file)
+    // Let the browser set the multipart boundary
+    return api.post('/documents', form, { headers: { 'Content-Type': undefined } })
+  },
+  // Fetch with the auth header, then hand the bytes to the browser as a download
+  download: async (id: string, name: string) => {
+    const res = await api.get(`/documents/${id}/download`, { responseType: 'blob' })
+    const url = URL.createObjectURL(res.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    a.click()
+    URL.revokeObjectURL(url)
+  },
+  update: (id: string, data: { type?: string; status?: string; description?: string }) => api.patch(`/documents/${id}`, data),
+  delete: (id: string) => api.delete(`/documents/${id}`),
 }
 
 export default api

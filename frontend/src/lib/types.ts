@@ -9,6 +9,10 @@ export interface User {
   email: string
   role: UserRole
   profileImage?: string
+  phone?: string | null
+  company?: string | null
+  notificationPrefs?: Record<string, boolean> | null
+  projectCount?: number
   createdAt: string
 }
 
@@ -92,6 +96,7 @@ export interface ProjectSprint {
   order: number
   startDate: string | null
   endDate: string | null
+  approvedAt?: string | null
   createdAt: string
 }
 
@@ -121,4 +126,40 @@ export interface DashboardStats {
   pendingPayments?: number
   newProjectsLast30Days?: number
   newFreelancersLast30Days?: number
+}
+
+export type ProjectRequestKind = 'question' | 'change' | 'escalation'
+
+export interface ProjectRequest {
+  id: string
+  projectId: string
+  project?: Pick<Project, 'id' | 'title'>
+  kind: ProjectRequestKind
+  fromUserId: string
+  fromUser?: Pick<User, 'id' | 'name' | 'role'>
+  subject: string
+  body: string
+  urgency: 'normal' | 'high' | 'critical'
+  status: 'open' | 'resolved'
+  reply: string | null
+  resolvedById: string | null
+  resolvedAt: string | null
+  createdAt: string
+}
+
+export type DocumentType = 'deliverable' | 'contract' | 'report' | 'invoice' | 'attachment'
+
+export interface ProjectDocument {
+  id: string
+  projectId: string
+  project?: Pick<Project, 'id' | 'title'>
+  uploadedById: string
+  uploadedBy?: Pick<User, 'id' | 'name' | 'role'>
+  name: string
+  mimeType: string
+  size: number
+  type: DocumentType
+  status: 'delivered' | 'in-review'
+  description: string | null
+  createdAt: string
 }
