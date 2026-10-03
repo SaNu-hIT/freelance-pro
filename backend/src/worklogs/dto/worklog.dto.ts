@@ -3,6 +3,7 @@ import {
   IsDateString,
   IsNumber,
   IsString,
+  IsNotEmpty,
   IsOptional,
   Min,
   Max,
@@ -21,6 +22,7 @@ export class CreateWorklogDto {
   hoursWorked: number;
 
   @IsString()
+  @IsNotEmpty()
   tasksCompleted: string;
 
   @IsNumber()

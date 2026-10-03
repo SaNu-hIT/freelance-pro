@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Worklog } from '../entities/worklog.entity';
@@ -76,6 +76,23 @@ export class WorklogsService {
       .getCount();
     if (!isMember) {
       throw new ForbiddenException('You are not on this project');
+    }
+
+    // Allow one day ahead so timezones east of the server can log their today
+    const latest = new Date();
+    latest.setUTCDate(latest.getUTCDate() + 1);
+    if (dto.date.slice(0, 10) > latest.toISOString().slice(0, 10)) {
+      throw new BadRequestException('Worklog date cannot be in the future');
+    }
+
+    const { total } = await this.worklogsRepository
+      .createQueryBuilder('worklog')
+      .select('COALESCE(SUM(worklog.hoursWorked), 0)', 'total')
+      .where('worklog.freelancerId = :freelancerId', { freelancerId })
+      .andWhere('worklog.date = :date', { date: dto.date })
+      .getRawOne();
+    if (parseFloat(total) + dto.hoursWorked > 24) {
+      throw new BadRequestException(`Only ${24 - parseFloat(total)} hours left to log on ${dto.date}`);
     }
 
     const worklog = this.worklogsRepository.create({

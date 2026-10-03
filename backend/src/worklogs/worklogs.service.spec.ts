@@ -1,23 +1,38 @@
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { CreateWorklogDto } from './dto/worklog.dto';
 import { WorklogsService } from './worklogs.service';
 
 describe('WorklogsService.create', () => {
-  const dto = { projectId: 'p1', date: '2026-10-03', hoursWorked: 2, tasksCompleted: 'x', progress: 50 };
+  const dto = { projectId: 'p1', date: new Date().toISOString().slice(0, 10), hoursWorked: 2, tasksCompleted: 'x', progress: 50 };
   let worklogs: any;
   let projects: any;
   let profiles: any;
   let memberCount: number;
+  let loggedThatDay: number;
   let service: WorklogsService;
 
   beforeEach(() => {
     memberCount = 1;
+    loggedThatDay = 0;
     const qb: any = {
       innerJoin: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
       getCount: jest.fn(() => Promise.resolve(memberCount)),
     };
-    worklogs = { create: jest.fn((d) => d), save: jest.fn((d) => Promise.resolve({ ...d, id: 'w1' })) };
+    const sumQb: any = {
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn(() => Promise.resolve({ total: String(loggedThatDay) })),
+    };
+    worklogs = {
+      create: jest.fn((d) => d),
+      save: jest.fn((d) => Promise.resolve({ ...d, id: 'w1' })),
+      createQueryBuilder: jest.fn(() => sumQb),
+    };
     projects = { createQueryBuilder: jest.fn(() => qb), update: jest.fn() };
     profiles = { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }) };
     service = new WorklogsService(worklogs, projects, profiles);
@@ -41,5 +56,25 @@ describe('WorklogsService.create', () => {
     profiles.findOne.mockResolvedValue(null);
     await expect(service.create(dto as any, 'u1')).rejects.toThrow(ForbiddenException);
     expect(worklogs.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects hours that push the day past 24', async () => {
+    loggedThatDay = 23;
+    await expect(service.create(dto as any, 'u1')).rejects.toThrow(BadRequestException);
+    expect(worklogs.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects a date more than a day in the future', async () => {
+    await expect(service.create({ ...dto, date: '2099-01-01' } as any, 'u1')).rejects.toThrow(BadRequestException);
+    expect(worklogs.save).not.toHaveBeenCalled();
+  });
+});
+
+describe('CreateWorklogDto', () => {
+  it('requires a task summary', async () => {
+    const errors = await validate(plainToInstance(CreateWorklogDto, {
+      projectId: '12cce3da-4be1-4c0b-aeab-6c14e3e442ab', date: '2026-10-03', hoursWorked: 1, tasksCompleted: '', progress: 0,
+    }));
+    expect(errors.map((e) => e.property)).toEqual(['tasksCompleted']);
   });
 });
