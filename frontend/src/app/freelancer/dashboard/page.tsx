@@ -10,6 +10,7 @@ import { Project, Worklog, ProjectStatus } from '@/lib/types'
 import { Briefcase, Clock, DollarSign, CheckSquare, Square, AlertTriangle, Shield, ChevronRight } from 'lucide-react'
 import { useFreelancerStore } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
+import { localDate } from '@/lib/utils'
 
 const TASKS = [
   { id: 1, label: 'Review PR feedback on product listing', projectId: '1', done: true },
@@ -94,15 +95,16 @@ export default function FreelancerDashboardPage() {
     load()
   }, [])
 
-  const todayStr = new Date().toISOString().split('T')[0]
+  const todayStr = localDate()
   const todayHours = worklogs
     .filter(w => w.date.startsWith(todayStr))
     .reduce((s, w) => s + w.hoursWorked, 0)
 
   const weekStart = new Date()
   weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+  weekStart.setHours(0, 0, 0, 0)
   const weekHours = worklogs
-    .filter(w => new Date(w.date) >= weekStart)
+    .filter(w => new Date(w.date + 'T00:00:00') >= weekStart)
     .reduce((s, w) => s + w.hoursWorked, 0)
 
   const pendingEarnings = projects

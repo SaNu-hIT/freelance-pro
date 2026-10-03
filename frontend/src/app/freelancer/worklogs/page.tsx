@@ -9,6 +9,7 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { projectsApi, worklogsApi, tasksApi, sprintsApi } from '@/lib/api'
 import { Project, Worklog, ProjectTask, ProjectSprint } from '@/lib/types'
+import { localDate } from '@/lib/utils'
 
 const LS_START   = 'worklog_start_time'
 const LS_PROJECT = 'worklog_project_id'
@@ -65,7 +66,7 @@ export default function FreelancerWorklogsPage() {
   const [collapsedSprints, setCollapsedSprints] = useState<Set<string>>(new Set())
 
   // ── Form ──────────────────────────────────────────────────
-  const today = new Date().toISOString().split('T')[0]
+  const today = localDate()
   const [selectedProject, setSelectedProject] = useState('')
   const [hoursWorked, setHoursWorked]   = useState<number | ''>('')
   const [blockers, setBlockers]         = useState('')

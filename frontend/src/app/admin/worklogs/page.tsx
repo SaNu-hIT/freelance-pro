@@ -8,8 +8,9 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { worklogsApi, projectsApi, freelancersApi } from '@/lib/api'
 import { Worklog, Project, FreelancerProfile } from '@/lib/types'
+import { localDate } from '@/lib/utils'
 
-const today = new Date().toISOString().slice(0, 10)
+const today = localDate()
 
 type DateFilter = 'today' | 'week' | 'month' | 'all'
 
@@ -112,7 +113,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
       {/* Card footer */}
       <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--input-bg)]" style={{ background: 'rgb(var(--bg-rgb) / 0.2)' }}>
         <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-          {new Date(w.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          {new Date(w.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           {w.fileUrls && w.fileUrls.length > 0 && (
             <span className="ml-3 inline-flex items-center gap-1">
               <Paperclip size={9} /> {w.fileUrls.length} file{w.fileUrls.length > 1 ? 's' : ''}
