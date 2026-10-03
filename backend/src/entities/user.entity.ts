@@ -28,6 +28,15 @@ export class User {
   @Column({ nullable: true })
   profileImage: string;
 
+  @Column({ nullable: true, type: 'varchar' })
+  phone: string | null;
+
+  @Column({ nullable: true, type: 'varchar' })
+  company: string | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  notificationPrefs: Record<string, boolean> | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

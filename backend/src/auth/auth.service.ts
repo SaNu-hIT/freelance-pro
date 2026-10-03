@@ -31,6 +31,8 @@ export class AuthService {
       password: hashedPassword,
       name: dto.name,
       role: dto.role,
+      company: dto.company ?? null,
+      phone: dto.phone ?? null,
     });
     const savedUser = await this.usersRepository.save(user);
 

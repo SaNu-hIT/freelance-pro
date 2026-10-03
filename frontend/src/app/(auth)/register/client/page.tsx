@@ -50,7 +50,7 @@ export default function ClientRegisterPage() {
     setError('')
     setLoading(true)
     try {
-      const res = await authApi.register({ name, email, password, role: 'client' })
+      const res = await authApi.register({ name, email, password, role: 'client', company: company || undefined })
       const { user, token } = res.data
       storeLogin(user, token)
       router.push('/client')

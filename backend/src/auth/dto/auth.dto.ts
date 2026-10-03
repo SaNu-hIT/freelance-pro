@@ -3,6 +3,9 @@ import {
   IsString,
   MinLength,
   IsIn,
+  IsOptional,
+  IsArray,
+  IsNumber,
 } from 'class-validator';
 
 export class LoginDto {
@@ -30,11 +33,29 @@ export class RegisterDto {
   role: string;
 
   // Optional freelancer profile fields
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   skills?: string[];
+
+  @IsOptional()
+  @IsNumber()
   experience?: number;
+
+  @IsOptional()
+  @IsNumber()
   hourlyRate?: number;
+
+  @IsOptional()
+  @IsString()
   bio?: string;
 
   // Optional client fields
+  @IsOptional()
+  @IsString()
   company?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }
