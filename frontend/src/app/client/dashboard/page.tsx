@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useAuthStore, useCurrencySymbol } from '@/lib/store'
+import { useAuthStore } from '@/lib/store'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { projectsApi, worklogsApi, paymentsApi, projectRequestsApi, documentsApi } from '@/lib/api'
-import { Project, Worklog, Payment, ProjectRequest, ProjectDocument } from '@/lib/types'
+import { projectsApi, worklogsApi, projectRequestsApi, documentsApi } from '@/lib/api'
+import { Project, Worklog, ProjectRequest, ProjectDocument } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import { FolderKanban, CheckCircle2, Clock, Loader2, AlertTriangle, CheckCheck, X } from 'lucide-react'
 
@@ -35,12 +35,10 @@ const activityColors: Record<string, string> = {
   progress: 'var(--fg)',
   request: 'var(--fg)',
   document: 'var(--fg)',
-  payment: 'var(--fg)',
 }
 
 export default function ClientDashboardPage() {
   const { user } = useAuthStore()
-  const curr = useCurrencySymbol()
 
   const [projects, setProjects] = useState<Project[]>([])
   const [activity, setActivity] = useState<Activity[]>([])
@@ -59,23 +57,18 @@ export default function ClientDashboardPage() {
     .then(res => { setProjects(res.data?.data ?? res.data ?? []); setError('') })
     .catch(err => setError(apiError(err, 'Could not load your projects.')))
 
-  // Merge the latest worklogs, payments, requests and documents into one feed
+  // Merge the latest worklogs, requests and documents into one feed
   const loadActivity = () => Promise.all([
-    worklogsApi.getAll(), paymentsApi.getAll(), projectRequestsApi.list(), documentsApi.list(),
+    worklogsApi.getAll(), projectRequestsApi.list(), documentsApi.list(),
   ])
-    .then(([wl, pay, req, docs]) => {
+    .then(([wl, req, docs]) => {
       const worklogs: Worklog[] = wl.data?.data ?? wl.data ?? []
-      const payments: Payment[] = pay.data?.data ?? pay.data ?? []
       const requests: ProjectRequest[] = req.data ?? []
       const documents: ProjectDocument[] = docs.data ?? []
       const items: Activity[] = [
         ...worklogs.map(w => ({
           id: `w-${w.id}`, type: 'progress', at: w.createdAt,
           event: `${w.freelancer?.user?.name ?? 'Your team'} logged ${w.hoursWorked}h on ${w.project?.title ?? 'a project'} (${w.progress}%)`,
-        })),
-        ...payments.map(p => ({
-          id: `p-${p.id}`, type: 'payment', at: p.createdAt,
-          event: `Payment of ${curr}${Number(p.amount).toLocaleString()} ${p.status} for ${p.project?.title ?? 'a project'}`,
         })),
         ...requests.map(r => ({
           id: `r-${r.id}`, type: 'request', at: r.createdAt,

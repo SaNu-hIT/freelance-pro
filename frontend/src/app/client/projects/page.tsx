@@ -4,16 +4,16 @@ import { useEffect, useState, useRef, KeyboardEvent } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { projectsApi, sprintsApi, tasksApi, paymentsApi, projectRequestsApi, documentsApi } from '@/lib/api'
-import { Project, ProjectSprint, ProjectTask, Payment, ProjectRequest } from '@/lib/types'
+import { projectsApi, sprintsApi, tasksApi, projectRequestsApi, documentsApi } from '@/lib/api'
+import { Project, ProjectSprint, ProjectTask, ProjectRequest } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import { useCurrencySymbol, useAuthStore } from '@/lib/store'
 import { useChatStore } from '@/lib/chatStore'
 import {
   X, Upload, CheckCircle, AlertTriangle, Calendar, DollarSign,
   Globe, Code2, FileSpreadsheet, ExternalLink, ChevronDown as ChevDown,
-  MessageSquare, Send, AlertOctagon, Users, Clock, TrendingUp,
-  CheckSquare, Square, Layers, ChevronRight, Zap, Bell, Plus,
+  MessageSquare, Send, AlertOctagon, Users, TrendingUp,
+  CheckSquare, Square, Layers, ChevronRight, Bell, Plus,
   ArrowUpRight, Shield, LayoutGrid, List,
 } from 'lucide-react'
 
@@ -33,20 +33,6 @@ const STATUS_LABEL: Record<string, string> = {
 
 type Tab = 'overview' | 'tasks' | 'requests' | 'chat' | 'escalate'
 
-// A project's payments, oldest first, in the shape the schedule renders
-function scheduleFor(payments: Payment[], projectId: string) {
-  return payments
-    .filter(p => p.projectId === projectId)
-    .map(p => ({
-      id: p.id,
-      label: p.notes || `Payment — ${p.freelancer?.user?.name ?? 'team'}`,
-      date: p.createdAt,
-      amount: Number(p.amount),
-      paid: p.status === 'paid',
-      status: p.status,
-    }))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-}
 
 // Questions from the team are what wait on the client
 const needsReply = (r: ProjectRequest) => r.kind === 'question' && r.status === 'open'
@@ -67,8 +53,6 @@ export default function ClientProjectsPage() {
   const [error,      setError]      = useState('')
   const [requests,   setRequests]   = useState<ProjectRequest[]>([])
   const [requestsError, setRequestsError] = useState('')
-  const [allPayments, setAllPayments] = useState<Payment[]>([])
-  const [paymentsError, setPaymentsError] = useState('')
   const [replies,    setReplies]    = useState<Record<string, string>>({})
   const [resolvingId, setResolvingId] = useState<string | null>(null)
   const [requestActionError, setRequestActionError] = useState('')
@@ -105,9 +89,6 @@ export default function ClientProjectsPage() {
       .catch(err => setError(apiError(err, 'Could not load your projects.')))
       .finally(() => setLoading(false))
     loadRequests()
-    paymentsApi.getAll()
-      .then(r => setAllPayments(r.data?.data ?? r.data ?? []))
-      .catch(err => setPaymentsError(apiError(err, 'Could not load payments.')))
     fetchMessages()
   }, []) // eslint-disable-line
 
@@ -238,8 +219,6 @@ export default function ClientProjectsPage() {
   const chatUnread     = modal ? unreadForClient(modal.id) : 0
   const projectRequests = modal ? requests.filter(r => r.projectId === modal.id) : []
   const openRequests    = projectRequests.filter(needsReply).length
-  const payments        = modal ? scheduleFor(allPayments, modal.id) : []
-  const nextPayment     = payments.find(p => !p.paid)
   const tasksBySprintId = (sid: string | null) => tasks.filter(t => t.sprintId === sid)
   const unassigned      = tasks.filter(t => !t.sprintId)
   const completedCount  = tasks.filter(t => t.completed).length
@@ -296,7 +275,6 @@ export default function ClientProjectsPage() {
               const days    = daysLeft(p.deadline)
               const overdue = isOverdue(p.deadline) && p.status !== 'completed'
               const pReqs   = requests.filter(r => r.projectId === p.id && needsReply(r)).length
-              const pPay    = scheduleFor(allPayments, p.id).find(x => !x.paid)
               return (
                 <div key={p.id}
                   className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-0.5"
@@ -345,14 +323,6 @@ export default function ClientProjectsPage() {
                         </p>
                       </div>
                     </div>
-                    {pPay && (
-                      <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg"
-                        style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
-                        <Zap size={11} style={{ color: 'var(--fg)' }} />
-                        <span className="text-[10px] font-semibold" style={{ color: 'var(--fg)' }}>Next: {pPay.label}</span>
-                        <span className="ml-auto text-[10px] font-bold" style={{ color: 'var(--fg)' }}>{currency}{pPay.amount.toLocaleString()}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               )
@@ -566,7 +536,7 @@ export default function ClientProjectsPage() {
                   <div className="flex min-h-full">
 
                     {/* Left: stats + timeline + links + team */}
-                    <div className="w-[55%] shrink-0 border-r border-theme px-8 py-7 space-y-7 overflow-y-auto">
+                    <div className="flex-1 px-8 py-7 space-y-7 overflow-y-auto">
 
                       {/* Stat grid */}
                       <div className="grid grid-cols-2 gap-3">
@@ -668,76 +638,6 @@ export default function ClientProjectsPage() {
                       )}
                     </div>
 
-                    {/* Right: payment schedule */}
-                    <div className="flex-1 px-8 py-7 overflow-y-auto">
-                      <p className="text-mono-label mb-4" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PAYMENT SCHEDULE</p>
-
-                      {paymentsError ? (
-                        <ErrorBanner title="Could not load payments" message={paymentsError} />
-                      ) : payments.length === 0 ? (
-                        <div className="text-center py-10 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
-                          <DollarSign size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No payment schedule yet</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {payments.map(pay => (
-                            <div key={pay.id} className="rounded-xl p-4 flex items-center gap-4"
-                              style={{ background: pay.paid ? 'rgb(var(--fg-rgb) / 0.06)' : 'var(--bg-elevated)', border: `1px solid ${pay.paid ? 'rgb(var(--fg-rgb) / 0.2)' : 'var(--border)'}` }}>
-                              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                style={{ background: pay.paid ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--input-bg)', border: `1px solid ${pay.paid ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--border)'}` }}>
-                                {pay.paid
-                                  ? <CheckCircle size={16} style={{ color: 'var(--fg)' }} />
-                                  : <Clock size={16} style={{ color: 'var(--text-muted)' }} />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm text-primary-ui">{pay.label}</p>
-                                <p className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                                  {fmt(pay.date, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </p>
-                              </div>
-                              <div className="text-right shrink-0">
-                                <p className="font-bold text-base" style={{ color: pay.paid ? 'var(--fg)' : 'var(--text-primary)' }}>
-                                  {currency}{pay.amount.toLocaleString()}
-                                </p>
-                                <p className="text-mono-label text-[9px]" style={{ color: pay.paid ? 'rgb(var(--fg-rgb) / 0.6)' : 'var(--text-muted)' }}>
-                                  {pay.status.toUpperCase()}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-
-                          {/* Total */}
-                          <div className="rounded-xl px-4 py-3 flex items-center justify-between mt-4"
-                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
-                            <span className="text-mono-label text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>TOTAL</span>
-                            <span className="font-bold text-lg" style={{ color: 'var(--fg)' }}>
-                              {currency}{payments.reduce((s, p) => s + p.amount, 0).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="rounded-xl px-4 py-3 flex items-center justify-between"
-                            style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
-                            <span className="text-mono-label text-xs" style={{ color: 'var(--fg)' }}>PAID SO FAR</span>
-                            <span className="font-bold text-base" style={{ color: 'var(--fg)' }}>
-                              {currency}{payments.filter(p => p.paid).reduce((s, p) => s + p.amount, 0).toLocaleString()}
-                            </span>
-                          </div>
-                          {nextPayment && (
-                            <div className="rounded-xl px-4 py-3 flex items-center gap-3"
-                              style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
-                              <Zap size={14} style={{ color: 'var(--fg)' }} />
-                              <div className="flex-1">
-                                <p className="text-xs font-bold" style={{ color: 'var(--fg)' }}>NEXT PAYMENT DUE</p>
-                                <p className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                                  {nextPayment.label} · {fmt(nextPayment.date, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </p>
-                              </div>
-                              <span className="font-bold" style={{ color: 'var(--fg)' }}>{currency}{nextPayment.amount.toLocaleString()}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               )}
