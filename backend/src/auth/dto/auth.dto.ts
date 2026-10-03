@@ -25,7 +25,8 @@ export class RegisterDto {
   @IsString()
   name: string;
 
-  @IsIn(['admin', 'freelancer', 'client'])
+  // Public signup: admins are created via seed, never self-registered.
+  @IsIn(['freelancer', 'client'])
   role: string;
 
   // Optional freelancer profile fields
