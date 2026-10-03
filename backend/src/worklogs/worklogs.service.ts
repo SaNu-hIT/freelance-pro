@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Worklog } from '../entities/worklog.entity';
@@ -63,7 +63,20 @@ export class WorklogsService {
       where: { userId },
     });
 
-    const freelancerId = freelancerProfile?.id || userId;
+    if (!freelancerProfile) {
+      throw new ForbiddenException('Freelancer profile not found');
+    }
+    const freelancerId = freelancerProfile.id;
+
+    const isMember = await this.projectsRepository
+      .createQueryBuilder('project')
+      .innerJoin('project.teamMembers', 'member')
+      .where('project.id = :projectId', { projectId: dto.projectId })
+      .andWhere('member.userId = :userId', { userId })
+      .getCount();
+    if (!isMember) {
+      throw new ForbiddenException('You are not on this project');
+    }
 
     const worklog = this.worklogsRepository.create({
       ...dto,
