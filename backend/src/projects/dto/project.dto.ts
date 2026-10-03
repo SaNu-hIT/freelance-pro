@@ -43,6 +43,11 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   correctionSheetUrl?: string;
+
+  // Admin only: the client account that owns the project. Ignored for clients.
+  @IsOptional()
+  @IsUUID()
+  clientId?: string;
 }
 
 export class UpdateProjectDto extends PartialType(CreateProjectDto) {

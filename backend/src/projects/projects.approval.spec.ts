@@ -13,7 +13,7 @@ describe('ProjectsService approval', () => {
       update: jest.fn(),
     };
     requests = { create: jest.fn((d) => d), save: jest.fn() };
-    service = new ProjectsService(projects, {} as any, requests);
+    service = new ProjectsService(projects, {} as any, requests, {} as any);
   });
 
   it('completes a project the client approves', async () => {

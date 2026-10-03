@@ -10,6 +10,7 @@ import {
   Request,
   UseGuards,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -73,6 +74,11 @@ export class ProjectsController {
     if (user.role !== 'admin' && user.role !== 'client') {
       throw new ForbiddenException('Only admins and clients can create projects');
     }
+    if (user.role === 'admin') {
+      if (!dto.clientId) throw new BadRequestException('Choose the client this project is for');
+      return this.projectsService.create(dto, dto.clientId);
+    }
+    // A client always owns what they create
     return this.projectsService.create(dto, user.id);
   }
 

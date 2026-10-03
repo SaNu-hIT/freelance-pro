@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, In, MoreThanOrEqual, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { Project } from '../entities/project.entity';
+import { User } from '../entities/user.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
 import { ProjectRequest } from '../entities/project-request.entity';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
@@ -24,6 +25,8 @@ export class ProjectsService {
     private freelancerRepo: Repository<FreelancerProfile>,
     @InjectRepository(ProjectRequest)
     private requestsRepo: Repository<ProjectRequest>,
+    @InjectRepository(User)
+    private usersRepo: Repository<User>,
   ) {}
 
   async findAll(query: ProjectQuery): Promise<{ data: Project[]; total: number }> {
@@ -124,7 +127,8 @@ export class ProjectsService {
   }
 
   async create(dto: CreateProjectDto & { teamMemberIds?: string[] }, clientId: string): Promise<Project> {
-    const { teamMemberIds, ...rest } = dto as any;
+    await this.assertClientAccount(clientId);
+    const { teamMemberIds, clientId: _ignored, ...rest } = dto as any;
     const project = this.projectsRepository.create({ ...(rest as DeepPartial<Project>), clientId, status: 'new' });
 
     if (teamMemberIds?.length) {
@@ -137,10 +141,18 @@ export class ProjectsService {
     return this.findOne(saved.id);
   }
 
+  private async assertClientAccount(userId: string): Promise<void> {
+    const count = await this.usersRepo.count({ where: { id: userId, role: 'client' } });
+    if (!count) throw new BadRequestException('clientId must be a client account');
+  }
+
   async update(id: string, dto: UpdateProjectDto): Promise<Project> {
     const project = await this.findOne(id);
+    if (dto.clientId !== undefined) await this.assertClientAccount(dto.clientId);
     const { teamMemberIds, ...rest } = dto as any;
     Object.assign(project, rest);
+    // findOne loaded the old client; drop it so the new clientId is what gets saved
+    if (dto.clientId !== undefined) delete (project as any).client;
 
     if (teamMemberIds !== undefined) {
       project.teamMembers = teamMemberIds.length
