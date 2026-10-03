@@ -355,16 +355,16 @@ export default function FreelancerRegisterPage() {
             {step === 1 && (
               <div className="space-y-5">
                 <div>
-                  <label className="label-field">FULL NAME</label>
-                  <input className="input-field" placeholder={isIntern ? 'Your full legal name' : 'Alex Rivera'} required value={name} onChange={e => setName(e.target.value)} />
+                  <label htmlFor="fl-full-name" className="label-field">FULL NAME</label>
+                  <input id="fl-full-name" className="input-field" placeholder={isIntern ? 'Your full legal name' : 'Alex Rivera'} required value={name} onChange={e => setName(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label-field">EMAIL ADDRESS</label>
-                  <input type="email" className="input-field" placeholder="you@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                  <label htmlFor="fl-email-address" className="label-field">EMAIL ADDRESS</label>
+                  <input id="fl-email-address" type="email" className="input-field" placeholder="you@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label-field">PASSWORD</label>
-                  <input type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
+                  <label htmlFor="fl-password" className="label-field">PASSWORD</label>
+                  <input id="fl-password" type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
                   <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>Minimum 6 characters</p>
                 </div>
 
@@ -392,7 +392,7 @@ export default function FreelancerRegisterPage() {
 
                 {/* Skills */}
                 <div>
-                  <label className="label-field">YOUR SKILLS *</label>
+                  <label htmlFor="skill-input" className="label-field">YOUR SKILLS *</label>
                   <div className="input-field flex flex-wrap gap-2 min-h-[46px] cursor-text" onClick={() => document.getElementById('skill-input')?.focus()}>
                     {skills.map(s => (
                       <span key={s} className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium"
@@ -423,37 +423,38 @@ export default function FreelancerRegisterPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="label-field">YEARS OF EXPERIENCE</label>
+                    <label htmlFor="fl-years-of-experience" className="label-field">YEARS OF EXPERIENCE</label>
                     <div className="relative">
-                      <input type="number" min="0" max="50" className="input-field pr-10" placeholder="0" value={experience} onChange={e => setExperience(e.target.value)} />
+                      <input id="fl-years-of-experience" type="number" min="0" max="50" className="input-field pr-10" placeholder="0" value={experience} onChange={e => setExperience(e.target.value)} />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--text-muted)' }}>yrs</span>
                     </div>
                   </div>
                   {!isIntern && (
                     <div>
-                      <label className="label-field">HOURLY RATE (USD)</label>
+                      <label htmlFor="fl-hourly-rate-usd" className="label-field">HOURLY RATE (USD)</label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }}>$</span>
-                        <input type="number" min="0" className="input-field pl-7" placeholder="75" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} />
+                        <input id="fl-hourly-rate-usd" type="number" min="0" className="input-field pl-7" placeholder="75" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} />
                       </div>
                     </div>
                   )}
                   {isIntern && (
                     <div>
-                      <label className="label-field">INTERNSHIP DURATION</label>
-                      <input className="input-field" value="6 Months" readOnly style={{ color: 'var(--fg)', cursor: 'default' }} />
+                      <label htmlFor="fl-internship-duration" className="label-field">INTERNSHIP DURATION</label>
+                      <input id="fl-internship-duration" className="input-field" value="6 Months" readOnly style={{ color: 'var(--fg)', cursor: 'default' }} />
                     </div>
                   )}
                 </div>
 
                 {/* Portfolio URL */}
                 <div>
-                  <label className="label-field flex items-center gap-1.5">
+                  <label htmlFor="fl-portfolio-previous-work-review" className="label-field flex items-center gap-1.5">
                     <Upload size={10} style={{ color: accentColor }} />
                     PORTFOLIO / PREVIOUS WORK
                     <span style={{ color: 'var(--text-muted)' }}>(REVIEWED BY MANAGER)</span>
                   </label>
                   <input
+                    id="fl-portfolio-previous-work-review"
                     type="url"
                     className="input-field"
                     placeholder="https://github.com/you  or  https://your-portfolio.com"
@@ -466,8 +467,9 @@ export default function FreelancerRegisterPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">SHORT BIO</label>
+                  <label htmlFor="fl-short-bio" className="label-field">SHORT BIO</label>
                   <textarea
+                    id="fl-short-bio"
                     className="input-field resize-none"
                     rows={3}
                     placeholder={isIntern

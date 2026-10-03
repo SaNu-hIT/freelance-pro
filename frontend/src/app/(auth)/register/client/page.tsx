@@ -249,36 +249,37 @@ export default function ClientRegisterPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>FULL NAME</label>
-                  <input className="input-field" placeholder="Jane Smith" required value={name} onChange={e => setName(e.target.value)} />
+                  <label htmlFor="cl-full-name" className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>FULL NAME</label>
+                  <input id="cl-full-name" className="input-field" placeholder="Jane Smith" required value={name} onChange={e => setName(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
+                  <label htmlFor="cl-company-optional" className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
                     COMPANY <span style={{ color: 'var(--text-muted)' }}>OPTIONAL</span>
                   </label>
-                  <input className="input-field" placeholder="Acme Corp" value={company} onChange={e => setCompany(e.target.value)} />
+                  <input id="cl-company-optional" className="input-field" placeholder="Acme Corp" value={company} onChange={e => setCompany(e.target.value)} />
                 </div>
               </div>
 
               <div>
-                <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>WORK EMAIL</label>
-                <input type="email" className="input-field" placeholder="jane@company.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                <label htmlFor="cl-work-email" className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>WORK EMAIL</label>
+                <input id="cl-work-email" type="email" className="input-field" placeholder="jane@company.com" required value={email} onChange={e => setEmail(e.target.value)} />
               </div>
 
               <div>
-                <label className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>PASSWORD</label>
-                <input type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
+                <label htmlFor="cl-password" className="label-field" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>PASSWORD</label>
+                <input id="cl-password" type="password" className="input-field" placeholder="••••••••" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
                 <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>Minimum 6 characters</p>
               </div>
 
               {/* Project brief */}
               <div>
-                <label className="label-field flex items-center gap-1.5" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
+                <label htmlFor="cl-project-brief-optional" className="label-field flex items-center gap-1.5" style={{ color: 'rgb(var(--fg-rgb) / 0.8)' }}>
                   <ClipboardList size={10} style={{ color: accent }} />
                   PROJECT BRIEF
                   <span style={{ color: 'var(--text-muted)' }}>OPTIONAL</span>
                 </label>
                 <textarea
+                  id="cl-project-brief-optional"
                   className="input-field resize-none"
                   rows={4}
                   placeholder="Describe your project idea, goals, rough timeline, or tech preferences. Our managers will analyse your requirements and get back to you within 48 hours..."

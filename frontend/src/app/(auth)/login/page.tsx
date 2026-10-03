@@ -168,13 +168,13 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4 mb-7">
               <div>
-                <label className="block text-xs font-semibold text-secondary-ui mb-1.5 tracking-wide">Email address</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                <label htmlFor="login-email-address" className="block text-xs font-semibold text-secondary-ui mb-1.5 tracking-wide">Email address</label>
+                <input id="login-email-address" type="email" value={email} onChange={e => setEmail(e.target.value)}
                   className="input-field" placeholder="you@example.com" required autoComplete="email" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-secondary-ui mb-1.5 tracking-wide">Password</label>
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                <label htmlFor="login-password" className="block text-xs font-semibold text-secondary-ui mb-1.5 tracking-wide">Password</label>
+                <input id="login-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
                   className="input-field" placeholder="••••••••" required autoComplete="current-password" />
               </div>
               <button type="submit" disabled={busy}

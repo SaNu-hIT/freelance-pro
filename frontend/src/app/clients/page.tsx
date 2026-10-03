@@ -281,8 +281,9 @@ export default function ClientsPage() {
               <form onSubmit={handleIdeaSubmit} className="glass-card rounded-2xl p-8 space-y-5" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.2)' }}>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="label-field">Your Name *</label>
+                    <label htmlFor="inq-your-name" className="label-field">Your Name *</label>
                     <input
+                      id="inq-your-name"
                       className="input-field"
                       placeholder="John Smith"
                       required
@@ -291,8 +292,9 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="label-field">Email *</label>
+                    <label htmlFor="inq-email" className="label-field">Email *</label>
                     <input
+                      id="inq-email"
                       type="email"
                       className="input-field"
                       placeholder="john@company.com"
@@ -304,8 +306,9 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Phone (optional)</label>
+                  <label htmlFor="inq-phone-optional" className="label-field">Phone (optional)</label>
                   <input
+                    id="inq-phone-optional"
                     type="tel"
                     className="input-field"
                     placeholder="+1 (555) 000-0000"
@@ -315,8 +318,9 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Project Title *</label>
+                  <label htmlFor="inq-project-title" className="label-field">Project Title *</label>
                   <input
+                    id="inq-project-title"
                     className="input-field"
                     placeholder="e.g. E-Commerce Platform Rebuild"
                     required
@@ -326,11 +330,12 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field flex items-center gap-2">
+                  <label htmlFor="inq-describe-your-idea" className="label-field flex items-center gap-2">
                     <Sparkles size={10} />
                     Describe Your Idea *
                   </label>
                   <textarea
+                    id="inq-describe-your-idea"
                     className="input-field resize-none"
                     rows={6}
                     placeholder="Tell us what you want to build. Include your goals, target users, key features, and any technical requirements. The more detail the better — this helps us find the perfect match."
@@ -343,9 +348,10 @@ export default function ClientsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="label-field">Budget Range *</label>
+                    <label htmlFor="inq-budget-range" className="label-field">Budget Range *</label>
                     <div className="relative">
                       <select
+                        id="inq-budget-range"
                         className="input-field appearance-none cursor-pointer"
                         required
                         value={ideaForm.budgetRange}
@@ -359,9 +365,10 @@ export default function ClientsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="label-field">Timeline *</label>
+                    <label htmlFor="inq-timeline" className="label-field">Timeline *</label>
                     <div className="relative">
                       <select
+                        id="inq-timeline"
                         className="input-field appearance-none cursor-pointer"
                         required
                         value={ideaForm.timeline}
@@ -431,8 +438,9 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Your Name *</label>
+                  <label htmlFor="inq-your-name-2" className="label-field">Your Name *</label>
                   <input
+                    id="inq-your-name-2"
                     className="input-field"
                     placeholder="John Smith"
                     required
@@ -442,8 +450,9 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Phone Number *</label>
+                  <label htmlFor="inq-phone-number" className="label-field">Phone Number *</label>
                   <input
+                    id="inq-phone-number"
                     type="tel"
                     className="input-field"
                     placeholder="+1 (555) 000-0000"
@@ -454,8 +463,9 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Email (optional)</label>
+                  <label htmlFor="inq-email-optional" className="label-field">Email (optional)</label>
                   <input
+                    id="inq-email-optional"
                     type="email"
                     className="input-field"
                     placeholder="john@company.com"
@@ -465,12 +475,13 @@ export default function ClientsPage() {
                 </div>
 
                 <div>
-                  <label className="label-field">Preferred Callback Time *</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <p id="inq-callback-time" className="label-field">Preferred Callback Time *</p>
+                  <div role="group" aria-labelledby="inq-callback-time" className="grid grid-cols-2 gap-3">
                     {callbackTimes.map(time => (
                       <button
                         key={time}
                         type="button"
+                        aria-pressed={callbackForm.preferredCallbackTime === time}
                         onClick={() => setCallbackForm(f => ({ ...f, preferredCallbackTime: time }))}
                         className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
                           callbackForm.preferredCallbackTime === time
