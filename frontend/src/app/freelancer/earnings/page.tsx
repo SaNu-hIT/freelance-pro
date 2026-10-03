@@ -8,15 +8,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingUp, DollarSign, Clock, Minus } from 'lucide-react'
 import { useCurrencySymbol } from '@/lib/store'
 
-const CHART_DATA = [
-  { month: 'Dec', earnings: 0 },
-  { month: 'Jan', earnings: 800 },
-  { month: 'Feb', earnings: 2100 },
-  { month: 'Mar', earnings: 1890 },
-  { month: 'Apr', earnings: 2520 },
-  { month: 'May', earnings: 1350 },
-]
-
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
@@ -55,7 +46,16 @@ export default function FreelancerEarningsPage() {
   const totalEarned = payments.filter(p => p.status === 'paid').reduce((s, p) => s + p.netAmount, 0)
   const pending = payments.filter(p => p.status === 'pending').reduce((s, p) => s + p.netAmount, 0)
   const totalDeductions = payments.reduce((s, p) => s + p.deductions, 0)
-  const thisMonth = CHART_DATA[CHART_DATA.length - 1].earnings
+  // Paid net earnings for the last 6 months, oldest first
+  const chartData = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - (5 - i))
+    const earnings = payments
+      .filter(p => p.status === 'paid')
+      .filter(p => { const c = new Date(p.createdAt); return c.getFullYear() === d.getFullYear() && c.getMonth() === d.getMonth() })
+      .reduce((s, p) => s + p.netAmount, 0)
+    return { month: d.toLocaleDateString('en-US', { month: 'short' }), earnings }
+  })
+  const thisMonth = chartData[chartData.length - 1].earnings
 
   const stats = [
     { label: 'Total Earned', value: `${curr}${totalEarned.toLocaleString()}`, icon: <TrendingUp size={20} className="text-[var(--fg)]" />, color: 'var(--fg)' },
@@ -106,7 +106,7 @@ export default function FreelancerEarningsPage() {
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-mono-label text-xs tracking-widest mb-6">MONTHLY EARNINGS</h2>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={CHART_DATA} barCategoryGap="30%">
+            <BarChart data={chartData} barCategoryGap="30%">
               <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--fg-rgb) / 0.1)" vertical={false} />
               <XAxis
                 dataKey="month"

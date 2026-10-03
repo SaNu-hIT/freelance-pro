@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Project } from './project.entity';
 import { FreelancerProfile } from './freelancer-profile.entity';
+import { decimalTransformer } from './decimal.transformer';
 
 @Entity('payments')
 export class Payment {
@@ -29,13 +30,13 @@ export class Payment {
   @JoinColumn({ name: 'freelancerId' })
   freelancer: FreelancerProfile;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 2, transformer: decimalTransformer })
   amount: number;
 
-  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  @Column('decimal', { precision: 12, scale: 2, default: 0, transformer: decimalTransformer })
   deductions: number;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 2, transformer: decimalTransformer })
   netAmount: number;
 
   @Column({
