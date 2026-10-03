@@ -1,15 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   User, Lock, Bell, Globe, Shield,
   Save, CheckCircle2, ChevronRight, Mail, Phone,
   Building2, AlertTriangle, Tags, Plus, X, Pencil,
-  RotateCcw, ChevronDown,
+  RotateCcw, ChevronDown, Loader2,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useAuthStore, useSettingsStore, type SettingsState } from '@/lib/store'
 import { useSkillTaxonomyStore, SkillGroup } from '@/lib/skillTaxonomyStore'
+import { settingsApi, usersApi } from '@/lib/api'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 type SettingsStoreField<K extends keyof SettingsState> = SettingsState[K]
 
@@ -29,26 +33,38 @@ const GROUP_COLOR_OPTIONS = [
 ]
 
 export default function AdminSettingsPage() {
-  const { user } = useAuthStore()
+  const router = useRouter()
+  const { user, setUser, logout } = useAuthStore()
   // Read platform settings directly from the persisted store — no local copy
   // so the values survive reloads without any useState hydration race.
   const {
     currency, timezone,
     maintenanceMode, newRegistrations, requireApproval,
-    setPlatformSettings, fetchSettings,
   } = useSettingsStore()
 
   const {
     groups, addGroup, removeGroup, renameGroup,
     setGroupColor, addSkillToGroup, removeSkillFromGroup, reset: resetTaxonomy,
-    fetch: fetchGroups,
+    fetch: fetchGroups, error: groupsError, clearError: clearGroupsError,
   } = useSkillTaxonomyStore()
 
+  const [platformError, setPlatformError] = useState('')
+
   useEffect(() => { fetchGroups() }, [fetchGroups])
-  useEffect(() => { fetchSettings() }, [fetchSettings])
+  useEffect(() => {
+    settingsApi.get()
+      .then(res => {
+        const { currency, timezone, maintenanceMode, newRegistrations, requireApproval } = res.data
+        useSettingsStore.setState({ currency, timezone, maintenanceMode, newRegistrations, requireApproval, _loaded: true })
+      })
+      .catch(err => setPlatformError(apiError(err, 'Could not load platform settings')))
+  }, [])
 
   const [active, setActive] = useState('profile')
-  const [saved, setSaved] = useState(false)
+  // Which section's save last succeeded / is in flight, and its error
+  const [saved, setSaved] = useState('')
+  const [saving, setSaving] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   // Skill Groups editor state
   const [newGroupName, setNewGroupName] = useState('')
@@ -84,7 +100,9 @@ export default function AdminSettingsPage() {
   const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
   const [phone, setPhone] = useState('')
-  const [company, setCompany] = useState('FreelancePro Inc.')
+  const [company, setCompany] = useState('')
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [profileError, setProfileError] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -98,17 +116,98 @@ export default function AdminSettingsPage() {
     systemAlerts: true,
   })
 
-  // Write directly to the store on every change — optimistic update + DB persist.
-  function setPlatformField<K extends 'currency' | 'timezone' | 'maintenanceMode' | 'newRegistrations' | 'requireApproval'>(
+  // Danger zone: account deletion
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  useEffect(() => {
+    usersApi.me()
+      .then(res => {
+        const me = res.data
+        setName(me.name ?? '')
+        setEmail(me.email ?? '')
+        setPhone(me.phone ?? '')
+        setCompany(me.company ?? '')
+        if (me.notificationPrefs) setNotifs(prev => ({ ...prev, ...me.notificationPrefs }))
+      })
+      .catch(err => setProfileError(apiError(err, 'Could not load your profile')))
+      .finally(() => setProfileLoading(false))
+  }, [])
+
+  // Optimistic store update + DB persist; put the old value back if the save fails.
+  async function setPlatformField<K extends 'currency' | 'timezone' | 'maintenanceMode' | 'newRegistrations' | 'requireApproval'>(
     key: K,
     value: SettingsStoreField<K>,
   ) {
-    void setPlatformSettings({ [key]: value })
+    const previous = useSettingsStore.getState()[key]
+    setPlatformError('')
+    useSettingsStore.setState({ [key]: value })
+    try {
+      await settingsApi.update({ [key]: value })
+    } catch (err) {
+      useSettingsStore.setState({ [key]: previous })
+      setPlatformError(apiError(err, 'Could not save the setting'))
+    }
   }
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
+  async function runSave(section: string, request: () => Promise<unknown>, fallback: string) {
+    setSaving(section)
+    setSaveError('')
+    setSaved('')
+    try {
+      await request()
+      setSaved(section)
+      setTimeout(() => setSaved(s => (s === section ? '' : s)), 2500)
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setSaveError(status === 409 && section === 'profile'
+        ? 'That email address is already used by another account.'
+        : apiError(err, fallback))
+    } finally {
+      setSaving('')
+    }
+  }
+
+  const handleSaveProfile = () => {
+    if (!name.trim() || !email.trim()) { setSaveError('Name and email are required.'); return }
+    return runSave('profile', async () => {
+      const res = await usersApi.updateMe({ name: name.trim(), email: email.trim(), phone: phone.trim(), company: company.trim() })
+      const me = res.data
+      setName(me.name ?? ''); setEmail(me.email ?? ''); setPhone(me.phone ?? ''); setCompany(me.company ?? '')
+      if (user) setUser({ ...user, name: me.name, email: me.email })
+    }, 'Could not save your profile')
+  }
+
+  const handleChangePassword = () => {
+    if (!currentPassword) { setSaveError('Enter your current password.'); return }
+    if (newPassword.length < 8) { setSaveError('The new password must be at least 8 characters.'); return }
+    if (newPassword !== confirmPassword) { setSaveError('The new passwords do not match.'); return }
+    return runSave('security', async () => {
+      await usersApi.changePassword(currentPassword, newPassword)
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('')
+    }, 'Could not change your password')
+  }
+
+  const handleSaveNotifs = () =>
+    runSave('notifications', async () => {
+      const res = await usersApi.updateMe({ notificationPrefs: notifs })
+      if (res.data?.notificationPrefs) setNotifs(prev => ({ ...prev, ...res.data.notificationPrefs }))
+    }, 'Could not save notification preferences')
+
+  async function handleDeleteAccount() {
+    if (!deletePassword) { setDeleteError('Enter your password to confirm.'); return }
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await usersApi.deleteMe(deletePassword)
+      logout()
+      router.replace('/login')
+    } catch (err) {
+      setDeleteError(apiError(err, 'Could not delete your account'))
+      setDeleting(false)
+    }
   }
 
   return (
@@ -129,7 +228,7 @@ export default function AdminSettingsPage() {
                 return (
                   <button
                     key={s.id}
-                    onClick={() => setActive(s.id)}
+                    onClick={() => { setActive(s.id); setSaveError(''); setSaved('') }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all"
                     style={{
                       background: isActive ? (isDanger ? 'rgb(var(--fg-rgb) / 0.1)' : 'rgb(var(--fg-rgb) / 0.1)') : 'transparent',
@@ -153,6 +252,7 @@ export default function AdminSettingsPage() {
           {/* ── Profile ── */}
           {active === 'profile' && (
             <>
+              {profileError && <ErrorBanner title="Could not load your profile" message={profileError} />}
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <User size={16} style={{ color: 'var(--fg)' }} /> Profile Information
@@ -165,9 +265,10 @@ export default function AdminSettingsPage() {
                   <div>
                     <p className="text-primary-ui font-semibold">{name}</p>
                     <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>Administrator</p>
-                    <button className="text-xs px-3 py-1.5 rounded-lg transition-all"
-                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
-                      Change Avatar
+                    <button disabled title="Avatar upload is not available yet"
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all cursor-not-allowed"
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', opacity: 0.5 }}>
+                      Change Avatar · coming soon
                     </button>
                   </div>
                 </div>
@@ -190,7 +291,8 @@ export default function AdminSettingsPage() {
                   </div>
                 </div>
               </div>
-              <SaveBar saved={saved} onSave={handleSave} />
+              {saveError && <ErrorBanner title="Profile not saved" message={saveError} onClose={() => setSaveError('')} />}
+              <SaveBar saved={saved === 'profile'} saving={saving === 'profile'} disabled={profileLoading || !!profileError} onSave={handleSaveProfile} />
             </>
           )}
 
@@ -226,10 +328,11 @@ export default function AdminSettingsPage() {
                     <p className="text-sm font-medium text-primary-ui">Authenticator App</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Use Google Authenticator or similar</p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--text-muted)' }}>Not enabled</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--text-muted)' }}>Not enabled · coming soon</span>
                 </div>
               </div>
-              <SaveBar saved={saved} onSave={handleSave} />
+              {saveError && <ErrorBanner title="Password not changed" message={saveError} onClose={() => setSaveError('')} />}
+              <SaveBar saved={saved === 'security'} saving={saving === 'security'} label="Update Password" onSave={handleChangePassword} />
             </>
           )}
 
@@ -270,13 +373,15 @@ export default function AdminSettingsPage() {
                   })}
                 </div>
               </div>
-              <SaveBar saved={saved} onSave={handleSave} />
+              {saveError && <ErrorBanner title="Preferences not saved" message={saveError} onClose={() => setSaveError('')} />}
+              <SaveBar saved={saved === 'notifications'} saving={saving === 'notifications'} disabled={profileLoading || !!profileError} onSave={handleSaveNotifs} />
             </>
           )}
 
           {/* ── Platform ── */}
           {active === 'platform' && (
             <>
+              {platformError && <ErrorBanner title="Platform settings" message={platformError} onClose={() => setPlatformError('')} />}
               <div className="glass-card rounded-xl p-6">
                 <h2 className="text-primary-ui font-bold text-base mb-5 flex items-center gap-2">
                   <Globe size={16} style={{ color: 'var(--fg)' }} /> Platform Settings
@@ -327,15 +432,16 @@ export default function AdminSettingsPage() {
                       </select>
                     </div>
                   </div>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Changes here save as soon as you make them.</p>
                 </div>
               </div>
-              <SaveBar saved={saved} onSave={handleSave} />
             </>
           )}
 
           {/* ── Skill Groups ── */}
           {active === 'skillgroups' && (
             <div className="space-y-4">
+              {groupsError && <ErrorBanner title="Skill groups" message={groupsError} onClose={clearGroupsError} />}
               {/* Header card */}
               <div className="glass-card rounded-xl p-6">
                 <div className="flex items-start justify-between gap-4 mb-2">
@@ -542,7 +648,6 @@ export default function AdminSettingsPage() {
                 {[
                   { title: 'Clear all worklogs', desc: 'Permanently delete all worklog records from the platform', btn: 'Clear Worklogs' },
                   { title: 'Reset platform data', desc: 'Wipe all projects, freelancers, and payments. Cannot be undone.', btn: 'Reset Data' },
-                  { title: 'Delete admin account', desc: 'Permanently remove your admin account from the system', btn: 'Delete Account' },
                 ].map(({ title, desc, btn }) => (
                   <div key={title} className="flex items-center justify-between p-4 rounded-xl"
                     style={{ background: 'rgb(var(--fg-rgb) / 0.04)', border: '1px solid rgb(var(--fg-rgb) / 0.15)' }}>
@@ -550,13 +655,54 @@ export default function AdminSettingsPage() {
                       <p className="text-sm font-medium text-primary-ui">{title}</p>
                       <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
                     </div>
-                    <button className="text-xs px-3 py-2 rounded-lg shrink-0 ml-4 transition-all"
-                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}
-                      onClick={() => alert('This action is disabled in demo mode.')}>
-                      {btn}
+                    <button disabled title="Not available yet"
+                      className="text-xs px-3 py-2 rounded-lg shrink-0 ml-4 transition-all cursor-not-allowed"
+                      style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)', opacity: 0.5 }}>
+                      {btn} · unavailable
                     </button>
                   </div>
                 ))}
+
+                <div className="p-4 rounded-xl"
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.04)', border: '1px solid rgb(var(--fg-rgb) / 0.15)' }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-primary-ui">Delete admin account</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Permanently remove your admin account from the system</p>
+                    </div>
+                    {!confirmDelete && (
+                      <button className="text-xs px-3 py-2 rounded-lg shrink-0 ml-4 transition-all"
+                        style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}
+                        onClick={() => { setConfirmDelete(true); setDeleteError('') }}>
+                        Delete Account
+                      </button>
+                    )}
+                  </div>
+                  {confirmDelete && (
+                    <div className="mt-4 pt-4 space-y-3 border-t border-[var(--input-bg)]">
+                      <div className="max-w-sm">
+                        <label className="label-field">Enter your password to confirm</label>
+                        <input type="password" className="input-field" placeholder="••••••••" autoFocus
+                          value={deletePassword} onChange={e => setDeletePassword(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') handleDeleteAccount() }} />
+                      </div>
+                      {deleteError && <ErrorBanner title="Account not deleted" message={deleteError} />}
+                      <div className="flex gap-2">
+                        <button disabled={deleting || !deletePassword} onClick={handleDeleteAccount}
+                          className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg font-semibold transition-all"
+                          style={{ background: 'var(--fg)', color: 'var(--bg)', opacity: deleting || !deletePassword ? 0.5 : 1 }}>
+                          {deleting && <Loader2 size={12} className="animate-spin" />} Permanently delete my account
+                        </button>
+                        <button disabled={deleting}
+                          onClick={() => { setConfirmDelete(false); setDeletePassword(''); setDeleteError('') }}
+                          className="text-xs px-3 py-2 rounded-lg transition-all"
+                          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -567,18 +713,25 @@ export default function AdminSettingsPage() {
   )
 }
 
-function SaveBar({ saved, onSave }: { saved: boolean; onSave: () => void }) {
+function SaveBar({ saved, saving = false, disabled = false, label = 'Save Changes', onSave }: {
+  saved: boolean
+  saving?: boolean
+  disabled?: boolean
+  label?: string
+  onSave: () => void
+}) {
   return (
     <div className="flex items-center justify-between px-5 py-3.5 rounded-xl"
       style={{ background: 'var(--row-hover-bg)', border: '1px solid var(--border)' }}>
       <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-        {saved ? 'Changes saved.' : 'You have unsaved changes.'}
+        {saved ? 'Changes saved.' : saving ? 'Saving…' : 'You have unsaved changes.'}
       </p>
       <button
         onClick={onSave}
+        disabled={saving || disabled}
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-        style={{ background: saved ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--fg)', color: saved ? 'var(--fg)' : 'var(--bg)', border: saved ? '1px solid rgb(var(--fg-rgb) / 0.35)' : 'none' }}>
-        {saved ? <><CheckCircle2 size={14} /> Saved</> : <><Save size={14} /> Save Changes</>}
+        style={{ background: saved ? 'rgb(var(--fg-rgb) / 0.15)' : 'var(--fg)', color: saved ? 'var(--fg)' : 'var(--bg)', border: saved ? '1px solid rgb(var(--fg-rgb) / 0.35)' : 'none', opacity: saving || disabled ? 0.6 : 1 }}>
+        {saved ? <><CheckCircle2 size={14} /> Saved</> : saving ? <><Loader2 size={14} className="animate-spin" /> Saving</> : <><Save size={14} /> {label}</>}
       </button>
     </div>
   )

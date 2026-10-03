@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { freelancersApi } from './api'
+import { apiError } from './utils'
 
 /* ── Availability types ───────────────────────────────────── */
 export type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
@@ -34,36 +35,50 @@ export const DEFAULT_AVAILABILITY: AvailabilityConfig = {
 interface FreelancerStore {
   /** Local cache: freelancerProfileId → AvailabilityConfig */
   availability: Record<string, AvailabilityConfig>
+  /** Last load/save failure, cleared on the next attempt */
+  error: string | null
 
   getAvailability: (profileId: string) => AvailabilityConfig
   fetchAvailability: (profileId: string) => Promise<void>
+  /** Rejects (after reverting the local copy) when the save fails */
   setAvailability: (profileId: string, config: AvailabilityConfig) => Promise<void>
 }
 
 export const useFreelancerStore = create<FreelancerStore>()((set, get) => ({
   availability: {},
+  error: null,
 
   getAvailability: (profileId) =>
     get().availability[profileId] ?? DEFAULT_AVAILABILITY,
 
   fetchAvailability: async (profileId) => {
+    set({ error: null })
     try {
       const res = await freelancersApi.getAvailability(profileId)
       if (res.data) {
         set(s => ({ availability: { ...s.availability, [profileId]: res.data as AvailabilityConfig } }))
       }
-    } catch {
-      // keep DEFAULT_AVAILABILITY on error
+    } catch (err) {
+      set({ error: apiError(err, 'Could not load availability') })
     }
   },
 
   setAvailability: async (profileId, config) => {
-    // Optimistic update
-    set(s => ({ availability: { ...s.availability, [profileId]: config } }))
+    const previous = get().availability[profileId]
+    // Optimistic update, reverted if the save fails
+    set(s => ({ availability: { ...s.availability, [profileId]: config }, error: null }))
     try {
-      await freelancersApi.updateAvailability(profileId, config as unknown as Record<string, unknown>)
-    } catch {
-      // already updated locally; silently fail
+      const res = await freelancersApi.updateAvailability(profileId, config as unknown as Record<string, unknown>)
+      const saved = res.data?.availability as AvailabilityConfig | undefined
+      if (saved) set(s => ({ availability: { ...s.availability, [profileId]: saved } }))
+    } catch (err) {
+      set(s => {
+        const availability = { ...s.availability }
+        if (previous) availability[profileId] = previous
+        else delete availability[profileId]
+        return { availability, error: apiError(err, 'Could not save availability') }
+      })
+      throw err
     }
   },
 }))

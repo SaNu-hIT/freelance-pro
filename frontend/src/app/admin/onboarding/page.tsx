@@ -16,114 +16,21 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
 import { FreelancerProfile, OnboardingStage } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
-import { useFreelancerStore } from '@/lib/freelancerStore'
+import { AvailabilityConfig } from '@/lib/freelancerStore'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
+// The list response also carries these, which the shared type leaves out
+type Applicant = FreelancerProfile & { updatedAt?: string }
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
+// No approval timestamp is stored; the last profile update is the closest we have
+function approvedThisMonth(a: Applicant): boolean {
+  if (a.onboardingStage !== 'approved' || !a.updatedAt) return false
+  const d = new Date(a.updatedAt)
+  const now = new Date()
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+}
 
-const MOCK_APPLICANTS: FreelancerProfile[] = [
-  {
-    id: 'ap1', userId: 'u1',
-    skills: ['React', 'TypeScript', 'Tailwind CSS'], experience: 3, hourlyRate: 75,
-    status: 'pending', onboardingStage: 'applied', track: 'professional',
-    bio: 'Frontend engineer who loves building polished UIs with React and TypeScript. Open-source contributor and design-system enthusiast.',
-    portfolioUrl: 'https://github.com/alexr',
-    verifications: {},
-    createdAt: '2026-05-19T09:00:00Z',
-    user: { id: 'u1', name: 'Alex Rivera', email: 'alex@dev.com', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap2', userId: 'u2',
-    skills: ['Vue.js', 'PHP', 'Laravel'], experience: 1, hourlyRate: 35,
-    status: 'pending', onboardingStage: 'applied', track: 'intern',
-    bio: 'Recent graduate eager to grow in full-stack web development. Built several client sites using Laravel + Vue.',
-    portfolioUrl: 'https://priya-portfolio.netlify.app',
-    verifications: {},
-    createdAt: '2026-05-20T11:30:00Z',
-    user: { id: 'u2', name: 'Priya Nair', email: 'priya@intern.dev', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap3', userId: 'u3',
-    skills: ['Flutter', 'Dart', 'Firebase'], experience: 2, hourlyRate: 45,
-    status: 'pending', onboardingStage: 'applied', track: 'professional',
-    bio: 'Mobile developer with two published Flutter apps on the Play Store. Passionate about smooth animations and performance.',
-    portfolioUrl: 'https://github.com/sambhav-flutter',
-    verifications: {},
-    createdAt: '2026-05-18T14:00:00Z',
-    user: { id: 'u3', name: 'Sambhav Mehta', email: 'sambhav@mobile.dev', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap4', userId: 'u4',
-    skills: ['Node.js', 'PostgreSQL', 'NestJS'], experience: 4, hourlyRate: 80,
-    status: 'pending', onboardingStage: 'reviewing', track: 'professional',
-    bio: 'Backend specialist building REST and GraphQL APIs. Deep experience with NestJS microservices and PostgreSQL optimisation.',
-    portfolioUrl: 'https://github.com/carlos-api',
-    verifications: { profile_complete: true, portfolio_reviewed: false, skills_verified: false },
-    createdAt: '2026-05-15T08:00:00Z',
-    user: { id: 'u4', name: 'Carlos Teixeira', email: 'carlos@api.dev', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap5', userId: 'u5',
-    skills: ['Python', 'Django', 'AWS'], experience: 5, hourlyRate: 90,
-    status: 'pending', onboardingStage: 'reviewing', track: 'professional',
-    bio: 'Senior Python engineer with extensive AWS experience. Built data pipelines and SaaS backends for fintech startups.',
-    portfolioUrl: 'https://fatima-dev.com',
-    verifications: { profile_complete: true, portfolio_reviewed: true, skills_verified: false },
-    createdAt: '2026-05-14T10:00:00Z',
-    user: { id: 'u5', name: 'Fatima Al-Hassan', email: 'fatima@pydev.io', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap6', userId: 'u6',
-    skills: ['React', 'GraphQL', 'MongoDB'], experience: 3, hourlyRate: 70,
-    status: 'pending', onboardingStage: 'assessment', track: 'professional',
-    bio: 'Full-stack dev focused on the MERN ecosystem. Comfortable with both product and startup environments.',
-    portfolioUrl: 'https://github.com/kwame-dev',
-    verifications: { profile_complete: true, portfolio_reviewed: true, skills_verified: true, assessment_assigned: false },
-    createdAt: '2026-05-10T09:00:00Z',
-    user: { id: 'u6', name: 'Kwame Asante', email: 'kwame@mern.dev', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap7', userId: 'u7',
-    skills: ['Figma', 'UI/UX', 'Framer'], experience: 2, hourlyRate: 40,
-    status: 'pending', onboardingStage: 'assessment', track: 'intern',
-    bio: 'Design student with a strong portfolio of mobile and web UI work. Skilled in Figma prototyping and micro-interactions.',
-    portfolioUrl: 'https://www.behance.net/lena-studio',
-    verifications: { profile_complete: true, portfolio_reviewed: true, skills_verified: true, assessment_assigned: true },
-    createdAt: '2026-05-09T13:00:00Z',
-    user: { id: 'u7', name: 'Lena Kozlova', email: 'lena@design.studio', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap8', userId: 'u8',
-    skills: ['Docker', 'Kubernetes', 'AWS'], experience: 6, hourlyRate: 110,
-    status: 'active', onboardingStage: 'approved', track: 'professional',
-    bio: 'Cloud infrastructure engineer specialising in Kubernetes at scale. Certified AWS Solutions Architect.',
-    portfolioUrl: 'https://github.com/devops-ren',
-    verifications: { profile_complete: true, portfolio_reviewed: true, skills_verified: true, assessment_assigned: true, assessment_passed: true, contract_signed: true, deposit_received: false },
-    createdAt: '2026-05-01T07:00:00Z',
-    user: { id: 'u8', name: 'René Müller', email: 'rene@cloudops.io', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap9', userId: 'u9',
-    skills: ['Shopify', 'WordPress', 'PHP'], experience: 4, hourlyRate: 60,
-    status: 'active', onboardingStage: 'approved', track: 'professional',
-    bio: 'eCommerce developer with 50+ Shopify and WooCommerce stores delivered. Conversion rate optimisation specialist.',
-    portfolioUrl: 'https://amara-ecom.com',
-    verifications: { profile_complete: true, portfolio_reviewed: true, skills_verified: true, assessment_assigned: true, assessment_passed: true, contract_signed: true },
-    createdAt: '2026-04-28T09:00:00Z',
-    user: { id: 'u9', name: 'Amara Diallo', email: 'amara@ecom.shop', role: 'freelancer', createdAt: '' },
-  },
-  {
-    id: 'ap10', userId: 'u10',
-    skills: ['React Native'], experience: 1, hourlyRate: 30,
-    status: 'inactive', onboardingStage: 'rejected', track: 'intern',
-    bio: 'Self-taught developer looking for first professional opportunity.',
-    portfolioUrl: undefined,
-    verifications: {},
-    rejectionReason: 'Portfolio quality did not meet our standards. May reapply in 3 months.',
-    createdAt: '2026-05-17T16:00:00Z',
-    user: { id: 'u10', name: 'Ishan Patel', email: 'ishan@mail.com', role: 'freelancer', createdAt: '' },
-  },
-]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -207,18 +114,41 @@ const DAY_LABELS: Record<string, string> = {
 }
 
 function AvailabilityPanel({ profileId }: { profileId: string }) {
-  const fetchAvailability = useFreelancerStore(s => s.fetchAvailability)
-  const getAvailability   = useFreelancerStore(s => s.getAvailability)
-  const avail = getAvailability(profileId)
+  const [avail, setAvail] = useState<AvailabilityConfig | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  useEffect(() => { fetchAvailability(profileId) }, [profileId]) // eslint-disable-line
+  // Mounted with key={profileId}, so state starts fresh for each applicant
+  useEffect(() => {
+    let cancelled = false
+    freelancersApi.getAvailability(profileId)
+      .then(res => { if (!cancelled) setAvail((res.data || null) as AvailabilityConfig | null) })
+      .catch(err => { if (!cancelled) setError(apiError(err, 'Could not load availability')) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [profileId])
+
+  const heading = (
+    <h3 style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 12px' }}>
+      Availability Schedule
+    </h3>
+  )
+  if (loading || error || !avail?.schedule) {
+    return (
+      <div>
+        {heading}
+        {error
+          ? <ErrorBanner title="Availability unavailable" message={error} />
+          : <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{loading ? 'Loading…' : 'Not set by the freelancer yet'}</span>}
+      </div>
+    )
+  }
+
   const enabledDays = Object.entries(avail.schedule).filter(([, v]) => v.enabled)
 
   return (
     <div>
-      <h3 style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 12px' }}>
-        Availability Schedule
-      </h3>
+      {heading}
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', borderRadius: 6, padding: '3px 10px', fontWeight: 700 }}>
           {avail.hoursPerWeek}h/week
@@ -257,38 +187,34 @@ function AvailabilityPanel({ profileId }: { profileId: string }) {
 export default function OnboardingPipelinePage() {
   const curr = useCurrencySymbol()
 
-  const [applicants, setApplicants] = useState<FreelancerProfile[]>([])
+  const [applicants, setApplicants] = useState<Applicant[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [stageFilter, setStageFilter] = useState<OnboardingStage | 'all'>('all')
-  const [selected, setSelected] = useState<FreelancerProfile | null>(null)
+  const [selected, setSelected] = useState<Applicant | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [actionSuccess, setActionSuccess] = useState('')
+  const [actionError, setActionError] = useState('')
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
-  const loadApplicants = async (): Promise<FreelancerProfile[]> => {
-    try {
-      const res = await freelancersApi.getAll()
-      const data: FreelancerProfile[] = res.data?.data ?? res.data
-      const list = Array.isArray(data) && data.length > 0 ? data : MOCK_APPLICANTS
-      return list.filter(a => a.onboardingStage !== 'approved' && a.status !== 'active')
-    } catch {
-      return MOCK_APPLICANTS.filter(a => a.onboardingStage !== 'approved' && a.status !== 'active')
-    }
+  const loadApplicants = async (): Promise<Applicant[]> => {
+    const res = await freelancersApi.getAll()
+    const data: Applicant[] = res.data?.data ?? res.data
+    return (Array.isArray(data) ? data : [])
+      .filter(a => (a.onboardingStage !== 'approved' && a.status !== 'active') || approvedThisMonth(a))
   }
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    loadApplicants().then(data => {
-      if (!cancelled) {
-        setApplicants(data)
-        setLoading(false)
-      }
-    })
+    loadApplicants()
+      .then(data => { if (!cancelled) setApplicants(data) })
+      .catch(err => { if (!cancelled) setLoadError(apiError(err, 'Could not load applicants')) })
+      .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
 
@@ -298,16 +224,15 @@ export default function OnboardingPipelinePage() {
       setShowRejectForm(false)
       setRejectReason('')
       setActionSuccess('')
+      setActionError('')
     }
   }, [selected?.id])
 
-  // ── Refresh & sync selected ───────────────────────────────────────────────
+  // ── Apply the server's copy of an applicant ───────────────────────────────
 
-  const refreshAndSync = async (id: string) => {
-    const data = await loadApplicants()
-    setApplicants(data)
-    const updated = data.find(a => a.id === id)
-    if (updated) setSelected(updated)
+  const applyUpdate = (updated: Applicant) => {
+    setApplicants(prev => prev.map(a => a.id === updated.id ? { ...a, ...updated } : a))
+    setSelected(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev)
   }
 
   // ── Computed ──────────────────────────────────────────────────────────────
@@ -328,81 +253,59 @@ export default function OnboardingPipelinePage() {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  const handleMoveStage = async (id: string, stage: OnboardingStage) => {
+  const runAction = async (request: () => Promise<{ data: Applicant }>, success: string, failure: string): Promise<boolean> => {
     setActionLoading(true)
+    setActionError('')
     try {
-      await freelancersApi.updateStage(id, stage)
-    } catch {
-      // optimistic: still update local state
+      const res = await request()
+      applyUpdate(res.data)
+      setActionSuccess(success)
+      setTimeout(() => setActionSuccess(''), 3000)
+      return true
+    } catch (err) {
+      setActionSuccess('')
+      setActionError(apiError(err, failure))
+      return false
+    } finally {
+      setActionLoading(false)
     }
-    await refreshAndSync(id)
-    setActionLoading(false)
-    setActionSuccess(`Moved to ${stageLabel(stage)}`)
-    setTimeout(() => setActionSuccess(''), 3000)
   }
 
-  const handleApprove = async (id: string) => {
-    setActionLoading(true)
-    const applicant = applicants.find(a => a.id === id)
-    try {
-      await freelancersApi.approve(id)
-    } catch {
-      // optimistic
-    }
-    await refreshAndSync(id)
-    setActionLoading(false)
-    setActionSuccess('Freelancer approved — now active on platform')
-    setTimeout(() => setActionSuccess(''), 4000)
-  }
+  const handleMoveStage = (id: string, stage: OnboardingStage) =>
+    runAction(() => freelancersApi.updateStage(id, stage), `Moved to ${stageLabel(stage)}`, 'Could not change the stage')
+
+  const handleApprove = (id: string) =>
+    runAction(() => freelancersApi.approve(id), 'Freelancer approved — now active on platform', 'Could not approve the freelancer')
 
   const handleReject = async (id: string) => {
     if (!rejectReason.trim()) return
-    setActionLoading(true)
-    const applicant = applicants.find(a => a.id === id)
-    try {
-      await freelancersApi.reject(id, rejectReason)
-    } catch {
-      // optimistic
+    const ok = await runAction(() => freelancersApi.reject(id, rejectReason), 'Application rejected', 'Could not reject the application')
+    if (ok) {
+      setShowRejectForm(false)
+      setRejectReason('')
     }
-    await refreshAndSync(id)
-    setActionLoading(false)
-    setShowRejectForm(false)
-    setRejectReason('')
-    setActionSuccess('Application rejected')
-    setTimeout(() => setActionSuccess(''), 3000)
   }
 
   const handleToggleVerification = async (id: string, key: string, current: boolean) => {
-    const update = { [key]: !current }
+    setActionError('')
     try {
-      await freelancersApi.updateVerifications(id, update)
-    } catch {
-      // optimistic
-    }
-    setApplicants(prev =>
-      prev.map(a =>
-        a.id === id
-          ? { ...a, verifications: { ...(a.verifications ?? {}), ...update } }
-          : a
-      )
-    )
-    if (selected?.id === id) {
-      setSelected(prev =>
-        prev ? { ...prev, verifications: { ...(prev.verifications ?? {}), ...update } } : prev
-      )
+      const res = await freelancersApi.updateVerifications(id, { [key]: !current })
+      applyUpdate(res.data)
+    } catch (err) {
+      setActionError(apiError(err, 'Could not update the checklist'))
     }
   }
 
   const handleAdminNotesBlur = async () => {
-    if (!selected) return
+    if (!selected || adminNotes === (selected.adminNotes ?? '')) return
+    setActionError('')
     try {
-      await freelancersApi.update(selected.id, { adminNotes })
-    } catch {
-      // best-effort
+      const res = await freelancersApi.update(selected.id, { adminNotes })
+      applyUpdate(res.data)
+    } catch (err) {
+      // Keep the typed text in the box so it can be saved again
+      setActionError(apiError(err, 'Admin notes were not saved'))
     }
-    setApplicants(prev =>
-      prev.map(a => a.id === selected.id ? { ...a, adminNotes } : a)
-    )
   }
 
   // ── Render helpers ────────────────────────────────────────────────────────
@@ -540,6 +443,12 @@ export default function OnboardingPipelinePage() {
           })}
         </div>
 
+        {loadError && (
+          <div style={{ marginBottom: 20 }}>
+            <ErrorBanner title="Could not load applicants" message={loadError} />
+          </div>
+        )}
+
         {/* Loading state */}
         {loading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '48px 0', justifyContent: 'center' }}>
@@ -551,7 +460,7 @@ export default function OnboardingPipelinePage() {
         )}
 
         {/* Two-panel layout */}
-        {!loading && (
+        {!loading && !loadError && (
           <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
 
             {/* LEFT: Applicant list */}
@@ -692,6 +601,10 @@ export default function OnboardingPipelinePage() {
                   </button>
                 </div>
 
+                {actionError && (
+                  <ErrorBanner message={actionError} onClose={() => setActionError('')} />
+                )}
+
                 {/* ── Section 1: Identity ── */}
                 <div>
                   <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
@@ -788,9 +701,7 @@ export default function OnboardingPipelinePage() {
                       .filter(item => item.tracks.includes(selected.track ?? 'professional'))
                       .map(item => {
                         const checked = !!(selected.verifications ?? {})[item.key]
-                        const label = item.key === 'deposit_received'
-                          ? `${curr}0f,000 Security Deposit Received`
-                          : item.label
+                        const label = item.label
                         return (
                           <button
                             key={item.key}
@@ -1054,7 +965,7 @@ export default function OnboardingPipelinePage() {
                 <div style={{ borderTop: '1px solid var(--border)' }} />
 
                 {/* ── Section 3b: Availability ── */}
-                <AvailabilityPanel profileId={selected.id} />
+                <AvailabilityPanel key={selected.id} profileId={selected.id} />
 
                 {/* Divider */}
                 <div style={{ borderTop: '1px solid var(--border)' }} />

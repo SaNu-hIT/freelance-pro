@@ -7,22 +7,20 @@ import {
   ChevronUp,
   Users,
   Layers,
-  Monitor,
-  Server,
-  Smartphone,
-  GitBranch,
-  Database,
-  Palette,
   Zap,
+  Loader2,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useCurrencySymbol } from '@/lib/store'
-import { useSkillTaxonomyStore } from '@/lib/skillTaxonomyStore'
+import { useSkillTaxonomyStore, SkillGroup } from '@/lib/skillTaxonomyStore'
+import { freelancersApi, projectsApi } from '@/lib/api'
+import { FreelancerProfile, Project } from '@/lib/types'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AvailabilityStatus = 'available' | 'on_project' | 'ending_soon'
-type Domain = 'Frontend' | 'Backend' | 'Mobile' | 'DevOps' | 'Database' | 'Design' | 'Full-Stack'
 type Track = 'professional' | 'intern'
 
 interface Resource {
@@ -32,7 +30,8 @@ interface Resource {
   avatar: string
   avatarColor: string
   skills: string[]
-  domain: Domain
+  domain: string
+  domainColor: string
   experience: number
   hourlyRate: number
   status: AvailabilityStatus
@@ -41,218 +40,77 @@ interface Resource {
   availableFrom?: string
   bio: string
   track: Track
+  hoursPerWeek?: number
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-// Today: 2026-05-21
+// The list response also carries the saved availability, which the shared type leaves out
+type FreelancerRow = FreelancerProfile & { availability?: { hoursPerWeek?: number } | null }
 
-const MOCK_RESOURCES: Resource[] = [
-  // ── 5 Available Now ──────────────────────────────────────────────────────
-  {
-    id: 'r01',
-    name: 'Arjun Mehta',
-    email: 'arjun.mehta@devteam.io',
-    avatar: 'AM',
-    avatarColor: 'var(--fg)',
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'GraphQL', 'Figma'],
-    domain: 'Frontend',
-    experience: 5,
-    hourlyRate: 85,
-    status: 'available',
-    bio: 'Senior front-end engineer with a passion for design-system-first development. Delivered 10+ SaaS products.',
-    track: 'professional',
-  },
-  {
-    id: 'r02',
-    name: 'Priya Nair',
-    email: 'priya.nair@fullstack.dev',
-    avatar: 'PN',
-    avatarColor: 'var(--fg)',
-    skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'NestJS', 'Docker'],
-    domain: 'Full-Stack',
-    experience: 7,
-    hourlyRate: 105,
-    status: 'available',
-    bio: 'Full-stack architect who bridges product thinking with robust engineering. Loves event-driven systems.',
-    track: 'professional',
-  },
-  {
-    id: 'r03',
-    name: 'Lena Fischer',
-    email: 'lena.fischer@mobilelab.de',
-    avatar: 'LF',
-    avatarColor: 'var(--fg)',
-    skills: ['Flutter', 'Firebase', 'Firestore', 'React Native', 'Dart'],
-    domain: 'Mobile',
-    experience: 4,
-    hourlyRate: 75,
-    status: 'available',
-    bio: 'Cross-platform mobile engineer with apps shipped to 500k+ users on both iOS and Android.',
-    track: 'professional',
-  },
-  {
-    id: 'r04',
-    name: 'Carlos Vega',
-    email: 'carlos.vega@backendpro.com',
-    avatar: 'CV',
-    avatarColor: 'var(--fg)',
-    skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'AWS', 'GraphQL'],
-    domain: 'Backend',
-    experience: 6,
-    hourlyRate: 90,
-    status: 'available',
-    bio: 'Python specialist building high-throughput APIs and data pipelines. AWS certified solutions architect.',
-    track: 'professional',
-  },
-  {
-    id: 'r05',
-    name: 'Ayesha Qureshi',
-    email: 'ayesha.q@designsprint.co',
-    avatar: 'AQ',
-    avatarColor: 'var(--fg)',
-    skills: ['Figma', 'UI/UX', 'Tailwind CSS', 'React', 'CSS'],
-    domain: 'Design',
-    experience: 3,
-    hourlyRate: 60,
-    status: 'available',
-    bio: 'Product designer and front-end collaborator. Expert at translating wireframes to pixel-perfect Tailwind.',
-    track: 'intern',
-  },
+const ENDING_SOON_DAYS = 30
+const OTHER_DOMAIN = 'Other'
+const OTHER_COLOR = 'var(--text-muted)'
 
-  // ── 4 Ending Soon (7–30 days from 2026-05-21) ────────────────────────────
-  {
-    id: 'r06',
-    name: 'Tom Kiefer',
-    email: 'tom.kiefer@devops.cloud',
-    avatar: 'TK',
-    avatarColor: 'var(--fg)',
-    skills: ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Terraform', 'GCP'],
-    domain: 'DevOps',
-    experience: 8,
-    hourlyRate: 120,
-    status: 'ending_soon',
-    currentProject: 'CloudScale Migration',
-    projectEndDate: '2026-05-28',
-    availableFrom: '2026-05-29',
-    bio: 'Cloud-native DevOps engineer with expertise in zero-downtime deployments and multi-cloud architectures.',
-    track: 'professional',
-  },
-  {
-    id: 'r07',
-    name: 'Sofia Reyes',
-    email: 'sofia.reyes@vueworks.mx',
-    avatar: 'SR',
-    avatarColor: 'var(--fg)',
-    skills: ['Vue.js', 'TypeScript', 'Node.js', 'MongoDB', 'Tailwind CSS'],
-    domain: 'Frontend',
-    experience: 4,
-    hourlyRate: 70,
-    status: 'ending_soon',
-    currentProject: 'Retail Dashboard v2',
-    projectEndDate: '2026-06-05',
-    availableFrom: '2026-06-06',
-    bio: 'Vue.js specialist who writes clean, accessible components with strong TypeScript discipline.',
-    track: 'professional',
-  },
-  {
-    id: 'r08',
-    name: 'Nikhil Shetty',
-    email: 'nikhil.shetty@dbmaster.in',
-    avatar: 'NS',
-    avatarColor: 'var(--fg)',
-    skills: ['PostgreSQL', 'MongoDB', 'Redis', 'Firebase', 'MySQL', 'Python'],
-    domain: 'Database',
-    experience: 5,
-    hourlyRate: 80,
-    status: 'ending_soon',
-    currentProject: 'Analytics Warehouse',
-    projectEndDate: '2026-06-10',
-    availableFrom: '2026-06-11',
-    bio: 'Database engineer specializing in query optimization, schema design, and replication strategies.',
-    track: 'professional',
-  },
-  {
-    id: 'r09',
-    name: 'Jake Thornton',
-    email: 'jake.thornton@phpcraft.uk',
-    avatar: 'JT',
-    avatarColor: 'var(--fg)',
-    skills: ['PHP', 'Laravel', 'Shopify', 'WordPress', 'MySQL', 'REST API'],
-    domain: 'Backend',
-    experience: 3,
-    hourlyRate: 55,
-    status: 'ending_soon',
-    currentProject: 'E-Commerce Theme Build',
-    projectEndDate: '2026-06-14',
-    availableFrom: '2026-06-15',
-    bio: 'PHP/Laravel engineer focused on e-commerce integrations. Shopify Partner with 15+ store launches.',
-    track: 'intern',
-  },
+// ─── Derive resources from freelancers + their open projects ─────────────────
 
-  // ── 3 On Long-Term Projects (60–120 days from 2026-05-21) ────────────────
-  {
-    id: 'r10',
-    name: 'Maria Gonzalez',
-    email: 'maria.gonzalez@mobilestack.es',
-    avatar: 'MG',
-    avatarColor: 'var(--fg)',
-    skills: ['React Native', 'TypeScript', 'Firebase', 'Firestore', 'GraphQL', 'iOS'],
-    domain: 'Mobile',
-    experience: 6,
-    hourlyRate: 95,
-    status: 'on_project',
-    currentProject: 'FinTrack Mobile App',
-    projectEndDate: '2026-07-20',
-    availableFrom: '2026-07-21',
-    bio: 'React Native expert building financial and healthcare mobile apps with offline-first architecture.',
-    track: 'professional',
-  },
-  {
-    id: 'r11',
-    name: 'Raj Patel',
-    email: 'raj.patel@nestmaster.io',
-    avatar: 'RP',
-    avatarColor: 'var(--fg)',
-    skills: ['NestJS', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker', 'AWS', 'GraphQL'],
-    domain: 'Backend',
-    experience: 9,
-    hourlyRate: 130,
-    status: 'on_project',
-    currentProject: 'Enterprise Auth Platform',
-    projectEndDate: '2026-08-15',
-    availableFrom: '2026-08-16',
-    bio: 'Node.js & NestJS architect building enterprise-grade microservices. CQRS and DDD practitioner.',
-    track: 'professional',
-  },
-  {
-    id: 'r12',
-    name: 'Yuki Tanaka',
-    email: 'yuki.tanaka@fullui.jp',
-    avatar: 'YT',
-    avatarColor: 'var(--fg)',
-    skills: ['React', 'Vue.js', 'Node.js', 'TypeScript', 'Python', 'MongoDB', 'Docker'],
-    domain: 'Full-Stack',
-    experience: 5,
-    hourlyRate: 88,
-    status: 'on_project',
-    currentProject: 'SaaS Onboarding Suite',
-    projectEndDate: '2026-09-01',
-    availableFrom: '2026-09-02',
-    bio: 'Full-stack generalist comfortable owning features end-to-end. Enjoys prototyping at speed with great UI.',
-    track: 'professional',
-  },
-]
+function initialsOf(name: string): string {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+}
 
-// ─── Domain Config ────────────────────────────────────────────────────────────
+// The skill group sharing the most skills with the freelancer
+function primaryGroup(skills: string[], groups: SkillGroup[]): SkillGroup | null {
+  let best: SkillGroup | null = null
+  let bestCount = 0
+  for (const g of groups) {
+    const count = g.skills.filter(s => skills.includes(s)).length
+    if (count > bestCount) { best = g; bestCount = count }
+  }
+  return best
+}
 
-const DOMAIN_CONFIG: Record<Domain, { color: string; Icon: React.ComponentType<{ size?: number; color?: string }> }> = {
-  Frontend:    { color: 'var(--fg)', Icon: Monitor },
-  Backend:     { color: 'var(--fg)', Icon: Server },
-  Mobile:      { color: 'var(--fg)', Icon: Smartphone },
-  DevOps:      { color: 'var(--fg)', Icon: GitBranch },
-  Database:    { color: 'var(--fg)', Icon: Database },
-  Design:      { color: 'var(--fg)', Icon: Palette },
-  'Full-Stack':{ color: 'var(--fg)', Icon: Layers },
+function toResource(f: FreelancerRow, projects: Project[], groups: SkillGroup[], today: Date): Resource {
+  const group = primaryGroup(f.skills ?? [], groups)
+  const open = projects.filter(p =>
+    p.status !== 'completed' &&
+    (p.assignedTo === f.id || (p.teamMembers ?? []).some(m => m.id === f.id)),
+  )
+
+  let status: AvailabilityStatus = 'available'
+  let currentProject: string | undefined
+  let projectEndDate: string | undefined
+  let availableFrom: string | undefined
+  if (open.length > 0) {
+    status = 'on_project'
+    const last = [...open].sort((x, y) => (x.deadline ?? '').localeCompare(y.deadline ?? '')).pop()!
+    currentProject = last.title
+    // Free after the last open project's deadline; unknown if any has no deadline or it has passed
+    if (open.every(p => p.deadline) && daysBetween(last.deadline, today) >= 0) {
+      projectEndDate = last.deadline
+      const next = new Date(last.deadline)
+      next.setUTCDate(next.getUTCDate() + 1)
+      availableFrom = next.toISOString().slice(0, 10)
+      if (daysBetween(last.deadline, today) <= ENDING_SOON_DAYS) status = 'ending_soon'
+    }
+  }
+
+  return {
+    id: f.id,
+    name: f.user?.name ?? '—',
+    email: f.user?.email ?? '',
+    avatar: initialsOf(f.user?.name ?? '?'),
+    avatarColor: 'var(--fg)',
+    skills: f.skills ?? [],
+    domain: group?.name ?? OTHER_DOMAIN,
+    domainColor: group?.color ?? OTHER_COLOR,
+    experience: f.experience,
+    hourlyRate: Number(f.hourlyRate),
+    status,
+    currentProject,
+    projectEndDate,
+    availableFrom,
+    bio: f.bio ?? '',
+    track: f.track ?? 'professional',
+    hoursPerWeek: f.availability?.hoursPerWeek,
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -332,6 +190,22 @@ function AvailabilityBadge({ resource, today }: { resource: Resource; today: Dat
       </span>
     )
   }
+  if (resource.status === 'on_project') {
+    return (
+      <span
+        className="flex items-center gap-1.5 text-mono-label px-2.5 py-1 rounded-full"
+        style={{
+          fontSize: '10px',
+          background: 'rgb(var(--fg-rgb) / 0.08)',
+          border: '1px solid rgb(var(--fg-rgb) / 0.2)',
+          color: 'var(--text-muted)',
+        }}
+        title={resource.currentProject}
+      >
+        <span style={{ fontSize: 8 }}>⬛</span> On Project
+      </span>
+    )
+  }
   return null
 }
 
@@ -379,7 +253,7 @@ function MemberCard({
   curr: string
   selectedSkill: string | null
 }) {
-  const { color } = DOMAIN_CONFIG[resource.domain]
+  const color = resource.domainColor
   const dimmed = selectedSkill !== null && !resource.skills.includes(selectedSkill)
   const MAX_SKILLS = 6
 
@@ -444,15 +318,18 @@ function MemberCard({
       </div>
 
       {/* Bio */}
-      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: 'var(--text-muted)' }}>
-        {resource.bio}
-      </p>
+      {resource.bio && (
+        <p className="text-xs leading-relaxed line-clamp-2" style={{ color: 'var(--text-muted)' }}>
+          {resource.bio}
+        </p>
+      )}
 
       {/* Bottom: exp + rate + availability */}
       <div className="flex items-center justify-between pt-2 border-t border-[var(--input-bg)]">
         <div className="flex items-center gap-3">
           <span className="text-mono-label" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
             {resource.experience} yr exp
+            {resource.hoursPerWeek ? ` · ${resource.hoursPerWeek}h/wk` : ''}
           </span>
           <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--fg)' }}>
             {curr}{resource.hourlyRate}/hr
@@ -508,20 +385,22 @@ function MemberChip({
 
 function DomainSection({
   domain,
+  color,
   resources,
   selectedSkill,
   collapsed,
   onToggle,
   today,
 }: {
-  domain: Domain
+  domain: string
+  color: string
   resources: Resource[]
   selectedSkill: string | null
   collapsed: boolean
   onToggle: () => void
   today: Date
 }) {
-  const { color, Icon } = DOMAIN_CONFIG[domain]
+  const Icon = Layers
 
   // Skills cloud: unique skills + count
   const skillCounts = useMemo(() => {
@@ -618,16 +497,39 @@ function DomainSection({
 
 export default function AdminResourcesPage() {
   const curr = useCurrencySymbol()
-  const today = new Date()
+  const [today] = useState(() => new Date())
 
-  const { groups: skillGroups, fetch: fetchGroups } = useSkillTaxonomyStore()
+  const { groups: skillGroups, fetch: fetchGroups, error: groupsError } = useSkillTaxonomyStore()
   useEffect(() => { fetchGroups() }, [fetchGroups])
+
+  const [freelancers, setFreelancers] = useState<FreelancerRow[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([freelancersApi.getAll({ status: 'active' }), projectsApi.getAll()])
+      .then(([fRes, pRes]) => {
+        if (cancelled) return
+        setFreelancers(Array.isArray(fRes.data) ? fRes.data : fRes.data?.data ?? [])
+        setProjects(Array.isArray(pRes.data) ? pRes.data : pRes.data?.data ?? [])
+      })
+      .catch(err => { if (!cancelled) setLoadError(apiError(err, 'Could not load resources')) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  const resources = useMemo(
+    () => freelancers.map(f => toResource(f, projects, skillGroups, today)),
+    [freelancers, projects, skillGroups, today],
+  )
 
   const [view, setView] = useState<'member' | 'domain'>('member')
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [collapsedDomains, setCollapsedDomains] = useState<Set<Domain>>(new Set())
+  const [collapsedDomains, setCollapsedDomains] = useState<Set<string>>(new Set())
 
   // ── Skills within the active group (for drill-down) ──────────────────────
   const activeGroup = useMemo(
@@ -638,9 +540,9 @@ export default function AdminResourcesPage() {
   // All raw skills across all resources (for unmapped detection)
   const allSkills = useMemo(() => {
     const set = new Set<string>()
-    MOCK_RESOURCES.forEach(r => r.skills.forEach(s => set.add(s)))
+    resources.forEach(r => r.skills.forEach(s => set.add(s)))
     return Array.from(set).sort()
-  }, [])
+  }, [resources])
 
   // Skills not mapped to any group
   const unmappedSkills = useMemo(() => {
@@ -651,7 +553,7 @@ export default function AdminResourcesPage() {
   // ── Filtered resources ───────────────────────────────────────────────────
   const filteredResources = useMemo(() => {
     const q = search.toLowerCase()
-    return MOCK_RESOURCES.filter(r => {
+    return resources.filter(r => {
       const matchSearch =
         !q ||
         r.name.toLowerCase().includes(q) ||
@@ -662,11 +564,11 @@ export default function AdminResourcesPage() {
       const matchGroup = !selectedGroupId || !activeGroup || activeGroup.skills.some(s => r.skills.includes(s))
       return matchSearch && matchSkill && matchGroup
     })
-  }, [search, selectedSkill, selectedGroupId, activeGroup])
+  }, [resources, search, selectedSkill, selectedGroupId, activeGroup])
 
   // ── Domain groups ────────────────────────────────────────────────────────
   const domainGroups = useMemo(() => {
-    const map: Partial<Record<Domain, Resource[]>> = {}
+    const map: Record<string, Resource[]> = {}
     filteredResources.forEach(r => {
       if (!map[r.domain]) map[r.domain] = []
       map[r.domain]!.push(r)
@@ -674,13 +576,19 @@ export default function AdminResourcesPage() {
     return map
   }, [filteredResources])
 
+  // Skill groups in their configured order, then freelancers matching none
+  const domainOrder = useMemo(
+    () => [...skillGroups.map(g => g.name), OTHER_DOMAIN],
+    [skillGroups],
+  )
+
   // ── Info bar data ────────────────────────────────────────────────────────
   const infoBar = useMemo(() => {
     if (!selectedSkill && !selectedGroupId) return null
     const matching = selectedSkill
-      ? MOCK_RESOURCES.filter(r => r.skills.includes(selectedSkill))
+      ? resources.filter(r => r.skills.includes(selectedSkill))
       : activeGroup
-        ? MOCK_RESOURCES.filter(r => activeGroup.skills.some(s => r.skills.includes(s)))
+        ? resources.filter(r => activeGroup.skills.some(s => r.skills.includes(s)))
         : []
     const availableNow = matching.filter(r => r.status === 'available').length
     const futureDates = matching
@@ -697,23 +605,22 @@ export default function AdminResourcesPage() {
       label: selectedSkill ?? activeGroup?.name ?? '',
       color: activeGroup?.color ?? 'var(--fg)',
     }
-  }, [selectedSkill, selectedGroupId, activeGroup])
+  }, [resources, selectedSkill, selectedGroupId, activeGroup])
 
   // ── Domain collapse logic for selected skill ─────────────────────────────
   const effectiveCollapsed = useMemo(() => {
     if (!selectedSkill) return collapsedDomains
     const domainsWithSkill = new Set(
-      MOCK_RESOURCES.filter(r => r.skills.includes(selectedSkill)).map(r => r.domain)
+      resources.filter(r => r.skills.includes(selectedSkill)).map(r => r.domain)
     )
-    const result = new Set<Domain>()
-    Object.keys(DOMAIN_CONFIG).forEach(d => {
-      const domain = d as Domain
+    const result = new Set<string>()
+    domainOrder.forEach(domain => {
       if (!domainsWithSkill.has(domain)) result.add(domain)
     })
     return result
-  }, [selectedSkill, collapsedDomains])
+  }, [resources, selectedSkill, collapsedDomains, domainOrder])
 
-  function toggleDomain(d: Domain) {
+  function toggleDomain(d: string) {
     setCollapsedDomains(prev => {
       const next = new Set(prev)
       next.has(d) ? next.delete(d) : next.add(d)
@@ -747,11 +654,11 @@ export default function AdminResourcesPage() {
 
   // ── Stat counts ──────────────────────────────────────────────────────────
   const stats = useMemo(() => ({
-    total: MOCK_RESOURCES.length,
-    available: MOCK_RESOURCES.filter(r => r.status === 'available').length,
-    endingSoon: MOCK_RESOURCES.filter(r => r.status === 'ending_soon').length,
-    onProject: MOCK_RESOURCES.filter(r => r.status === 'on_project').length,
-  }), [])
+    total: resources.length,
+    available: resources.filter(r => r.status === 'available').length,
+    endingSoon: resources.filter(r => r.status === 'ending_soon').length,
+    onProject: resources.filter(r => r.status === 'on_project').length,
+  }), [resources])
 
   return (
     <DashboardLayout allowedRoles={['admin']}>
@@ -763,6 +670,13 @@ export default function AdminResourcesPage() {
           Unassigned &amp; upcoming availability across your team
         </p>
       </div>
+
+      {(loadError || groupsError) && (
+        <div className="space-y-2 mb-6">
+          {loadError && <ErrorBanner title="Could not load resources" message={loadError} />}
+          {groupsError && <ErrorBanner title="Could not load skill groups" message={groupsError} />}
+        </div>
+      )}
 
       {/* ── Stat Chips ────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -933,7 +847,14 @@ export default function AdminResourcesPage() {
       )}
 
       {/* ── BY MEMBER VIEW ────────────────────────────────────────────────── */}
-      {view === 'member' && (
+      {loading && (
+        <div className="flex items-center justify-center gap-3 py-20">
+          <Loader2 size={18} className="animate-spin" style={{ color: 'var(--fg)' }} />
+          <span className="text-mono-label" style={{ color: 'var(--text-muted)' }}>LOADING RESOURCES...</span>
+        </div>
+      )}
+
+      {!loading && !loadError && view === 'member' && (
         <>
           {filteredResources.length === 0 ? (
             <div className="text-center py-20">
@@ -962,15 +883,16 @@ export default function AdminResourcesPage() {
       )}
 
       {/* ── BY DOMAIN VIEW ────────────────────────────────────────────────── */}
-      {view === 'domain' && (
+      {!loading && !loadError && view === 'domain' && (
         <div className="space-y-4">
-          {(Object.keys(DOMAIN_CONFIG) as Domain[])
-            .filter(d => domainGroups[d] && domainGroups[d]!.length > 0)
+          {domainOrder
+            .filter(d => domainGroups[d] && domainGroups[d].length > 0)
             .map(domain => (
               <DomainSection
                 key={domain}
                 domain={domain}
-                resources={domainGroups[domain]!}
+                color={skillGroups.find(g => g.name === domain)?.color ?? OTHER_COLOR}
+                resources={domainGroups[domain]}
                 selectedSkill={selectedSkill}
                 collapsed={effectiveCollapsed.has(domain)}
                 onToggle={() => toggleDomain(domain)}
