@@ -36,14 +36,24 @@ export class WorklogsController {
     } else if (user.role === 'admin') {
       if (query.freelancerId) filters.freelancerId = query.freelancerId;
       if (query.freelancerUserId) filters.freelancerUserId = query.freelancerUserId;
+    } else {
+      filters.clientUserId = user.id;
     }
 
     return this.worklogsService.findAll(filters);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.worklogsService.findOne(id);
+  async findOne(@Param('id') id: string, @Request() req: any) {
+    const worklog = await this.worklogsService.findOne(id);
+    const user = req.user;
+    if (user.role === 'freelancer' && worklog.freelancer?.user?.id !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    if (user.role === 'client' && worklog.project?.clientId !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return worklog;
   }
 
   @Post()

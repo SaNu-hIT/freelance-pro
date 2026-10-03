@@ -10,6 +10,7 @@ export interface WorklogQuery {
   projectId?: string;
   freelancerId?: string;
   freelancerUserId?: string;
+  clientUserId?: string;
   date?: string;
   limit?: number;
   page?: number;
@@ -27,7 +28,7 @@ export class WorklogsService {
   ) {}
 
   async findAll(query: WorklogQuery): Promise<{ data: Worklog[]; total: number }> {
-    const { projectId, freelancerId, freelancerUserId, date, limit = 20, page = 1 } = query;
+    const { projectId, freelancerId, freelancerUserId, clientUserId, date, limit = 20, page = 1 } = query;
     const qb = this.worklogsRepository
       .createQueryBuilder('worklog')
       .leftJoinAndSelect('worklog.project', 'project')
@@ -37,6 +38,7 @@ export class WorklogsService {
     if (projectId) qb.andWhere('worklog.projectId = :projectId', { projectId });
     if (freelancerId) qb.andWhere('worklog.freelancerId = :freelancerId', { freelancerId });
     if (freelancerUserId) qb.andWhere('user.id = :freelancerUserId', { freelancerUserId });
+    if (clientUserId) qb.andWhere('project.clientId = :clientUserId', { clientUserId });
     if (date) qb.andWhere('worklog.date = :date', { date });
 
     qb.skip((page - 1) * limit).take(limit);
