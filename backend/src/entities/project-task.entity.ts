@@ -25,7 +25,8 @@ export class ProjectTask {
   @Column({ type: 'uuid', nullable: true })
   sprintId: string | null;
 
-  @ManyToOne(() => ProjectSprint, { nullable: true })
+  // Deleting a sprint moves its tasks back to the backlog
+  @ManyToOne(() => ProjectSprint, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'sprintId' })
   sprint: ProjectSprint | null;
 

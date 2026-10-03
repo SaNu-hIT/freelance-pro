@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Inquiry } from './inquiry.entity'
@@ -20,7 +20,8 @@ export class InquiriesService {
   }
 
   async updateStatus(id: string, status: string) {
-    await this.repo.update(id, { status })
+    const { affected } = await this.repo.update(id, { status })
+    if (!affected) throw new NotFoundException(`Inquiry ${id} not found`)
     return this.repo.findOne({ where: { id } })
   }
 }
