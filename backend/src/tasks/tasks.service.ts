@@ -18,6 +18,17 @@ export class TasksService {
     });
   }
 
+  async isProjectMember(taskId: string, userId: string): Promise<boolean> {
+    const count = await this.tasksRepo
+      .createQueryBuilder('task')
+      .innerJoin('task.project', 'project')
+      .innerJoin('project.teamMembers', 'member')
+      .where('task.id = :taskId', { taskId })
+      .andWhere('member.userId = :userId', { userId })
+      .getCount();
+    return count > 0;
+  }
+
   create(data: { projectId: string; title: string; order?: number; sprintId?: string; assignedFreelancerId?: string }): Promise<ProjectTask> {
     const task = this.tasksRepo.create(data);
     return this.tasksRepo.save(task);
