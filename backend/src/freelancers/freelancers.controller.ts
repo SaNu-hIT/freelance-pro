@@ -28,6 +28,7 @@ export class FreelancersController {
       const profile = await this.freelancersService.findByUserId(user.id);
       return profile ? [profile] : [];
     }
+    if (user.role !== 'admin') throw new ForbiddenException('Access denied');
 
     return this.freelancersService.findAll({
       status: query.status,
@@ -36,8 +37,18 @@ export class FreelancersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @Request() req: any) {
+    await this.assertAdminOrSelf(req.user, id);
     return this.freelancersService.findOne(id);
+  }
+
+  private async assertAdminOrSelf(user: { id: string; role: string }, profileId: string) {
+    if (user.role === 'admin') return;
+    if (user.role === 'freelancer') {
+      const profile = await this.freelancersService.findByUserId(user.id);
+      if (profile?.id === profileId) return;
+    }
+    throw new ForbiddenException('Access denied');
   }
 
   @Patch(':id')
@@ -57,7 +68,9 @@ export class FreelancersController {
       if (!profile || profile.id !== id) {
         throw new ForbiddenException('You can only update your own profile');
       }
-      return this.freelancersService.update(id, dto);
+      // Review fields are set by admins only
+      const { adminNotes: _notes, verifications: _verifications, ...own } = dto;
+      return this.freelancersService.update(id, own);
     }
 
     throw new ForbiddenException('Access denied');
@@ -105,7 +118,8 @@ export class FreelancersController {
   }
 
   @Get(':id/availability')
-  async getAvailability(@Param('id') id: string) {
+  async getAvailability(@Param('id') id: string, @Request() req: any) {
+    await this.assertAdminOrSelf(req.user, id);
     return this.freelancersService.getAvailability(id);
   }
 
