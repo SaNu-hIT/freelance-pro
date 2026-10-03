@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Patch, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UsersService } from './users.service';
-import { ChangePasswordDto, DeleteMeDto, ListUsersQuery, UpdateMeDto } from './dto/user.dto';
+import { ChangePasswordDto, CreateClientDto, DeleteMeDto, ListUsersQuery, UpdateMeDto } from './dto/user.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -15,6 +15,13 @@ export class UsersController {
   @Roles('admin')
   list(@Query() query: ListUsersQuery) {
     return this.usersService.list(query.role);
+  }
+
+  @Post('clients')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  createClient(@Body() dto: CreateClientDto) {
+    return this.usersService.createClient(dto);
   }
 
   @Get('me')

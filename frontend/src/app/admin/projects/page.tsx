@@ -8,7 +8,7 @@ import {
   CheckSquare, Square, Clock, User, DollarSign,
   Calendar, ListChecks, Globe, FileSpreadsheet,
   ExternalLink, Timer, Layers, ChevronRight, ChevronDown as ChevDown, Code2, Users,
-  Activity, TrendingUp, Mail, Zap, LayoutGrid, List,
+  Activity, TrendingUp, Mail, Zap, LayoutGrid, List, AlertCircle, UserPlus,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -68,6 +68,51 @@ const EMPTY_FORM = {
   repoUrl: '', liveUrl: '', correctionSheetUrl: '',
 }
 
+type ProjectForm = typeof EMPTY_FORM
+type FieldErrors = Partial<Record<string, string>>
+
+const EMPTY_CLIENT = { name: '', email: '', company: '', phone: '', password: '' }
+
+const isHttpUrl = (v: string) => {
+  try { return ['http:', 'https:'].includes(new URL(v).protocol) } catch { return false }
+}
+
+// Mirrors the backend CreateProjectDto rules so the admin sees every problem at once
+function validateProject(f: ProjectForm, creating: boolean): FieldErrors {
+  const e: FieldErrors = {}
+  if (!f.title.trim()) e.title = 'Title is required.'
+  if (creating && !f.clientId) e.clientId = 'Choose the client this project is for, or add a new one.'
+  if (!f.description.trim()) e.description = 'Description is required.'
+  if (f.budget.trim() === '') e.budget = 'Budget is required.'
+  else if (!Number.isFinite(Number(f.budget)) || Number(f.budget) < 0) e.budget = 'Budget must be 0 or more.'
+  if (!f.deadline) e.deadline = 'End date is required.'
+  else if (creating && f.deadline < new Date().toLocaleDateString('en-CA')) e.deadline = 'End date cannot be in the past.'
+  for (const [key, label] of [['repoUrl', 'Repository URL'], ['liveUrl', 'Live URL'], ['correctionSheetUrl', 'Correction sheet URL']] as const) {
+    if (f[key].trim() && !isHttpUrl(f[key].trim())) e[key] = `${label} must start with http:// or https://`
+  }
+  return e
+}
+
+function validateClient(c: typeof EMPTY_CLIENT): FieldErrors {
+  const e: FieldErrors = {}
+  if (!c.name.trim()) e.name = 'Name is required.'
+  if (!c.email.trim()) e.email = 'Email is required.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email.trim())) e.email = 'Enter a valid email.'
+  if (c.password.length < 8) e.password = 'Temporary password must be at least 8 characters.'
+  return e
+}
+
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null
+  return (
+    <p id={id} role="alert" className="flex items-center gap-1.5 text-xs font-semibold mt-1.5" style={{ color: 'var(--fg)' }}>
+      <AlertCircle size={12} className="shrink-0" /> {message}
+    </p>
+  )
+}
+
+const invalidStyle = (bad?: string) => bad ? { borderColor: 'var(--fg)', boxShadow: '0 0 0 1px var(--fg)' } : undefined
+
 type PanelMode = 'view' | 'edit' | 'create' | null
 
 export default function AdminProjectsPage() {
@@ -113,6 +158,14 @@ function AdminProjectsPageInner() {
   // Errors: page load, create/edit modal, delete dialog, view drawer (sprints & tasks)
   const [loadError, setLoadError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+
+  // Inline "new client" form inside the project modal
+  const [showNewClient, setShowNewClient] = useState(false)
+  const [newClient, setNewClient] = useState(EMPTY_CLIENT)
+  const [clientErrors, setClientErrors] = useState<FieldErrors>({})
+  const [clientSaveError, setClientSaveError] = useState('')
+  const [creatingClient, setCreatingClient] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [drawerError, setDrawerError] = useState('')
 
@@ -171,11 +224,52 @@ function AdminProjectsPageInner() {
     loadProjectData(p.id)
   }
 
-  const openCreate = () => { setForm(EMPTY_FORM); setSelectedProject(null); setSaveError(''); setPanelMode('create') }
+  const resetFormExtras = () => {
+    setSaveError(''); setFieldErrors({})
+    setShowNewClient(false); setNewClient(EMPTY_CLIENT); setClientErrors({}); setClientSaveError('')
+  }
+
+  const openCreate = () => { setForm(EMPTY_FORM); setSelectedProject(null); resetFormExtras(); setPanelMode('create') }
+
+  // Set one field and clear its error so the message goes away as soon as it is fixed
+  const setField = <K extends keyof ProjectForm>(key: K, value: ProjectForm[K]) => {
+    setForm(f => ({ ...f, [key]: value }))
+    setFieldErrors(e => (e[key] ? { ...e, [key]: undefined } : e))
+  }
+
+  const setClientField = (key: keyof typeof EMPTY_CLIENT, value: string) => {
+    setNewClient(c => ({ ...c, [key]: value }))
+    setClientErrors(e => (e[key] ? { ...e, [key]: undefined } : e))
+  }
+
+  const handleCreateClient = async () => {
+    const errors = validateClient(newClient)
+    setClientErrors(errors)
+    setClientSaveError('')
+    if (Object.keys(errors).length) return
+    setCreatingClient(true)
+    try {
+      const { data } = await usersApi.createClient({
+        name: newClient.name.trim(),
+        email: newClient.email.trim(),
+        password: newClient.password,
+        ...(newClient.company.trim() ? { company: newClient.company.trim() } : {}),
+        ...(newClient.phone.trim() ? { phone: newClient.phone.trim() } : {}),
+      })
+      setClients(prev => [data, ...prev])
+      setField('clientId', data.id)
+      setShowNewClient(false)
+      setNewClient(EMPTY_CLIENT)
+    } catch (err) {
+      setClientSaveError(apiError(err, 'Could not create the client.'))
+    } finally {
+      setCreatingClient(false)
+    }
+  }
 
   const openEdit = (p: Project) => {
     setSelectedProject(p)
-    setSaveError('')
+    resetFormExtras()
     setForm({
       title: p.title, description: p.description, budget: String(p.budget),
       deadline: p.deadline?.slice(0, 10) ?? '', clientId: p.clientId ?? p.client?.id ?? '',
@@ -196,15 +290,26 @@ function AdminProjectsPageInner() {
   }
 
   const handleSave = async () => {
-    if (panelMode === 'create' && !form.clientId) {
-      setSaveError('Choose the client this project is for.')
+    const errors = validateProject(form, panelMode === 'create')
+    setFieldErrors(errors)
+    if (Object.keys(errors).length) {
+      setSaveError('Fix the highlighted fields and try again.')
       return
     }
     setSaving(true)
     setSaveError('')
     // Older projects may have no client account yet; leave clientId out rather than send ''
     const { clientId, ...rest } = form
-    const payload = { ...rest, budget: parseFloat(form.budget) || 0, ...(clientId ? { clientId } : {}) }
+    const payload = {
+      ...rest,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      repoUrl: form.repoUrl.trim(),
+      liveUrl: form.liveUrl.trim(),
+      correctionSheetUrl: form.correctionSheetUrl.trim(),
+      budget: Number(form.budget),
+      ...(clientId ? { clientId } : {}),
+    }
     if (panelMode === 'create') {
       let created: Project
       try {
@@ -986,48 +1091,119 @@ function AdminProjectsPageInner() {
 
                 {/* Title */}
                 <div>
-                  <label className="label-field">Project Title</label>
-                  <input className="input-field text-base" placeholder="Enter project title…"
-                    value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                  <label htmlFor="project-title" className="label-field">Project Title *</label>
+                  <input id="project-title" className="input-field text-base" placeholder="Enter project title…"
+                    aria-invalid={!!fieldErrors.title} aria-describedby="project-title-error" style={invalidStyle(fieldErrors.title)}
+                    value={form.title} onChange={e => setField('title', e.target.value)} />
+                  <FieldError id="project-title-error" message={fieldErrors.title} />
                 </div>
 
                 {/* Client */}
                 <div>
-                  <label htmlFor="project-client" className="label-field">Client</label>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="project-client" className="label-field">Client{panelMode === 'create' ? ' *' : ''}</label>
+                    {!showNewClient && (
+                      <button type="button" onClick={() => { setShowNewClient(true); setClientSaveError('') }}
+                        className="flex items-center gap-1 text-xs font-semibold mb-1.5" style={{ color: 'var(--fg)' }}>
+                        <UserPlus size={12} /> New client
+                      </button>
+                    )}
+                  </div>
                   <div className="relative">
                     <select id="project-client" className="input-field appearance-none pr-8" value={form.clientId}
-                      onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))}>
-                      <option value="" disabled>{clients.length ? 'Select a client…' : 'No client accounts yet'}</option>
+                      aria-invalid={!!fieldErrors.clientId} aria-describedby="project-client-error" style={invalidStyle(fieldErrors.clientId)}
+                      onChange={e => setField('clientId', e.target.value)}>
+                      <option value="" disabled>{clients.length ? 'Select a client…' : 'No client accounts yet. Add one with "New client"'}</option>
                       {clients.map(c => (
                         <option key={c.id} value={c.id}>{c.company ? `${c.name} (${c.company})` : c.name}</option>
                       ))}
                     </select>
                     <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                   </div>
+                  <FieldError id="project-client-error" message={fieldErrors.clientId} />
+
+                  {showNewClient && (
+                    <div className="mt-3 rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                      <div className="flex items-center justify-between">
+                        <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>NEW CLIENT ACCOUNT</p>
+                        <button type="button" aria-label="Cancel new client" onClick={() => { setShowNewClient(false); setClientErrors({}); setClientSaveError('') }}
+                          style={{ color: 'var(--text-muted)' }}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                      {clientSaveError && <ErrorBanner title="Client not created" message={clientSaveError} onClose={() => setClientSaveError('')} />}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="client-name" className="label-field">Name *</label>
+                          <input id="client-name" className="input-field" placeholder="Contact or company name"
+                            aria-invalid={!!clientErrors.name} aria-describedby="client-name-error" style={invalidStyle(clientErrors.name)}
+                            value={newClient.name} onChange={e => setClientField('name', e.target.value)} />
+                          <FieldError id="client-name-error" message={clientErrors.name} />
+                        </div>
+                        <div>
+                          <label htmlFor="client-email" className="label-field">Email *</label>
+                          <input id="client-email" type="email" className="input-field" placeholder="client@company.com"
+                            aria-invalid={!!clientErrors.email} aria-describedby="client-email-error" style={invalidStyle(clientErrors.email)}
+                            value={newClient.email} onChange={e => setClientField('email', e.target.value)} />
+                          <FieldError id="client-email-error" message={clientErrors.email} />
+                        </div>
+                        <div>
+                          <label htmlFor="client-company" className="label-field">Company</label>
+                          <input id="client-company" className="input-field" placeholder="Optional"
+                            value={newClient.company} onChange={e => setClientField('company', e.target.value)} />
+                        </div>
+                        <div>
+                          <label htmlFor="client-phone" className="label-field">Phone</label>
+                          <input id="client-phone" className="input-field" placeholder="Optional"
+                            value={newClient.phone} onChange={e => setClientField('phone', e.target.value)} />
+                        </div>
+                      </div>
+                      <div>
+                        <label htmlFor="client-password" className="label-field">Temporary password *</label>
+                        <input id="client-password" type="text" autoComplete="off" className="input-field" placeholder="At least 8 characters"
+                          aria-invalid={!!clientErrors.password} aria-describedby="client-password-error client-password-hint" style={invalidStyle(clientErrors.password)}
+                          value={newClient.password} onChange={e => setClientField('password', e.target.value)} />
+                        <FieldError id="client-password-error" message={clientErrors.password} />
+                        <p id="client-password-hint" className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                          Share this with the client. They can change it in their account settings.
+                        </p>
+                      </div>
+                      <button type="button" onClick={handleCreateClient} disabled={creatingClient}
+                        className="btn-primary flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
+                        {creatingClient ? <><Clock size={13} className="animate-spin" /> Creating…</> : <><UserPlus size={13} /> Create client</>}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="label-field">Description</label>
-                  <textarea className="input-field resize-none" rows={4} placeholder="Describe the project scope, goals, and deliverables…"
-                    value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                  <label htmlFor="project-description" className="label-field">Description *</label>
+                  <textarea id="project-description" className="input-field resize-none" rows={4} placeholder="Describe the project scope, goals, and deliverables…"
+                    aria-invalid={!!fieldErrors.description} aria-describedby="project-description-error" style={invalidStyle(fieldErrors.description)}
+                    value={form.description} onChange={e => setField('description', e.target.value)} />
+                  <FieldError id="project-description-error" message={fieldErrors.description} />
                 </div>
 
                 {/* Budget + Deadline */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="label-field flex items-center gap-1.5">
-                      <DollarSign size={11} style={{ color: 'var(--fg)' }} /> Budget ({curr})
+                    <label htmlFor="project-budget" className="label-field flex items-center gap-1.5">
+                      <DollarSign size={11} style={{ color: 'var(--fg)' }} /> Budget ({curr}) *
                     </label>
-                    <input type="number" className="input-field" placeholder="0"
-                      value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} />
+                    <input id="project-budget" type="number" min={0} step="any" className="input-field" placeholder="0"
+                      aria-invalid={!!fieldErrors.budget} aria-describedby="project-budget-error" style={invalidStyle(fieldErrors.budget)}
+                      value={form.budget} onChange={e => setField('budget', e.target.value)} />
+                    <FieldError id="project-budget-error" message={fieldErrors.budget} />
                   </div>
                   <div>
-                    <label className="label-field flex items-center gap-1.5">
-                      <Calendar size={11} style={{ color: 'var(--fg)' }} /> End Date
+                    <label htmlFor="project-deadline" className="label-field flex items-center gap-1.5">
+                      <Calendar size={11} style={{ color: 'var(--fg)' }} /> End Date *
                     </label>
-                    <input type="date" className="input-field"
-                      value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
+                    <input id="project-deadline" type="date" className="input-field"
+                      aria-invalid={!!fieldErrors.deadline} aria-describedby="project-deadline-error" style={invalidStyle(fieldErrors.deadline)}
+                      value={form.deadline} onChange={e => setField('deadline', e.target.value)} />
+                    <FieldError id="project-deadline-error" message={fieldErrors.deadline} />
                   </div>
                 </div>
 
@@ -1037,7 +1213,7 @@ function AdminProjectsPageInner() {
                     <label className="label-field">Status</label>
                     <div className="relative">
                       <select className="input-field appearance-none pr-8" value={form.status}
-                        onChange={e => setForm(f => ({ ...f, status: e.target.value as ProjectStatus }))}>
+                        onChange={e => setField('status', e.target.value as ProjectStatus)}>
                         {ALL_STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                       </select>
                       <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
@@ -1047,7 +1223,7 @@ function AdminProjectsPageInner() {
                     <label className="label-field">Priority</label>
                     <div className="relative">
                       <select className="input-field appearance-none pr-8" value={form.priority}
-                        onChange={e => setForm(f => ({ ...f, priority: e.target.value as ProjectPriority }))}>
+                        onChange={e => setField('priority', e.target.value as ProjectPriority)}>
                         {ALL_PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
                       </select>
                       <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
@@ -1060,19 +1236,25 @@ function AdminProjectsPageInner() {
                   <p className="text-mono-label mb-4" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PROJECT LINKS</p>
                   <div className="space-y-3">
                     <div>
-                      <label className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: 'var(--fg)' }} /> Repository URL</label>
-                      <input className="input-field" placeholder="https://github.com/org/repo"
-                        value={form.repoUrl} onChange={e => setForm(f => ({ ...f, repoUrl: e.target.value }))} />
+                      <label htmlFor="project-repo" className="label-field flex items-center gap-1.5"><Code2 size={11} style={{ color: 'var(--fg)' }} /> Repository URL</label>
+                      <input id="project-repo" className="input-field" placeholder="https://github.com/org/repo"
+                        aria-invalid={!!fieldErrors.repoUrl} aria-describedby="project-repo-error" style={invalidStyle(fieldErrors.repoUrl)}
+                        value={form.repoUrl} onChange={e => setField('repoUrl', e.target.value)} />
+                      <FieldError id="project-repo-error" message={fieldErrors.repoUrl} />
                     </div>
                     <div>
-                      <label className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: 'var(--fg)' }} /> Live / Staging URL</label>
-                      <input className="input-field" placeholder="https://staging.yoursite.com"
-                        value={form.liveUrl} onChange={e => setForm(f => ({ ...f, liveUrl: e.target.value }))} />
+                      <label htmlFor="project-live" className="label-field flex items-center gap-1.5"><Globe size={11} style={{ color: 'var(--fg)' }} /> Live / Staging URL</label>
+                      <input id="project-live" className="input-field" placeholder="https://staging.yoursite.com"
+                        aria-invalid={!!fieldErrors.liveUrl} aria-describedby="project-live-error" style={invalidStyle(fieldErrors.liveUrl)}
+                        value={form.liveUrl} onChange={e => setField('liveUrl', e.target.value)} />
+                      <FieldError id="project-live-error" message={fieldErrors.liveUrl} />
                     </div>
                     <div>
-                      <label className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: 'var(--fg)' }} /> Correction Sheet URL</label>
-                      <input className="input-field" placeholder="https://docs.google.com/spreadsheets/…"
-                        value={form.correctionSheetUrl} onChange={e => setForm(f => ({ ...f, correctionSheetUrl: e.target.value }))} />
+                      <label htmlFor="project-sheet" className="label-field flex items-center gap-1.5"><FileSpreadsheet size={11} style={{ color: 'var(--fg)' }} /> Correction Sheet URL</label>
+                      <input id="project-sheet" className="input-field" placeholder="https://docs.google.com/spreadsheets/…"
+                        aria-invalid={!!fieldErrors.correctionSheetUrl} aria-describedby="project-sheet-error" style={invalidStyle(fieldErrors.correctionSheetUrl)}
+                        value={form.correctionSheetUrl} onChange={e => setField('correctionSheetUrl', e.target.value)} />
+                      <FieldError id="project-sheet-error" message={fieldErrors.correctionSheetUrl} />
                     </div>
                   </div>
                 </div>

@@ -10,7 +10,7 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
-import { UpdateMeDto } from './dto/user.dto';
+import { CreateClientDto, UpdateMeDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +38,25 @@ export class UsersService {
   ): Promise<User | null> {
     await this.usersRepository.update(id, data);
     return this.findById(id);
+  }
+
+  async createClient(dto: CreateClientDto): Promise<User & { projectCount: number }> {
+    if (await this.usersRepository.findOne({ where: { email: dto.email } })) {
+      throw new ConflictException('Email already in use');
+    }
+    const saved = await this.usersRepository.save(
+      this.usersRepository.create({
+        email: dto.email,
+        password: await bcrypt.hash(dto.password, 10),
+        name: dto.name.trim(),
+        role: 'client',
+        company: dto.company?.trim() || null,
+        phone: dto.phone?.trim() || null,
+      }),
+    );
+    // Reload so the password hash never leaves the server
+    const user = (await this.usersRepository.findOne({ where: { id: saved.id } }))!;
+    return { ...user, projectCount: 0 };
   }
 
   // Users of a role with how many projects they own as client

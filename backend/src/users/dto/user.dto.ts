@@ -29,6 +29,28 @@ export class UpdateMeDto {
   notificationPrefs?: Record<string, boolean>;
 }
 
+// Admin creates a client account; the admin shares the temporary password with the client
+export class CreateClientDto {
+  @IsString()
+  @MinLength(1)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
+
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+}
+
 export class ChangePasswordDto {
   @IsString()
   currentPassword: string;

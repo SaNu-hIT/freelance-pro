@@ -13,7 +13,7 @@ const adminOnly: [string, object, string[]][] = [
   ['SkillGroupsController', SkillGroupsController, ['create', 'update', 'remove', 'addSkill', 'removeSkill']],
   ['SprintsController', SprintsController, ['create', 'update', 'remove']],
   ['TasksController', TasksController, ['create', 'remove']],
-  ['UsersController', UsersController, ['list']],
+  ['UsersController', UsersController, ['list', 'createClient']],
 ];
 
 describe('admin-only routes', () => {

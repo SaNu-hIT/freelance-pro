@@ -60,4 +60,22 @@ describe('UsersService', () => {
     await expect(service.deleteAccount('u1', 'oldpass12')).rejects.toThrow(BadRequestException);
     expect(users.delete).not.toHaveBeenCalled();
   });
+
+  it('creates a client with a hashed password and returns it without the hash', async () => {
+    users.create = jest.fn((x: any) => x);
+    users.save = jest.fn((x: any) => Promise.resolve({ ...x, id: 'c9' }));
+    users.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'c9', role: 'client' });
+    const out = await service.createClient({ name: ' Acme ', email: 'a@acme.co', password: 'temppass1', company: '' });
+    const savedArg = users.save.mock.calls[0][0];
+    expect(savedArg.role).toBe('client');
+    expect(savedArg.name).toBe('Acme');
+    expect(savedArg.company).toBeNull();
+    expect(await bcrypt.compare('temppass1', savedArg.password)).toBe(true);
+    expect(out).toEqual({ id: 'c9', role: 'client', projectCount: 0 });
+  });
+
+  it('refuses a client email that is already registered', async () => {
+    users.findOne.mockResolvedValue({ id: 'u2' });
+    await expect(service.createClient({ name: 'A', email: 'taken@x.co', password: 'temppass1' })).rejects.toThrow(ConflictException);
+  });
 });

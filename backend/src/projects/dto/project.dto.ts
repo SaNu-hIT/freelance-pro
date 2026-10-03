@@ -8,20 +8,30 @@ import {
   Min,
   MinLength,
   Max,
+  IsNotEmpty,
+  IsUrl,
+  ValidateIf,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 
+// Empty link fields arrive as '' from the form; only check a URL when one is given
+const HTTP_URL = { protocols: ['http', 'https'], require_protocol: true };
+const hasValue = (_: object, v: unknown) => v !== '' && v != null;
+
 export class CreateProjectDto {
   @IsString()
+  @IsNotEmpty({ message: 'Title is required' })
   title: string;
 
   @IsString()
+  @IsNotEmpty({ message: 'Description is required' })
   description: string;
 
   @IsNumber()
+  @Min(0, { message: 'Budget cannot be negative' })
   budget: number;
 
-  @IsDateString()
+  @IsDateString({}, { message: 'Deadline must be a valid date' })
   deadline: string;
 
   @IsOptional()
@@ -32,16 +42,16 @@ export class CreateProjectDto {
   @IsIn(['low', 'medium', 'high', 'critical'])
   priority?: string;
 
-  @IsOptional()
-  @IsString()
+  @ValidateIf(hasValue)
+  @IsUrl(HTTP_URL, { message: 'Repository URL must start with http:// or https://' })
   repoUrl?: string;
 
-  @IsOptional()
-  @IsString()
+  @ValidateIf(hasValue)
+  @IsUrl(HTTP_URL, { message: 'Live URL must start with http:// or https://' })
   liveUrl?: string;
 
-  @IsOptional()
-  @IsString()
+  @ValidateIf(hasValue)
+  @IsUrl(HTTP_URL, { message: 'Correction sheet URL must start with http:// or https://' })
   correctionSheetUrl?: string;
 
   // Admin only: the client account that owns the project. Ignored for clients.

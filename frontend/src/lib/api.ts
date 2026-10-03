@@ -116,6 +116,8 @@ export const skillGroupsApi = {
 
 export const usersApi = {
   list: (role?: 'admin' | 'freelancer' | 'client') => api.get('/users', { params: role ? { role } : {} }),
+  createClient: (data: { name: string; email: string; password: string; company?: string; phone?: string }) =>
+    api.post('/users/clients', data),
   me: () => api.get('/users/me'),
   updateMe: (data: { name?: string; email?: string; phone?: string; company?: string; notificationPrefs?: Record<string, boolean> }) =>
     api.patch('/users/me', data),
