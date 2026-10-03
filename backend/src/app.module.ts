@@ -24,6 +24,8 @@ import { PlatformSettingsModule } from './platform-settings/platform-settings.mo
 import { PlatformSettings } from './entities/platform-settings.entity';
 import { ChatModule } from './chat/chat.module';
 import { ChatMessage } from './entities/chat-message.entity';
+import { ProjectRequest } from './entities/project-request.entity';
+import { ProjectRequestsModule } from './project-requests/project-requests.module';
 
 @Module({
   imports: [
@@ -38,7 +40,7 @@ import { ChatMessage } from './entities/chat-message.entity';
         username: configService.get<string>('DATABASE_USER', 'postgres'),
         password: configService.get<string>('DATABASE_PASSWORD', 'postgres'),
         database: configService.get<string>('DATABASE_NAME', 'freelance_pro'),
-        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage],
+        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage, ProjectRequest],
         synchronize: true,
         logging: false,
       }),
@@ -47,6 +49,7 @@ import { ChatMessage } from './entities/chat-message.entity';
     AuthModule,
     UsersModule,
     ProjectsModule,
+    ProjectRequestsModule,
     WorklogsModule,
     FreelancersModule,
     PaymentsModule,

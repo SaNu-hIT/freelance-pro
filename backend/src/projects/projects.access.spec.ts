@@ -8,7 +8,7 @@ describe('ProjectsService.assertAccess', () => {
 
   beforeEach(() => {
     repo = { findOne: jest.fn().mockResolvedValue(project) };
-    service = new ProjectsService(repo as any, {} as any);
+    service = new ProjectsService(repo as any, {} as any, {} as any);
   });
 
   it.each([

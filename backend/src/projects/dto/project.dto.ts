@@ -6,6 +6,7 @@ import {
   IsIn,
   IsUUID,
   Min,
+  MinLength,
   Max,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
@@ -64,4 +65,10 @@ export class UpdateProjectDto extends PartialType(CreateProjectDto) {
 
   @IsOptional()
   teamMemberIds?: string[];
+}
+
+export class RequestChangesDto {
+  @IsString()
+  @MinLength(1)
+  message: string;
 }

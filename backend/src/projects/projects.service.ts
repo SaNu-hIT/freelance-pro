@@ -1,8 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, In, MoreThanOrEqual, Repository } from 'typeorm';
+import { DeepPartial, In, MoreThanOrEqual, ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { Project } from '../entities/project.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
+import { ProjectRequest } from '../entities/project-request.entity';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 
 export interface ProjectQuery {
@@ -21,6 +22,8 @@ export class ProjectsService {
     private projectsRepository: Repository<Project>,
     @InjectRepository(FreelancerProfile)
     private freelancerRepo: Repository<FreelancerProfile>,
+    @InjectRepository(ProjectRequest)
+    private requestsRepo: Repository<ProjectRequest>,
   ) {}
 
   async findAll(query: ProjectQuery): Promise<{ data: Project[]; total: number }> {
@@ -62,6 +65,47 @@ export class ProjectsService {
       (user.role === 'freelancer' && project.teamMembers.some((m) => m.userId === user.id));
     if (!allowed) throw new ForbiddenException('Access denied');
     return project;
+  }
+
+  // Limits a query that joins a project (as projectAlias) to projects the user can see.
+  scopeToUser<T extends ObjectLiteral>(
+    qb: SelectQueryBuilder<T>,
+    projectAlias: string,
+    user: { id: string; role: string },
+  ): SelectQueryBuilder<T> {
+    if (user.role === 'client') {
+      qb.andWhere(`${projectAlias}.clientId = :scopeUserId`, { scopeUserId: user.id });
+    } else if (user.role === 'freelancer') {
+      qb.innerJoin(`${projectAlias}.teamMembers`, 'scopeMember').andWhere('scopeMember.userId = :scopeUserId', {
+        scopeUserId: user.id,
+      });
+    }
+    return qb;
+  }
+
+  // Client sign-off on a project awaiting approval
+  async approve(user: { id: string; role: string }, id: string): Promise<Project> {
+    await this.assertPendingForOwner(user, id);
+    await this.projectsRepository.update(id, { status: 'completed' });
+    return this.findOne(id);
+  }
+
+  // Client sends a project awaiting approval back to the team with notes
+  async requestChanges(user: { id: string; role: string }, id: string, message: string): Promise<Project> {
+    await this.assertPendingForOwner(user, id);
+    await this.projectsRepository.update(id, { status: 'in_progress' });
+    await this.requestsRepo.save(
+      this.requestsRepo.create({ projectId: id, kind: 'change', fromUserId: user.id, subject: 'Changes requested', body: message }),
+    );
+    return this.findOne(id);
+  }
+
+  private async assertPendingForOwner(user: { id: string; role: string }, id: string) {
+    if (user.role !== 'client') throw new ForbiddenException('Only the client can approve a project');
+    const project = await this.assertAccess(user, id);
+    if (project.status !== 'pending_approval') {
+      throw new BadRequestException('Project is not awaiting approval');
+    }
   }
 
   async findOne(id: string): Promise<Project> {

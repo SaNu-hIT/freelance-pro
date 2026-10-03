@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { CreateProjectDto, RequestChangesDto, UpdateProjectDto } from './dto/project.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('projects')
@@ -102,6 +102,16 @@ export class ProjectsController {
     }
 
     return this.projectsService.update(id, dto);
+  }
+
+  @Post(':id/approve')
+  approve(@Param('id') id: string, @Request() req: any) {
+    return this.projectsService.approve(req.user, id);
+  }
+
+  @Post(':id/request-changes')
+  requestChanges(@Param('id') id: string, @Body() dto: RequestChangesDto, @Request() req: any) {
+    return this.projectsService.requestChanges(req.user, id, dto.message);
   }
 
   @Delete(':id')

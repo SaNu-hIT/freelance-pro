@@ -17,7 +17,7 @@ describe('ProjectsService.getDashboardStats', () => {
       count: jest.fn().mockResolvedValueOnce(7).mockResolvedValueOnce(2),
     };
     const freelancers: any = { count: jest.fn().mockResolvedValueOnce(5).mockResolvedValueOnce(4).mockResolvedValueOnce(1) };
-    const stats = await new ProjectsService(projects, freelancers).getDashboardStats();
+    const stats = await new ProjectsService(projects, freelancers, {} as any).getDashboardStats();
     expect(stats).toMatchObject({
       totalProjects: 7, activeProjects: 4, delayedProjects: 2, pendingApprovals: 1,
       totalFreelancers: 5, activeFreelancers: 4, newProjectsLast30Days: 2, newFreelancersLast30Days: 1,

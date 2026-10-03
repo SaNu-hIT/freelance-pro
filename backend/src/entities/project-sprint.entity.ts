@@ -32,6 +32,10 @@ export class ProjectSprint {
   @Column({ type: 'date', nullable: true })
   endDate: string | null;
 
+  // Set when the client signs off the milestone
+  @Column({ type: 'timestamptz', nullable: true })
+  approvedAt: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

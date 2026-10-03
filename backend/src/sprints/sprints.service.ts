@@ -1,14 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProjectSprint } from '../entities/project-sprint.entity';
+import { ProjectTask } from '../entities/project-task.entity';
 
 @Injectable()
 export class SprintsService {
   constructor(
     @InjectRepository(ProjectSprint)
     private sprintsRepo: Repository<ProjectSprint>,
+    @InjectRepository(ProjectTask)
+    private tasksRepo: Repository<ProjectTask>,
   ) {}
+
+  async findOne(id: string): Promise<ProjectSprint> {
+    const sprint = await this.sprintsRepo.findOne({ where: { id } });
+    if (!sprint) throw new NotFoundException(`Sprint ${id} not found`);
+    return sprint;
+  }
+
+  // A milestone can be signed off once it has tasks and all of them are done
+  async approve(id: string): Promise<ProjectSprint> {
+    const sprint = await this.findOne(id);
+    const tasks = await this.tasksRepo.find({ where: { sprintId: id } });
+    if (!tasks.length || tasks.some((t) => !t.completed)) {
+      throw new BadRequestException('Milestone has unfinished tasks');
+    }
+    sprint.approvedAt = new Date();
+    return this.sprintsRepo.save(sprint);
+  }
 
   findByProject(projectId: string): Promise<ProjectSprint[]> {
     return this.sprintsRepo.find({
