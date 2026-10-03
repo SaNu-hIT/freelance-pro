@@ -1,4 +1,4 @@
-import { IsOptional, IsArray, IsNumber, IsString, IsObject, IsIn } from 'class-validator';
+import { IsOptional, IsArray, IsNumber, IsString, IsObject, IsIn, Min } from 'class-validator';
 
 export class UpdateFreelancerDto {
   @IsOptional()
@@ -7,10 +7,12 @@ export class UpdateFreelancerDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(0)
   experience?: number;
 
   @IsOptional()
   @IsNumber()
+  @Min(0)
   hourlyRate?: number;
 
   @IsOptional()
