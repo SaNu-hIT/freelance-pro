@@ -19,11 +19,12 @@ const roleRoutes: Record<UserRole, string> = {
   client: '/client',
 }
 
-const DEMO_ACCOUNTS = [
+// Seed accounts for local development only. Never ship these credentials in a production bundle.
+const DEMO_ACCOUNTS = process.env.NODE_ENV === 'development' ? [
   { label: 'Admin',      email: 'admin@freelancepro.com',  password: 'Admin@123', role: 'admin'      as UserRole, icon: ShieldCheck, desc: 'Full platform control',  color: 'var(--fg)' },
   { label: 'Freelancer', email: 'alex@freelancepro.dev',   password: 'Test@123',  role: 'freelancer' as UserRole, icon: Code2,       desc: 'Projects & worklogs',   color: 'var(--fg)' },
   { label: 'Client',     email: 'acme@corp.com',           password: 'Test@123',  role: 'client'     as UserRole, icon: Building2,   desc: 'Track your projects',   color: 'var(--fg)' },
-]
+] : []
 
 const FEATURES = [
   { icon: BarChart3,    text: 'Live dashboards with real-time progress tracking' },
@@ -183,6 +184,7 @@ export default function LoginPage() {
               </button>
             </form>
 
+            {DEMO_ACCOUNTS.length > 0 && <>
             {/* Divider */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px border-t border-theme" />
@@ -221,6 +223,7 @@ export default function LoginPage() {
                 )
               })}
             </div>
+            </>}
 
             <p className="text-center text-sm text-muted-ui">
               No account?{' '}
