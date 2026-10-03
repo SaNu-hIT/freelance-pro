@@ -137,7 +137,7 @@ export default function FreelancerWorklogsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [pRes, wRes] = await Promise.all([projectsApi.getAll(), worklogsApi.getAll()])
+        const [pRes, wRes] = await Promise.all([projectsApi.getAll(), worklogsApi.getAll({ limit: 1000 })])
         const pData = pRes.data?.data ?? pRes.data ?? []
         const wData = wRes.data?.data ?? wRes.data ?? []
         setProjects(pData)
@@ -265,7 +265,7 @@ export default function FreelancerWorklogsPage() {
       await worklogsApi.create(payload as unknown as Record<string, unknown>)
       // Re-fetch so the list always shows exactly what the server has (avoids shape mismatch from optimistic update)
       await Promise.allSettled([...markDoneIds].map(id => tasksApi.update(id, { completed: true })))
-      const freshLogsRes = await worklogsApi.getAll()
+      const freshLogsRes = await worklogsApi.getAll({ limit: 1000 })
       const freshData = freshLogsRes.data?.data ?? freshLogsRes.data ?? []
       setWorklogs(freshData)
       setTasks(prev => prev.map(t => markDoneIds.has(t.id) ? { ...t, completed: true } : t))

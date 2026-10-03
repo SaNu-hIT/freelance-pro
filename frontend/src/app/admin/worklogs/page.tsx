@@ -233,7 +233,7 @@ export default function AdminWorklogsPage() {
     const load = async () => {
       try {
         const [wRes, pRes, fRes] = await Promise.allSettled([
-          worklogsApi.getAll(),
+          worklogsApi.getAll({ limit: 1000 }),
           projectsApi.getAll(),
           freelancersApi.getAll(),
         ])

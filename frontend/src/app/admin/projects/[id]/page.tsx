@@ -140,7 +140,7 @@ export default function ProjectDetailPage() {
       projectsApi.getOne(id),
       tasksApi.getByProject(id),
       sprintsApi.getByProject(id),
-      worklogsApi.getAll({ projectId: id, limit: 50 }),
+      worklogsApi.getAll({ projectId: id, limit: 1000 }),
     ]).then(([pRes, tRes, sRes, wRes]) => {
       setProject(pRes.data)
       const tData = tRes.data

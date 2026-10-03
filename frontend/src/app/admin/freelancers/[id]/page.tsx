@@ -121,7 +121,7 @@ export default function FreelancerDetailPage() {
       const [r1, r2, wRes] = await Promise.all([
         projectsApi.getAll({ assignedTo: id }),
         projectsApi.getAll({ freelancerUserId: p.userId }),
-        worklogsApi.getAll({ freelancerId: id, limit: 50 }),
+        worklogsApi.getAll({ freelancerId: id, limit: 1000 }),
       ])
       const list1: Project[] = r1.data?.data ?? r1.data ?? []
       const list2: Project[] = r2.data?.data ?? r2.data ?? []

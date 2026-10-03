@@ -155,7 +155,7 @@ export default function FreelancerDashboardPage() {
       try {
         const [pRes, wRes] = await Promise.all([
           projectsApi.getAll(),
-          worklogsApi.getAll(),
+          worklogsApi.getAll({ limit: 1000 }),
         ])
         setProjects(pRes.data?.data ?? pRes.data ?? MOCK_PROJECTS)
         setWorklogs(wRes.data?.data ?? wRes.data ?? MOCK_WORKLOGS)
