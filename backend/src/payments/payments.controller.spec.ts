@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 
@@ -17,9 +18,9 @@ describe('PaymentsController scoping', () => {
     expect(service.findAll.mock.calls[0][0].freelancerId).toBeUndefined();
   });
 
-  it('limits a client to payments on their own projects', async () => {
-    await controller.findAll(req('client', 'c1'), {});
-    expect(service.findAll).toHaveBeenCalledWith(expect.objectContaining({ clientUserId: 'c1' }));
+  it('refuses clients, since payments are freelancer payouts', async () => {
+    await expect(controller.findAll(req('client', 'c1'), {})).rejects.toThrow(ForbiddenException);
+    expect(service.findAll).not.toHaveBeenCalled();
   });
 
   it('does not scope the admin list', async () => {

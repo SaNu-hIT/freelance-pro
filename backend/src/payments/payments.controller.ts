@@ -8,6 +8,7 @@ import {
   Query,
   Request,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -28,10 +29,11 @@ export class PaymentsController {
       status: query.status,
     };
 
+    // Payments are freelancer payouts: a freelancer sees their own, clients see none
     if (user.role === 'freelancer') {
       filters.freelancerUserId = user.id;
     } else if (user.role !== 'admin') {
-      filters.clientUserId = user.id;
+      throw new ForbiddenException('Payouts are not visible to clients');
     }
 
     return this.paymentsService.findAll(filters);

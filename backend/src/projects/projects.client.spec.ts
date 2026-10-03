@@ -49,3 +49,21 @@ describe('choosing a project client', () => {
     expect(saved.client).toBeUndefined();
   });
 });
+
+describe('project detail payouts', () => {
+  const project = () => ({ id: 'p1', clientId: 'c1', teamMembers: [{ user: { id: 'f1' } }], payments: [{ id: 'pay1' }] });
+  const controllerWith = () => {
+    const service = { findOne: jest.fn().mockResolvedValue(project()) } as any;
+    return new ProjectsController(service);
+  };
+
+  it.each([['client', 'c1'], ['freelancer', 'f1']])('leaves payouts out for a %s', async (role, id) => {
+    const res: any = await controllerWith().findOne('p1', { user: { id, role } });
+    expect(res.payments).toBeUndefined();
+  });
+
+  it('keeps payouts for an admin', async () => {
+    const res: any = await controllerWith().findOne('p1', { user: { id: 'a1', role: 'admin' } });
+    expect(res.payments).toHaveLength(1);
+  });
+});

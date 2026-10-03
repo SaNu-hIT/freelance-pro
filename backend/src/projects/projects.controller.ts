@@ -65,6 +65,8 @@ export class ProjectsController {
       if (!isMember) throw new ForbiddenException('Access denied');
     }
 
+    // Payouts are between the platform and each freelancer; only admins see them here
+    if (user.role !== 'admin') delete (project as Partial<typeof project>).payments;
     return project;
   }
 
