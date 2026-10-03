@@ -5,6 +5,7 @@ import { InquiriesController } from '../inquiries/inquiries.controller';
 import { SkillGroupsController } from '../skill-groups/skill-groups.controller';
 import { SprintsController } from '../sprints/sprints.controller';
 import { TasksController } from '../tasks/tasks.controller';
+import { UsersController } from '../users/users.controller';
 
 // Every route listed here must be admin-only: RolesGuard attached and @Roles('admin').
 const adminOnly: [string, object, string[]][] = [
@@ -12,6 +13,7 @@ const adminOnly: [string, object, string[]][] = [
   ['SkillGroupsController', SkillGroupsController, ['create', 'update', 'remove', 'addSkill', 'removeSkill']],
   ['SprintsController', SprintsController, ['create', 'update', 'remove']],
   ['TasksController', TasksController, ['create', 'remove']],
+  ['UsersController', UsersController, ['list']],
 ];
 
 describe('admin-only routes', () => {
