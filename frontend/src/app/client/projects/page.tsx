@@ -3,8 +3,10 @@
 import { useEffect, useState, useRef, KeyboardEvent } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi, sprintsApi, tasksApi } from '@/lib/api'
-import { Project, ProjectSprint, ProjectTask } from '@/lib/types'
+import ErrorBanner from '@/components/ui/ErrorBanner'
+import { projectsApi, sprintsApi, tasksApi, paymentsApi, projectRequestsApi, documentsApi } from '@/lib/api'
+import { Project, ProjectSprint, ProjectTask, Payment, ProjectRequest } from '@/lib/types'
+import { apiError } from '@/lib/utils'
 import { useCurrencySymbol, useAuthStore } from '@/lib/store'
 import { useChatStore } from '@/lib/chatStore'
 import {
@@ -14,63 +16,6 @@ import {
   CheckSquare, Square, Layers, ChevronRight, Zap, Bell, Plus,
   ArrowUpRight, Shield, LayoutGrid, List,
 } from 'lucide-react'
-
-/* ── Types ──────────────────────────────────────────────── */
-interface DevRequest  { id: string; from: string; subject: string; body: string; ts: string; status: 'open' | 'resolved'; projectId: string }
-
-/* ── Mock data ──────────────────────────────────────────── */
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: '1', title: 'E-Commerce Platform Redesign',
-    description: 'Full redesign of the client shopping experience including product listings, cart, and checkout flow.',
-    budget: 4500, deadline: new Date(Date.now() + 3 * 86400000).toISOString(),
-    status: 'in_progress', priority: 'high', clientId: 'c1',
-    teamMembers: [
-      { id: 'f1', userId: 'u1', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@freelancepro.dev', role: 'freelancer', createdAt: '' }, skills: ['React', 'TypeScript', 'Tailwind'], experience: 3, hourlyRate: 75, status: 'active' },
-      { id: 'f2', userId: 'u2', user: { id: 'u2', name: 'Zara Ahmed',  email: 'zara@freelancepro.dev',  role: 'freelancer', createdAt: '' }, skills: ['Figma', 'UI/UX'],              experience: 4, hourlyRate: 65, status: 'active' },
-    ],
-    progress: 65, repoUrl: 'https://github.com/org/ecommerce', liveUrl: 'https://staging.example.com', correctionSheetUrl: 'https://docs.google.com/spreadsheets/d/1',
-    createdAt: new Date(Date.now() - 20 * 86400000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2', title: 'Mobile App Backend API',
-    description: 'REST API development for the iOS/Android app including authentication, data sync, and push notifications.',
-    budget: 3200, deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
-    status: 'pending_approval', priority: 'medium', clientId: 'c1',
-    teamMembers: [
-      { id: 'f3', userId: 'u3', user: { id: 'u3', name: 'Sam Rivera', email: 'sam@freelancepro.dev', role: 'freelancer', createdAt: '' }, skills: ['Node.js', 'PostgreSQL', 'Docker'], experience: 5, hourlyRate: 90, status: 'active' },
-    ],
-    progress: 100, repoUrl: 'https://github.com/org/mobile-api',
-    createdAt: new Date(Date.now() - 35 * 86400000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3', title: 'Analytics Dashboard',
-    description: 'Analytics dashboard with charts, data export, and KPI tracking.',
-    budget: 2100, deadline: new Date(Date.now() - 10 * 86400000).toISOString(),
-    status: 'completed', priority: 'high', clientId: 'c1', progress: 100,
-    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-]
-
-const MOCK_REQUESTS: DevRequest[] = [
-  { id: 'r1', from: 'Alex Rivera', subject: 'Confirmation needed: payment gateway', body: 'Hi! We\'re integrating the Stripe checkout. Can you confirm if you want to use the test or live keys for the staging environment? Also, do you have a preferred currency fallback for international users?', ts: new Date(Date.now() - 2 * 3600000).toISOString(), status: 'open', projectId: '1' },
-  { id: 'r2', from: 'Zara Ahmed',  subject: 'Design approval: mobile breakpoint', body: 'Attached is the updated mobile design for the product listing page. Please review the card layout and confirm before we hand off to development. Figma link in the correction sheet.', ts: new Date(Date.now() - 5 * 3600000).toISOString(), status: 'open',     projectId: '1' },
-  { id: 'r3', from: 'Sam Rivera',  subject: 'API rate limits clarification',         body: 'The current plan allows 1000 req/min. With the new push notification flow, we may exceed this during peak hours. Should we upgrade or implement a queue?', ts: new Date(Date.now() - 1 * 86400000).toISOString(), status: 'resolved', projectId: '2' },
-]
-
-const PAYMENT_SCHEDULE: Record<string, { label: string; date: string; amount: number; paid: boolean }[]> = {
-  '1': [
-    { label: 'Kickoff Payment',    date: new Date(Date.now() - 20 * 86400000).toISOString(), amount: 1125, paid: true  },
-    { label: 'Milestone 1 — UI',   date: new Date(Date.now() - 5  * 86400000).toISOString(), amount: 1125, paid: true  },
-    { label: 'Milestone 2 — API',  date: new Date(Date.now() + 10 * 86400000).toISOString(), amount: 1125, paid: false },
-    { label: 'Final Delivery',     date: new Date(Date.now() + 25 * 86400000).toISOString(), amount: 1125, paid: false },
-  ],
-  '2': [
-    { label: 'Kickoff Payment',    date: new Date(Date.now() - 35 * 86400000).toISOString(), amount: 1600, paid: true  },
-    { label: 'Final Delivery',     date: new Date(Date.now() + 14 * 86400000).toISOString(), amount: 1600, paid: false },
-  ],
-}
-
 
 /* ── Helpers ────────────────────────────────────────────── */
 function fmt(iso: string, opts?: Intl.DateTimeFormatOptions) {
@@ -88,6 +33,24 @@ const STATUS_LABEL: Record<string, string> = {
 
 type Tab = 'overview' | 'tasks' | 'requests' | 'chat' | 'escalate'
 
+// A project's payments, oldest first, in the shape the schedule renders
+function scheduleFor(payments: Payment[], projectId: string) {
+  return payments
+    .filter(p => p.projectId === projectId)
+    .map(p => ({
+      id: p.id,
+      label: p.notes || `Payment — ${p.freelancer?.user?.name ?? 'team'}`,
+      date: p.createdAt,
+      amount: Number(p.amount),
+      paid: p.status === 'paid',
+      status: p.status,
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+}
+
+// Questions from the team are what wait on the client
+const needsReply = (r: ProjectRequest) => r.kind === 'question' && r.status === 'open'
+
 /* ══════════════════════════════════════════════════════════
    PAGE
    ══════════════════════════════════════════════════════════ */
@@ -101,11 +64,24 @@ export default function ClientProjectsPage() {
   const [sprints,    setSprints]    = useState<ProjectSprint[]>([])
   const [tasks,      setTasks]      = useState<ProjectTask[]>([])
   const [collapsed,  setCollapsed]  = useState<Set<string>>(new Set())
-  const [requests,   setRequests]   = useState<DevRequest[]>(MOCK_REQUESTS)
+  const [error,      setError]      = useState('')
+  const [requests,   setRequests]   = useState<ProjectRequest[]>([])
+  const [requestsError, setRequestsError] = useState('')
+  const [allPayments, setAllPayments] = useState<Payment[]>([])
+  const [paymentsError, setPaymentsError] = useState('')
+  const [replies,    setReplies]    = useState<Record<string, string>>({})
+  const [resolvingId, setResolvingId] = useState<string | null>(null)
+  const [requestActionError, setRequestActionError] = useState('')
+  const [changeForm, setChangeForm] = useState({ subject: '', body: '' })
+  const [sendingChange, setSendingChange] = useState(false)
+  const [changeSent, setChangeSent] = useState(false)
   const { messages: chatMessages, sendMessage: storeSendMsg, markReadByClient, unreadForClient, fetchMessages } = useChatStore()
   const [chatMsg,    setChatMsg]    = useState('')
-  const [escalateForm, setEscalateForm] = useState({ subject: '', details: '', urgency: 'normal' })
+  const [chatError,  setChatError]  = useState('')
+  const [escalateForm, setEscalateForm] = useState<{ subject: string; details: string; urgency: 'normal' | 'high' | 'critical' }>({ subject: '', details: '', urgency: 'normal' })
   const [escalated,  setEscalated]  = useState(false)
+  const [escalating, setEscalating] = useState(false)
+  const [escalateError, setEscalateError] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   /* submit new project form */
@@ -114,13 +90,24 @@ export default function ClientProjectsPage() {
   const [errors, setErrors] = useState<Partial<typeof form>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted,  setSubmitted]  = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [dragging,   setDragging]   = useState(false)
+  const [files,      setFiles]      = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const loadRequests = () => projectRequestsApi.list()
+    .then(r => { setRequests(r.data ?? []); setRequestsError('') })
+    .catch(err => setRequestsError(apiError(err, 'Could not load project requests.')))
 
   useEffect(() => {
     projectsApi.getAll()
-      .then(r => setProjects(r.data?.data ?? r.data ?? MOCK_PROJECTS))
-      .catch(() => setProjects(MOCK_PROJECTS))
+      .then(r => setProjects(r.data?.data ?? r.data ?? []))
+      .catch(err => setError(apiError(err, 'Could not load your projects.')))
       .finally(() => setLoading(false))
+    loadRequests()
+    paymentsApi.getAll()
+      .then(r => setAllPayments(r.data?.data ?? r.data ?? []))
+      .catch(err => setPaymentsError(apiError(err, 'Could not load payments.')))
     fetchMessages()
   }, []) // eslint-disable-line
 
@@ -131,12 +118,19 @@ export default function ClientProjectsPage() {
     if (tr.status === 'fulfilled') setTasks(tr.value.data)
   }
 
-  const closeModal = () => { setModal(null); setEscalated(false) }
+  const closeModal = () => {
+    setModal(null); setEscalated(false); setEscalateError('')
+    setRequestActionError(''); setChangeSent(false)
+  }
 
   /* chat send */
-  const sendChat = () => {
+  const sendChat = async () => {
     if (!chatMsg.trim() || !modal) return
-    storeSendMsg({
+    setChatError('')
+    const draft = chatMsg
+    setChatMsg('')
+    try {
+      await storeSendMsg({
       projectId: modal.id,
       projectTitle: modal.title,
       from: 'client',
@@ -145,16 +139,61 @@ export default function ClientProjectsPage() {
       text: chatMsg.trim(),
       readByAdmin: false,
       readByClient: true,
-    })
-    setChatMsg('')
+      })
+    } catch (err) {
+      setChatMsg(draft)
+      setChatError(apiError(err, 'Message not sent. Please try again.'))
+      return
+    }
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
   /* escalate */
-  const submitEscalation = () => {
-    if (!escalateForm.subject.trim() || !escalateForm.details.trim()) return
-    setEscalated(true)
-    setEscalateForm({ subject: '', details: '', urgency: 'normal' })
+  const submitEscalation = async () => {
+    if (!modal || !escalateForm.subject.trim() || !escalateForm.details.trim()) return
+    setEscalating(true); setEscalateError('')
+    try {
+      await projectRequestsApi.create({
+        projectId: modal.id, kind: 'escalation',
+        subject: escalateForm.subject.trim(), body: escalateForm.details.trim(), urgency: escalateForm.urgency,
+      })
+      setEscalated(true)
+      setEscalateForm({ subject: '', details: '', urgency: 'normal' })
+      loadRequests()
+    } catch (err) {
+      setEscalateError(apiError(err, 'Could not submit the escalation.'))
+    } finally {
+      setEscalating(false)
+    }
+  }
+
+  /* requests: answer a team question, or ask for a change */
+  const resolveRequest = async (id: string) => {
+    setResolvingId(id); setRequestActionError('')
+    try {
+      await projectRequestsApi.resolve(id, replies[id]?.trim() || undefined)
+      setReplies(r => ({ ...r, [id]: '' }))
+      await loadRequests()
+    } catch (err) {
+      setRequestActionError(apiError(err, 'Could not resolve the request.'))
+    } finally {
+      setResolvingId(null)
+    }
+  }
+
+  const submitChangeRequest = async () => {
+    if (!modal || !changeForm.subject.trim() || !changeForm.body.trim()) return
+    setSendingChange(true); setRequestActionError(''); setChangeSent(false)
+    try {
+      await projectRequestsApi.create({ projectId: modal.id, kind: 'change', subject: changeForm.subject.trim(), body: changeForm.body.trim() })
+      setChangeForm({ subject: '', body: '' })
+      setChangeSent(true)
+      await loadRequests()
+    } catch (err) {
+      setRequestActionError(apiError(err, 'Could not send the change request.'))
+    } finally {
+      setSendingChange(false)
+    }
   }
 
   /* project submit */
@@ -171,24 +210,35 @@ export default function ClientProjectsPage() {
     e.preventDefault()
     const errs = validateForm()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    setErrors({}); setSubmitting(true)
+    setErrors({}); setSubmitting(true); setSubmitError('')
+    let created: Project
     try {
       const res = await projectsApi.create({ ...form, budget: +form.budget } as unknown as Record<string, unknown>)
-      setProjects(p => [res.data?.data ?? res.data, ...p])
-    } catch {
-      const mock: Project = { id: `p${Date.now()}`, ...form, budget: +form.budget, status: 'new', priority: 'medium', clientId: 'c1', progress: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-      setProjects(p => [mock, ...p])
-    } finally {
-      setSubmitting(false); setSubmitted(true); setForm({ title: '', description: '', budget: '', deadline: '', requirements: '' })
-      setTimeout(() => setSubmitted(false), 3500)
+      created = res.data?.data ?? res.data
+    } catch (err) {
+      setSubmitError(apiError(err, 'Could not submit the project.'))
+      setSubmitting(false)
+      return
     }
+    setProjects(p => [created, ...p])
+    setForm({ title: '', description: '', budget: '', deadline: '', requirements: '' })
+    // Attachments go up once the project exists to file them under
+    const results = await Promise.allSettled(files.map(f => documentsApi.upload(created.id, f)))
+    const failed = files.filter((_, i) => results[i].status === 'rejected')
+    const firstErr = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined
+    setFiles(failed)
+    if (firstErr) {
+      setSubmitError(`Project submitted, but ${failed.length} attachment${failed.length > 1 ? 's' : ''} failed to upload: ${apiError(firstErr.reason, 'upload failed')}`)
+    }
+    setSubmitting(false); setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 3500)
   }
 
   const projectChat    = modal ? chatMessages.filter(m => m.projectId === modal.id) : []
   const chatUnread     = modal ? unreadForClient(modal.id) : 0
   const projectRequests = modal ? requests.filter(r => r.projectId === modal.id) : []
-  const openRequests    = projectRequests.filter(r => r.status === 'open').length
-  const payments        = modal ? (PAYMENT_SCHEDULE[modal.id] ?? []) : []
+  const openRequests    = projectRequests.filter(needsReply).length
+  const payments        = modal ? scheduleFor(allPayments, modal.id) : []
   const nextPayment     = payments.find(p => !p.paid)
   const tasksBySprintId = (sid: string | null) => tasks.filter(t => t.sprintId === sid)
   const unassigned      = tasks.filter(t => !t.sprintId)
@@ -229,12 +279,14 @@ export default function ClientProjectsPage() {
           </div>
         </div>
 
+        <ErrorBanner title="Could not load projects" message={error} />
+
         {/* ── Project Cards / List ── */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => <div key={i} className="h-56 rounded-2xl animate-pulse" style={{ background: 'var(--bg-elevated)' }} />)}
           </div>
-        ) : projects.length === 0 ? (
+        ) : error ? null : projects.length === 0 ? (
           <div className="text-center py-16 rounded-2xl" style={{ border: '1px dashed var(--border)' }}>
             <p className="text-mono-label" style={{ color: 'var(--text-muted)' }}>No projects yet — submit one below</p>
           </div>
@@ -243,8 +295,8 @@ export default function ClientProjectsPage() {
             {projects.map(p => {
               const days    = daysLeft(p.deadline)
               const overdue = isOverdue(p.deadline) && p.status !== 'completed'
-              const pReqs   = requests.filter(r => r.projectId === p.id && r.status === 'open').length
-              const pPay    = PAYMENT_SCHEDULE[p.id]?.find(x => !x.paid)
+              const pReqs   = requests.filter(r => r.projectId === p.id && needsReply(r)).length
+              const pPay    = scheduleFor(allPayments, p.id).find(x => !x.paid)
               return (
                 <div key={p.id}
                   className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-0.5"
@@ -312,7 +364,7 @@ export default function ClientProjectsPage() {
             {projects.map((p, i) => {
               const days    = daysLeft(p.deadline)
               const overdue = isOverdue(p.deadline) && p.status !== 'completed'
-              const pReqs   = requests.filter(r => r.projectId === p.id && r.status === 'open').length
+              const pReqs   = requests.filter(r => r.projectId === p.id && needsReply(r)).length
               return (
                 <div
                   key={p.id}
@@ -370,6 +422,11 @@ export default function ClientProjectsPage() {
           <h2 className="text-display text-xl text-primary-ui mb-1">Submit a New Project</h2>
           <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>Tell us what you need — we'll match you with the right team within 48 hours.</p>
 
+          {submitError && (
+            <div className="mb-5">
+              <ErrorBanner message={submitError} onClose={() => setSubmitError('')} />
+            </div>
+          )}
           {submitted && (
             <div className="flex items-center gap-2 rounded-xl px-4 py-3 mb-5 text-sm font-semibold"
               style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
@@ -412,12 +469,27 @@ export default function ClientProjectsPage() {
               <label className="label-field">Attachments <span style={{ color: 'var(--text-muted)' }}>optional</span></label>
               <div className={`border-2 border-dashed rounded-xl p-5 text-center transition-all cursor-pointer ${dragging ? 'border-[var(--fg)] bg-[rgb(var(--fg-rgb)/0.08)]' : ''}`}
                 style={{ borderColor: dragging ? 'var(--fg)' : 'rgb(var(--fg-rgb) / 0.2)' }}
+                onClick={() => fileInputRef.current?.click()}
                 onDragOver={e => { e.preventDefault(); setDragging(true) }}
                 onDragLeave={() => setDragging(false)}
-                onDrop={e => { e.preventDefault(); setDragging(false) }}>
+                onDrop={e => { e.preventDefault(); setDragging(false); setFiles(f => [...f, ...Array.from(e.dataTransfer.files)]) }}>
+                <input ref={fileInputRef} type="file" multiple className="hidden"
+                  onChange={e => { const picked = Array.from(e.target.files ?? []); setFiles(f => [...f, ...picked]); e.target.value = '' }} />
                 <Upload size={20} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>DRAG & DROP FILES · PDFs, images, design files</p>
+                <p className="text-mono-label text-[10px]" style={{ color: 'var(--text-muted)' }}>DRAG & DROP FILES · PDFs, images, design files · max 10 MB each</p>
               </div>
+              {files.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {files.map((f, i) => (
+                    <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      <span className="truncate flex-1">{f.name}</span>
+                      <button type="button" onClick={() => setFiles(fs => fs.filter((_, j) => j !== i))} style={{ color: 'var(--text-muted)' }}>
+                        <X size={12} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="md:col-span-2">
               <button type="submit" disabled={submitting} className="btn-primary rounded-xl py-3 px-8 text-sm disabled:opacity-50">
@@ -600,15 +672,17 @@ export default function ClientProjectsPage() {
                     <div className="flex-1 px-8 py-7 overflow-y-auto">
                       <p className="text-mono-label mb-4" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PAYMENT SCHEDULE</p>
 
-                      {payments.length === 0 ? (
+                      {paymentsError ? (
+                        <ErrorBanner title="Could not load payments" message={paymentsError} />
+                      ) : payments.length === 0 ? (
                         <div className="text-center py-10 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
                           <DollarSign size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
                           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No payment schedule yet</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {payments.map((pay, i) => (
-                            <div key={i} className="rounded-xl p-4 flex items-center gap-4"
+                          {payments.map(pay => (
+                            <div key={pay.id} className="rounded-xl p-4 flex items-center gap-4"
                               style={{ background: pay.paid ? 'rgb(var(--fg-rgb) / 0.06)' : 'var(--bg-elevated)', border: `1px solid ${pay.paid ? 'rgb(var(--fg-rgb) / 0.2)' : 'var(--border)'}` }}>
                               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                                 style={{ background: pay.paid ? 'rgb(var(--fg-rgb) / 0.12)' : 'var(--input-bg)', border: `1px solid ${pay.paid ? 'rgb(var(--fg-rgb) / 0.3)' : 'var(--border)'}` }}>
@@ -627,7 +701,7 @@ export default function ClientProjectsPage() {
                                   {currency}{pay.amount.toLocaleString()}
                                 </p>
                                 <p className="text-mono-label text-[9px]" style={{ color: pay.paid ? 'rgb(var(--fg-rgb) / 0.6)' : 'var(--text-muted)' }}>
-                                  {pay.paid ? 'PAID' : 'UPCOMING'}
+                                  {pay.status.toUpperCase()}
                                 </p>
                               </div>
                             </div>
@@ -751,8 +825,8 @@ export default function ClientProjectsPage() {
                 <div className="h-full overflow-y-auto px-8 py-7">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <p className="text-mono-label font-bold mb-0.5" style={{ fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>DEVELOPER REQUESTS</p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Questions and clarifications from your project team that need your input.</p>
+                      <p className="text-mono-label font-bold mb-0.5" style={{ fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>REQUESTS</p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Questions from your project team that need your input, and the changes and escalations you have raised.</p>
                     </div>
                     {openRequests > 0 && (
                       <span className="text-mono-label px-2.5 py-1 rounded-full text-[10px] animate-pulse font-bold"
@@ -762,10 +836,43 @@ export default function ClientProjectsPage() {
                     )}
                   </div>
 
-                  {projectRequests.length === 0 ? (
+                  {/* Ask for a change */}
+                  <div className="rounded-xl p-5 mb-5 space-y-3 max-w-3xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                    <p className="text-mono-label font-bold" style={{ fontSize: '10px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>REQUEST A CHANGE</p>
+                    <input className="input-field py-2 text-sm" placeholder="What should change?"
+                      value={changeForm.subject} onChange={e => { setChangeForm(f => ({ ...f, subject: e.target.value })); setChangeSent(false) }} />
+                    <textarea className="input-field resize-none text-sm" rows={3} placeholder="Describe the change and why it is needed…"
+                      value={changeForm.body} onChange={e => { setChangeForm(f => ({ ...f, body: e.target.value })); setChangeSent(false) }} />
+                    <div className="flex items-center gap-3">
+                      <button
+                        disabled={sendingChange || !changeForm.subject.trim() || !changeForm.body.trim()}
+                        onClick={submitChangeRequest}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-40"
+                        style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
+                        <Send size={11} /> {sendingChange ? 'Sending…' : 'Send Change Request'}
+                      </button>
+                      {changeSent && (
+                        <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--fg)' }}>
+                          <CheckCircle size={12} /> Change request sent
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {requestActionError && (
+                    <div className="mb-4 max-w-3xl">
+                      <ErrorBanner message={requestActionError} onClose={() => setRequestActionError('')} />
+                    </div>
+                  )}
+
+                  {requestsError ? (
+                    <div className="max-w-3xl">
+                      <ErrorBanner title="Could not load requests" message={requestsError} />
+                    </div>
+                  ) : projectRequests.length === 0 ? (
                     <div className="text-center py-16 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
                       <MessageSquare size={28} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No requests from the team yet</p>
+                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No requests on this project yet</p>
                     </div>
                   ) : (
                     <div className="space-y-4 max-w-3xl">
@@ -777,31 +884,40 @@ export default function ClientProjectsPage() {
                             style={{ background: req.status === 'open' ? 'rgb(var(--fg-rgb) / 0.04)' : 'var(--bg-elevated)' }}>
                             <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0"
                               style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
-                              {req.from.charAt(0)}
+                              {(req.fromUser?.name ?? '?').charAt(0)}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                                <span className="font-bold text-sm text-primary-ui">{req.from}</span>
+                                <span className="font-bold text-sm text-primary-ui">{req.fromUser?.name ?? 'Unknown'}</span>
+                                <span className="text-mono-label text-[9px] px-1.5 py-0.5 rounded-full"
+                                  style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                                  {req.kind.toUpperCase()}{req.kind === 'escalation' ? ` · ${req.urgency.toUpperCase()}` : ''}
+                                </span>
                                 <span className="text-mono-label text-[9px] px-1.5 py-0.5 rounded-full"
                                   style={{ background: req.status === 'open' ? 'rgb(var(--fg-rgb) / 0.12)' : 'rgb(var(--fg-rgb) / 0.12)', border: `1px solid ${req.status === 'open' ? 'rgb(var(--fg-rgb) / 0.3)' : 'rgb(var(--fg-rgb) / 0.3)'}`, color: req.status === 'open' ? 'var(--fg)' : 'var(--fg)' }}>
                                   {req.status === 'open' ? 'OPEN' : 'RESOLVED'}
                                 </span>
                                 <span className="text-mono-label text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>
-                                  {fmt(req.ts, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' } as Intl.DateTimeFormatOptions)}
+                                  {fmt(req.createdAt, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' } as Intl.DateTimeFormatOptions)}
                                 </span>
                               </div>
                               <p className="font-semibold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>{req.subject}</p>
                               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{req.body}</p>
+                              {req.reply && (
+                                <p className="text-sm leading-relaxed mt-2 pl-3" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid rgb(var(--fg-rgb) / 0.3)' }}>{req.reply}</p>
+                              )}
                             </div>
                           </div>
                           {/* action row */}
-                          {req.status === 'open' && (
+                          {needsReply(req) && (
                             <div className="flex items-center gap-2 px-5 py-3 border-t border-theme">
-                              <input className="input-field flex-1 py-2 text-sm" placeholder="Type your reply…" />
-                              <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
+                              <input className="input-field flex-1 py-2 text-sm" placeholder="Type your reply…"
+                                value={replies[req.id] ?? ''} onChange={e => setReplies(r => ({ ...r, [req.id]: e.target.value }))} />
+                              <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-40"
                                 style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}
-                                onClick={() => setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'resolved' } : r))}>
-                                <Send size={11} /> Reply & Resolve
+                                disabled={resolvingId === req.id}
+                                onClick={() => resolveRequest(req.id)}>
+                                <Send size={11} /> {resolvingId === req.id ? 'Sending…' : 'Reply & Resolve'}
                               </button>
                             </div>
                           )}
@@ -854,6 +970,7 @@ export default function ClientProjectsPage() {
                   </div>
                   {/* Input */}
                   <div className="px-8 py-4 border-t border-theme shrink-0" style={{ background: 'var(--bg-sidebar)' }}>
+                    {chatError && <div className="mb-3"><ErrorBanner title="Not sent" message={chatError} onClose={() => setChatError('')} /></div>}
                     <div className="flex items-center gap-3">
                       <input className="input-field flex-1 py-3"
                         placeholder="Message your project team…"
@@ -907,11 +1024,11 @@ export default function ClientProjectsPage() {
                         <div>
                           <label className="label-field">Urgency Level</label>
                           <div className="flex gap-2">
-                            {[
+                            {([
                               { key: 'normal', label: 'Normal', color: 'var(--fg)' },
                               { key: 'high',   label: 'High',   color: 'var(--fg)' },
-                              { key: 'urgent', label: 'Urgent', color: 'var(--fg)' },
-                            ].map(u => (
+                              { key: 'critical', label: 'Critical', color: 'var(--fg)' },
+                            ] as const).map(u => (
                               <button key={u.key}
                                 className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
                                 style={{
@@ -931,12 +1048,13 @@ export default function ClientProjectsPage() {
                             placeholder="Describe the issue in detail. Include any relevant dates, blockers, or impacts on deliverables…"
                             value={escalateForm.details} onChange={e => setEscalateForm(f => ({ ...f, details: e.target.value }))} />
                         </div>
+                        {escalateError && <ErrorBanner message={escalateError} onClose={() => setEscalateError('')} />}
                         <button
-                          disabled={!escalateForm.subject.trim() || !escalateForm.details.trim()}
+                          disabled={escalating || !escalateForm.subject.trim() || !escalateForm.details.trim()}
                           onClick={submitEscalation}
                           className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-40"
                           style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
-                          <AlertOctagon size={14} /> Submit Escalation
+                          <AlertOctagon size={14} /> {escalating ? 'Submitting…' : 'Submit Escalation'}
                         </button>
                       </div>
                     )}

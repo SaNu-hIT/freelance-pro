@@ -67,8 +67,10 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       }
       // Replace optimistic with real record
       set(s => ({ messages: s.messages.map(m => m.id === tempId ? saved : m) }))
-    } catch {
-      // Keep optimistic on error
+    } catch (err) {
+      // Not sent: take it back off the thread and let the caller keep the draft
+      set(s => ({ messages: s.messages.filter(m => m.id !== tempId) }))
+      throw err
     }
   },
 

@@ -2,37 +2,43 @@
 
 import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { projectsApi } from '@/lib/api'
-import { Project } from '@/lib/types'
+import ErrorBanner from '@/components/ui/ErrorBanner'
+import { projectsApi, sprintsApi, tasksApi } from '@/lib/api'
+import { Project, ProjectSprint, ProjectTask } from '@/lib/types'
+import { apiError } from '@/lib/utils'
 import { CheckCircle2, Clock, AlertTriangle, Check, ThumbsUp } from 'lucide-react'
 
 interface Milestone {
   id: string
   name: string
-  dueDate: string
+  dueDate: string | null
   status: 'completed' | 'pending' | 'overdue'
   progress: number
   projectId: string
   description?: string
+  approvedAt: string | null
 }
 
-const MOCK_PROJECTS: Project[] = [
-  { id: '1', title: 'E-Commerce Platform Redesign', description: '', budget: 4500, deadline: '', status: 'in_progress', priority: 'high', clientId: 'c1', progress: 65, createdAt: '', updatedAt: '' },
-  { id: '2', title: 'Mobile App Backend API', description: '', budget: 3200, deadline: '', status: 'pending_approval', priority: 'medium', clientId: 'c1', progress: 100, createdAt: '', updatedAt: '' },
-]
+// A sprint is a milestone: progress is its share of finished tasks
+function toMilestone(sprint: ProjectSprint, tasks: ProjectTask[]): Milestone {
+  const own = tasks.filter(t => t.sprintId === sprint.id)
+  const done = own.filter(t => t.completed).length
+  const complete = own.length > 0 && done === own.length
+  const overdue = !complete && !!sprint.endDate && new Date(sprint.endDate) < new Date()
+  return {
+    id: sprint.id,
+    name: sprint.name,
+    dueDate: sprint.endDate,
+    status: complete ? 'completed' : overdue ? 'overdue' : 'pending',
+    progress: own.length ? Math.round(done / own.length * 100) : 0,
+    projectId: sprint.projectId,
+    description: `${done} of ${own.length} task${own.length === 1 ? '' : 's'} done`,
+    approvedAt: sprint.approvedAt ?? null,
+  }
+}
 
-const MOCK_MILESTONES: Milestone[] = [
-  { id: 'm1', name: 'UI/UX Wireframes', dueDate: new Date(Date.now() - 10 * 86400000).toISOString(), status: 'completed', progress: 100, projectId: '1', description: 'Complete wireframes and design system setup.' },
-  { id: 'm2', name: 'Component Library', dueDate: new Date(Date.now() - 3 * 86400000).toISOString(), status: 'completed', progress: 100, projectId: '1', description: 'Reusable React components with Storybook.' },
-  { id: 'm3', name: 'Product Listing Pages', dueDate: new Date(Date.now() + 4 * 86400000).toISOString(), status: 'pending', progress: 70, projectId: '1', description: 'Listing, filters, search functionality.' },
-  { id: 'm4', name: 'Cart & Checkout', dueDate: new Date(Date.now() + 11 * 86400000).toISOString(), status: 'pending', progress: 20, projectId: '1', description: 'Shopping cart, checkout, payment integration.' },
-  { id: 'm5', name: 'Database Schema', dueDate: new Date(Date.now() - 15 * 86400000).toISOString(), status: 'completed', progress: 100, projectId: '2', description: 'PostgreSQL schema design and migrations.' },
-  { id: 'm6', name: 'Auth & User Management', dueDate: new Date(Date.now() - 8 * 86400000).toISOString(), status: 'completed', progress: 100, projectId: '2', description: 'JWT auth, refresh tokens, roles.' },
-  { id: 'm7', name: 'Core API Endpoints', dueDate: new Date(Date.now() - 2 * 86400000).toISOString(), status: 'overdue', progress: 85, projectId: '2', description: 'CRUD endpoints for all resources.' },
-  { id: 'm8', name: 'Push Notifications', dueDate: new Date(Date.now() + 7 * 86400000).toISOString(), status: 'pending', progress: 0, projectId: '2', description: 'FCM/APNS integration for mobile push.' },
-]
-
-function fmtDate(iso: string) {
+function fmtDate(iso: string | null) {
+  if (!iso) return 'No due date'
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
@@ -50,18 +56,28 @@ const statusColors: Record<Milestone['status'], string> = {
 
 export default function ClientMilestonesPage() {
   const [projects, setProjects] = useState<Project[]>([])
-  const [milestones, setMilestones] = useState<Milestone[]>(MOCK_MILESTONES)
+  const [milestones, setMilestones] = useState<Milestone[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [actionError, setActionError] = useState('')
+  const [approvingId, setApprovingId] = useState<string | null>(null)
   const [selectedProject, setSelectedProject] = useState<string>('all')
-  const [approvedIds, setApprovedIds] = useState<string[]>([])
 
   useEffect(() => {
     async function load() {
       try {
         const res = await projectsApi.getAll()
-        setProjects(res.data?.data ?? res.data ?? MOCK_PROJECTS)
-      } catch {
-        setProjects(MOCK_PROJECTS)
+        const list: Project[] = res.data?.data ?? res.data ?? []
+        setProjects(list)
+        const perProject = await Promise.all(list.map(async p => {
+          const [sr, tr] = await Promise.all([sprintsApi.getByProject(p.id), tasksApi.getByProject(p.id)])
+          const sprints: ProjectSprint[] = sr.data ?? []
+          const tasks: ProjectTask[] = tr.data ?? []
+          return sprints.map(s => toMilestone(s, tasks))
+        }))
+        setMilestones(perProject.flat())
+      } catch (err) {
+        setError(apiError(err, 'Could not load milestones.'))
       } finally {
         setLoading(false)
       }
@@ -73,10 +89,19 @@ export default function ClientMilestonesPage() {
     ? milestones
     : milestones.filter(m => m.projectId === selectedProject)
 
-  const pendingReview = filteredMilestones.filter(m => m.status === 'completed' && !approvedIds.includes(m.id))
+  const pendingReview = filteredMilestones.filter(m => m.status === 'completed' && !m.approvedAt)
 
-  function approve(id: string) {
-    setApprovedIds(prev => [...prev, id])
+  async function approve(id: string) {
+    setApprovingId(id); setActionError('')
+    try {
+      const res = await sprintsApi.approve(id)
+      const approvedAt: string | null = res.data?.approvedAt ?? null
+      setMilestones(prev => prev.map(m => m.id === id ? { ...m, approvedAt } : m))
+    } catch (err) {
+      setActionError(apiError(err, 'Could not approve the milestone.'))
+    } finally {
+      setApprovingId(null)
+    }
   }
 
   return (
@@ -87,6 +112,9 @@ export default function ClientMilestonesPage() {
           <h1 className="text-display text-3xl text-gradient">MILESTONES</h1>
           <p className="text-mono-label text-[11px] mt-1">TRACK PROJECT MILESTONES & DELIVERABLES</p>
         </div>
+
+        <ErrorBanner title="Could not load milestones" message={error} />
+        {actionError && <ErrorBanner message={actionError} onClose={() => setActionError('')} />}
 
         {/* Project Selector Tabs */}
         <div className="flex flex-wrap gap-2">
@@ -134,7 +162,7 @@ export default function ClientMilestonesPage() {
 
               {filteredMilestones.map((m, idx) => {
                 const proj = projects.find(p => p.id === m.projectId)
-                const isApproved = approvedIds.includes(m.id)
+                const isApproved = !!m.approvedAt
                 return (
                   <div key={m.id} className="relative pl-14 pb-6 last:pb-0 group">
                     {/* Timeline dot */}
@@ -174,7 +202,7 @@ export default function ClientMilestonesPage() {
                             {fmtDate(m.dueDate)}
                           </p>
                           <p className="text-mono-label text-[10px] mt-0.5 capitalize" style={{ color: isApproved ? 'var(--fg)' : statusColors[m.status] }}>
-                            {isApproved ? 'APPROVED' : m.status.toUpperCase()}
+                            {isApproved ? `APPROVED ${fmtDate(m.approvedAt)}` : m.status.toUpperCase()}
                           </p>
                         </div>
                       </div>
@@ -201,7 +229,8 @@ export default function ClientMilestonesPage() {
                         <div className="mt-3 flex justify-end">
                           <button
                             onClick={() => approve(m.id)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
+                            disabled={approvingId === m.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors disabled:opacity-50"
                           >
                             <ThumbsUp size={12} />
                             APPROVE MILESTONE
@@ -227,11 +256,12 @@ export default function ClientMilestonesPage() {
                   <div key={m.id} className="glass-card-dark rounded-lg p-4 flex items-center justify-between">
                     <div>
                       <p className="text-primary-ui font-semibold text-sm">{m.name}</p>
-                      <p className="text-mono-label text-[10px] mt-0.5">{proj?.title ?? 'Project'} — completed {fmtDate(m.dueDate)}</p>
+                      <p className="text-mono-label text-[10px] mt-0.5">{proj?.title ?? 'Project'} — all tasks done · due {fmtDate(m.dueDate)}</p>
                     </div>
                     <button
                       onClick={() => approve(m.id)}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
+                      disabled={approvingId === m.id}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors disabled:opacity-50"
                     >
                       <ThumbsUp size={13} />
                       APPROVE

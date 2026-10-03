@@ -5,66 +5,23 @@ import Link from 'next/link'
 import { useAuthStore, useCurrencySymbol } from '@/lib/store'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi } from '@/lib/api'
-import { Project } from '@/lib/types'
+import ErrorBanner from '@/components/ui/ErrorBanner'
+import { projectsApi, worklogsApi, paymentsApi, projectRequestsApi, documentsApi } from '@/lib/api'
+import { Project, Worklog, Payment, ProjectRequest, ProjectDocument } from '@/lib/types'
+import { apiError } from '@/lib/utils'
 import { FolderKanban, CheckCircle2, Clock, Loader2, AlertTriangle, CheckCheck, X } from 'lucide-react'
 
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: '1',
-    title: 'E-Commerce Platform Redesign',
-    description: 'Full redesign of the client shopping experience.',
-    budget: 4500,
-    deadline: new Date(Date.now() + 3 * 86400000).toISOString(),
-    status: 'in_progress',
-    priority: 'high',
-    clientId: 'c1',
-    assignedFreelancer: { id: 'f1', userId: 'u1', user: { id: 'u1', name: 'Alex Johnson', email: '', role: 'freelancer', createdAt: '' }, skills: [], experience: 3, hourlyRate: 75, status: 'active' },
-    progress: 65,
-    createdAt: new Date(Date.now() - 20 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Mobile App Backend API',
-    description: 'REST API development for the iOS/Android app.',
-    budget: 3200,
-    deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
-    status: 'pending_approval',
-    priority: 'medium',
-    clientId: 'c1',
-    assignedFreelancer: { id: 'f2', userId: 'u2', user: { id: 'u2', name: 'Sam Rivera', email: '', role: 'freelancer', createdAt: '' }, skills: [], experience: 5, hourlyRate: 90, status: 'active' },
-    progress: 100,
-    createdAt: new Date(Date.now() - 35 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Dashboard Analytics Module',
-    description: 'Build analytics and reporting dashboard.',
-    budget: 2100,
-    deadline: new Date(Date.now() - 10 * 86400000).toISOString(),
-    status: 'completed',
-    priority: 'high',
-    clientId: 'c1',
-    progress: 100,
-    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    title: 'CMS Integration',
-    description: 'Integrate headless CMS with existing frontend.',
-    budget: 1500,
-    deadline: new Date(Date.now() + 20 * 86400000).toISOString(),
-    status: 'new',
-    priority: 'low',
-    clientId: 'c1',
-    progress: 0,
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
+interface Activity { id: string; event: string; at: string; type: string }
+
+function timeAgo(iso: string) {
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  const days = Math.floor(hours / 24)
+  return `${days} day${days === 1 ? '' : 's'} ago`
+}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
@@ -76,9 +33,8 @@ function isOverdue(iso: string) {
 
 const activityColors: Record<string, string> = {
   progress: 'var(--fg)',
-  approval: 'var(--fg)',
-  complete: 'var(--fg)',
-  new: 'var(--fg)',
+  request: 'var(--fg)',
+  document: 'var(--fg)',
   payment: 'var(--fg)',
 }
 
@@ -86,34 +42,59 @@ export default function ClientDashboardPage() {
   const { user } = useAuthStore()
   const curr = useCurrencySymbol()
 
-  const MOCK_ACTIVITY = [
-    { id: 'a1', event: 'E-Commerce Platform reached 65% completion', time: '2 hours ago', type: 'progress' },
-    { id: 'a2', event: 'Mobile App Backend submitted for approval', time: '1 day ago', type: 'approval' },
-    { id: 'a3', event: 'Dashboard Analytics Module marked completed', time: '3 days ago', type: 'complete' },
-    { id: 'a4', event: 'CMS Integration project submitted', time: '2 days ago', type: 'new' },
-    { id: 'a5', event: `Payment of ${curr}2,520 processed for Payment Gateway`, time: '4 days ago', type: 'payment' },
-  ]
-
   const [projects, setProjects] = useState<Project[]>([])
+  const [activity, setActivity] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [activityError, setActivityError] = useState('')
+  const [actionError, setActionError] = useState('')
   const [approvingId, setApprovingId] = useState<string | null>(null)
+  const [changesFor, setChangesFor] = useState<string | null>(null)
+  const [changesMsg, setChangesMsg] = useState('')
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'GOOD MORNING,' : hour < 17 ? 'GOOD AFTERNOON,' : 'GOOD EVENING,'
 
+  const loadProjects = () => projectsApi.getAll()
+    .then(res => { setProjects(res.data?.data ?? res.data ?? []); setError('') })
+    .catch(err => setError(apiError(err, 'Could not load your projects.')))
+
+  // Merge the latest worklogs, payments, requests and documents into one feed
+  const loadActivity = () => Promise.all([
+    worklogsApi.getAll(), paymentsApi.getAll(), projectRequestsApi.list(), documentsApi.list(),
+  ])
+    .then(([wl, pay, req, docs]) => {
+      const worklogs: Worklog[] = wl.data?.data ?? wl.data ?? []
+      const payments: Payment[] = pay.data?.data ?? pay.data ?? []
+      const requests: ProjectRequest[] = req.data ?? []
+      const documents: ProjectDocument[] = docs.data ?? []
+      const items: Activity[] = [
+        ...worklogs.map(w => ({
+          id: `w-${w.id}`, type: 'progress', at: w.createdAt,
+          event: `${w.freelancer?.user?.name ?? 'Your team'} logged ${w.hoursWorked}h on ${w.project?.title ?? 'a project'} (${w.progress}%)`,
+        })),
+        ...payments.map(p => ({
+          id: `p-${p.id}`, type: 'payment', at: p.createdAt,
+          event: `Payment of ${curr}${Number(p.amount).toLocaleString()} ${p.status} for ${p.project?.title ?? 'a project'}`,
+        })),
+        ...requests.map(r => ({
+          id: `r-${r.id}`, type: 'request', at: r.createdAt,
+          event: `${r.fromUser?.name ?? 'Someone'} opened a ${r.kind} request on ${r.project?.title ?? 'a project'}: ${r.subject}`,
+        })),
+        ...documents.map(d => ({
+          id: `d-${d.id}`, type: 'document', at: d.createdAt,
+          event: `${d.uploadedBy?.name ?? 'Someone'} uploaded ${d.name} to ${d.project?.title ?? 'a project'}`,
+        })),
+      ]
+      items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+      setActivity(items.slice(0, 8))
+      setActivityError('')
+    })
+    .catch(err => setActivityError(apiError(err, 'Could not load recent activity.')))
+
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await projectsApi.getAll()
-        setProjects(res.data?.data ?? res.data ?? MOCK_PROJECTS)
-      } catch {
-        setProjects(MOCK_PROJECTS)
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [])
+    Promise.all([loadProjects(), loadActivity()]).finally(() => setLoading(false))
+  }, []) // eslint-disable-line
 
   const totalProjects = projects.length
   const activeProjects = projects.filter(p => ['in_progress', 'assigned'].includes(p.status)).length
@@ -127,12 +108,30 @@ export default function ClientDashboardPage() {
     { label: 'Pending Approval', value: pendingApproval, icon: <Clock size={20} className="text-[var(--fg)]" /> },
   ]
 
-  function handleApprove(id: string) {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: 'completed' as const } : p))
+  async function handleApprove(id: string) {
+    setApprovingId(id); setActionError('')
+    try {
+      await projectsApi.approve(id)
+      await Promise.all([loadProjects(), loadActivity()])
+    } catch (err) {
+      setActionError(apiError(err, 'Could not approve the project.'))
+    } finally {
+      setApprovingId(null)
+    }
   }
 
-  function handleRequestChanges(id: string) {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: 'in_progress' as const } : p))
+  async function handleRequestChanges(id: string) {
+    if (!changesMsg.trim()) return
+    setApprovingId(id); setActionError('')
+    try {
+      await projectsApi.requestChanges(id, changesMsg.trim())
+      setChangesFor(null); setChangesMsg('')
+      await Promise.all([loadProjects(), loadActivity()])
+    } catch (err) {
+      setActionError(apiError(err, 'Could not send the change request.'))
+    } finally {
+      setApprovingId(null)
+    }
   }
 
   const pendingProjects = projects.filter(p => p.status === 'pending_approval')
@@ -149,6 +148,8 @@ export default function ClientDashboardPage() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' }).toUpperCase()}
           </p>
         </div>
+
+        <ErrorBanner title="Could not load projects" message={error} />
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
@@ -219,19 +220,31 @@ export default function ClientDashboardPage() {
           {/* Recent Activity */}
           <div className="glass-card rounded-xl p-5">
             <h2 className="text-mono-label text-xs tracking-widest mb-4">RECENT ACTIVITY</h2>
-            <ul className="relative space-y-0">
-              <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[rgb(var(--fg-rgb)/0.2)]" />
-              {MOCK_ACTIVITY.map((a, i) => (
-                <li key={a.id} className="relative pl-6 pb-5 last:pb-0">
-                  <span
-                    className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-[var(--surface)] shrink-0"
-                    style={{ background: activityColors[a.type] ?? 'var(--text-muted)' }}
-                  />
-                  <p className="text-primary-ui text-xs leading-snug">{a.event}</p>
-                  <p className="text-mono-label text-[10px] mt-0.5">{a.time}</p>
-                </li>
-              ))}
-            </ul>
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-8 bg-[var(--input-bg)] rounded animate-pulse" />
+                ))}
+              </div>
+            ) : activityError ? (
+              <ErrorBanner title="Could not load activity" message={activityError} />
+            ) : activity.length === 0 ? (
+              <p className="text-mono-label text-center py-6">NO RECENT ACTIVITY</p>
+            ) : (
+              <ul className="relative space-y-0">
+                <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[rgb(var(--fg-rgb)/0.2)]" />
+                {activity.map(a => (
+                  <li key={a.id} className="relative pl-6 pb-5 last:pb-0">
+                    <span
+                      className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full border-2 border-[var(--surface)] shrink-0"
+                      style={{ background: activityColors[a.type] ?? 'var(--text-muted)' }}
+                    />
+                    <p className="text-primary-ui text-xs leading-snug">{a.event}</p>
+                    <p className="text-mono-label text-[10px] mt-0.5">{timeAgo(a.at)}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -239,9 +252,15 @@ export default function ClientDashboardPage() {
         {pendingProjects.length > 0 && (
           <div className="glass-card rounded-xl p-5 border-l-4 border-[var(--fg)]">
             <h2 className="text-mono-label text-xs tracking-widest mb-4">PENDING YOUR APPROVAL</h2>
+            {actionError && (
+              <div className="mb-4">
+                <ErrorBanner message={actionError} onClose={() => setActionError('')} />
+              </div>
+            )}
             <div className="space-y-4">
               {pendingProjects.map(p => (
-                <div key={p.id} className="flex items-center justify-between glass-card-dark rounded-lg p-4">
+                <div key={p.id} className="glass-card-dark rounded-lg p-4">
+                <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
                     <p className="text-primary-ui font-semibold">{p.title}</p>
                     <p className="text-mono-label text-[10px] mt-0.5">
@@ -257,19 +276,40 @@ export default function ClientDashboardPage() {
                   <div className="flex gap-2 ml-4">
                     <button
                       onClick={() => handleApprove(p.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
+                      disabled={approvingId === p.id}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors disabled:opacity-50"
                     >
                       <CheckCheck size={13} />
                       APPROVE
                     </button>
                     <button
-                      onClick={() => handleRequestChanges(p.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors"
+                      onClick={() => { setChangesFor(changesFor === p.id ? null : p.id); setChangesMsg('') }}
+                      disabled={approvingId === p.id}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors disabled:opacity-50"
                     >
                       <X size={13} />
                       CHANGES
                     </button>
                   </div>
+                </div>
+                {changesFor === p.id && (
+                  <div className="flex items-center gap-2 mt-3">
+                    <input
+                      className="input-field flex-1 py-2 text-sm"
+                      placeholder="What needs to change?"
+                      value={changesMsg}
+                      onChange={e => setChangesMsg(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') handleRequestChanges(p.id) }}
+                    />
+                    <button
+                      onClick={() => handleRequestChanges(p.id)}
+                      disabled={!changesMsg.trim() || approvingId === p.id}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[rgb(var(--fg-rgb)/0.1)] border border-[rgb(var(--fg-rgb)/0.3)] text-[var(--fg)] rounded text-mono-label text-[10px] hover:bg-[rgb(var(--fg-rgb)/0.2)] transition-colors disabled:opacity-50"
+                    >
+                      {approvingId === p.id ? 'SENDING…' : 'SEND REQUEST'}
+                    </button>
+                  </div>
+                )}
                 </div>
               ))}
             </div>
