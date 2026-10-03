@@ -6,6 +6,8 @@ import { CreatePaymentDto, UpdatePaymentDto } from './dto/payment.dto';
 
 export interface PaymentQuery {
   freelancerId?: string;
+  freelancerUserId?: string;
+  clientUserId?: string;
   projectId?: string;
   status?: string;
 }
@@ -18,7 +20,7 @@ export class PaymentsService {
   ) {}
 
   async findAll(query: PaymentQuery): Promise<Payment[]> {
-    const { freelancerId, projectId, status } = query;
+    const { freelancerId, freelancerUserId, clientUserId, projectId, status } = query;
     const qb = this.paymentsRepository
       .createQueryBuilder('payment')
       .leftJoinAndSelect('payment.project', 'project')
@@ -26,6 +28,8 @@ export class PaymentsService {
       .leftJoinAndSelect('freelancer.user', 'user');
 
     if (freelancerId) qb.andWhere('payment.freelancerId = :freelancerId', { freelancerId });
+    if (freelancerUserId) qb.andWhere('user.id = :freelancerUserId', { freelancerUserId });
+    if (clientUserId) qb.andWhere('project.clientId = :clientUserId', { clientUserId });
     if (projectId) qb.andWhere('payment.projectId = :projectId', { projectId });
     if (status) qb.andWhere('payment.status = :status', { status });
 

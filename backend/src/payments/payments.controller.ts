@@ -29,7 +29,9 @@ export class PaymentsController {
     };
 
     if (user.role === 'freelancer') {
-      filters.freelancerId = user.id;
+      filters.freelancerUserId = user.id;
+    } else if (user.role !== 'admin') {
+      filters.clientUserId = user.id;
     }
 
     return this.paymentsService.findAll(filters);
