@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ProfilePrivacyInterceptor } from './common/profile-privacy.interceptor';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -63,5 +65,6 @@ import { DocumentsModule } from './documents/documents.module';
     PlatformSettingsModule,
     ChatModule,
   ],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: ProfilePrivacyInterceptor }],
 })
 export class AppModule {}
