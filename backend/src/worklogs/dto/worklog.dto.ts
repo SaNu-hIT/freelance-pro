@@ -25,10 +25,12 @@ export class CreateWorklogDto {
   @IsNotEmpty()
   tasksCompleted: string;
 
+  // Left out when the project has no tasks to measure progress by, so the project keeps its progress
+  @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(100)
-  progress: number;
+  progress?: number;
 
   @IsOptional()
   @IsString()

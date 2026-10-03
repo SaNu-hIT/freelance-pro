@@ -85,6 +85,8 @@ export class WorklogsService {
       throw new BadRequestException('Worklog date cannot be in the future');
     }
 
+    this.checkSession(dto);
+
     const { total } = await this.worklogsRepository
       .createQueryBuilder('worklog')
       .select('COALESCE(SUM(worklog.hoursWorked), 0)', 'total')
@@ -109,6 +111,30 @@ export class WorklogsService {
     }
 
     return this.findOne(savedWorklog.id);
+  }
+
+  // A timer session must match the log it is attached to
+  private checkSession({ startedAt, endedAt, date, hoursWorked }: CreateWorklogDto) {
+    if (!startedAt && !endedAt) return;
+    if (!startedAt || !endedAt) {
+      throw new BadRequestException('A session needs both a start and an end time');
+    }
+    const start = new Date(startedAt).getTime();
+    const end = new Date(endedAt).getTime();
+    if (end <= start) {
+      throw new BadRequestException('Session end must be after its start');
+    }
+    // The timer rounds to the nearest quarter hour (minimum 0.25), so allow up to the next quarter
+    const maxHours = Math.max(0.25, Math.ceil(((end - start) / 3600000) * 4) / 4);
+    if (hoursWorked > maxHours) {
+      throw new BadRequestException(`A ${maxHours}h session cannot log ${hoursWorked} hours`);
+    }
+    // Allow a day either side of the log date for timezones and sessions that run past midnight
+    const day = 86400000;
+    const dayStart = new Date(date.slice(0, 10) + 'T00:00:00.000Z').getTime();
+    if (start < dayStart - day || end > dayStart + 2 * day) {
+      throw new BadRequestException(`Session times do not fall on ${date.slice(0, 10)}`);
+    }
   }
 
   async update(id: string, dto: UpdateWorklogDto): Promise<Worklog> {

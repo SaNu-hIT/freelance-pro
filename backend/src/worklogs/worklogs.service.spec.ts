@@ -46,7 +46,7 @@ describe('WorklogsService.create', () => {
   });
 
   it('saves the timer session start and end', async () => {
-    const session = { startedAt: '2026-10-03T04:00:00.000Z', endedAt: '2026-10-03T06:30:00.000Z' };
+    const session = { startedAt: `${dto.date}T04:00:00.000Z`, endedAt: `${dto.date}T06:30:00.000Z` };
     await service.create({ ...dto, ...session } as any, 'u1');
     expect(worklogs.save).toHaveBeenCalledWith(expect.objectContaining(session));
   });
