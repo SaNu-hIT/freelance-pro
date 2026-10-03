@@ -6,27 +6,19 @@ import {
   Eye, X, Calendar, MoreHorizontal,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { projectsApi } from '@/lib/api'
-import api from '@/lib/api'
+import { usersApi } from '@/lib/api'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 interface ClientUser {
   id: string
   name: string
   email: string
-  company?: string
-  phone?: string
+  company?: string | null
+  phone?: string | null
   createdAt: string
   projectCount?: number
 }
-
-const MOCK_CLIENTS: ClientUser[] = [
-  { id: 'c1', name: 'Jane Smith', email: 'jane@acmecorp.com', company: 'Acme Corp', phone: '+1 555-0101', createdAt: '2024-02-10', projectCount: 3 },
-  { id: 'c2', name: 'David Nguyen', email: 'david@techstart.io', company: 'TechStart', phone: '+1 555-0202', createdAt: '2024-03-22', projectCount: 1 },
-  { id: 'c3', name: 'Sarah Patel', email: 'sarah@nexabuild.com', company: 'NexaBuild', phone: '+44 7700 900303', createdAt: '2024-05-15', projectCount: 2 },
-  { id: 'c4', name: 'Liam Torres', email: 'liam@cloudnine.co', company: 'CloudNine', phone: '+1 555-0404', createdAt: '2024-07-01', projectCount: 4 },
-  { id: 'c5', name: 'Emma Larsson', email: 'emma@designhaus.se', company: 'Designhaus', phone: '+46 700 555 05', createdAt: '2024-09-18', projectCount: 1 },
-  { id: 'c6', name: 'Omar Hassan', email: 'omar@digital.ae', company: 'Digital AE', phone: '+971 50 123 0606', createdAt: '2025-01-08', projectCount: 2 },
-]
 
 function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -43,28 +35,16 @@ export default function AdminClientsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<ClientUser | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get('/users?role=client')
-        const data = res.data?.data ?? res.data ?? []
-        if (Array.isArray(data) && data.length > 0) {
-          const withCounts = await Promise.all(
-            data.map(async (u: ClientUser) => {
-              try {
-                const pRes = await projectsApi.getAll()
-                const all = pRes.data?.data ?? pRes.data ?? []
-                return { ...u, projectCount: all.filter((p: { clientId: string }) => p.clientId === u.id).length }
-              } catch { return { ...u, projectCount: 0 } }
-            })
-          )
-          setClients(withCounts)
-        } else {
-          setClients(MOCK_CLIENTS)
-        }
-      } catch {
-        setClients(MOCK_CLIENTS)
+        // Each client comes back with its projectCount
+        const res = await usersApi.list('client')
+        setClients(res.data ?? [])
+      } catch (err) {
+        setError(apiError(err, 'Could not load clients'))
       } finally {
         setLoading(false)
       }
@@ -104,6 +84,8 @@ export default function AdminClientsPage() {
             ))}
           </div>
         </div>
+
+        {error && <ErrorBanner title="Clients unavailable" message={error} onClose={() => setError('')} />}
 
         {/* Search */}
         <div className="glass-card rounded-xl p-4">

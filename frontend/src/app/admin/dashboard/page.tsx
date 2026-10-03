@@ -4,76 +4,11 @@ import { useEffect, useState } from 'react'
 import { AlertTriangle, Clock } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi, worklogsApi } from '@/lib/api'
-import api from '@/lib/api'
+import { dashboardApi, projectsApi, worklogsApi } from '@/lib/api'
 import { DashboardStats, Project, Worklog } from '@/lib/types'
+import { apiError } from '@/lib/utils'
 import { useCurrencySymbol } from '@/lib/store'
-
-const MOCK_STATS: DashboardStats = {
-  totalProjects: 24,
-  activeProjects: 11,
-  delayedProjects: 3,
-  completedProjects: 8,
-  pendingApprovals: 4,
-  totalFreelancers: 18,
-  activeFreelancers: 13,
-  totalEarnings: 128400,
-  pendingPayments: 14200,
-}
-
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: '1', title: 'E-Commerce Platform Rebuild', description: '', budget: 12000,
-    deadline: '2025-06-15', status: 'in_progress', priority: 'high',
-    clientId: 'c1', client: { id: 'c1', name: 'Acme Corp', email: 'acme@corp.com', role: 'client', createdAt: '' },
-    progress: 68, createdAt: '', updatedAt: '',
-  },
-  {
-    id: '2', title: 'Mobile App UI Redesign', description: '', budget: 8500,
-    deadline: '2025-05-30', status: 'delayed', priority: 'critical',
-    clientId: 'c2', client: { id: 'c2', name: 'Nexus Labs', email: 'nexus@labs.com', role: 'client', createdAt: '' },
-    progress: 34, createdAt: '', updatedAt: '',
-  },
-  {
-    id: '3', title: 'API Integration Suite', description: '', budget: 5500,
-    deadline: '2025-07-01', status: 'pending_approval', priority: 'medium',
-    clientId: 'c3', client: { id: 'c3', name: 'DataFlow Inc', email: 'df@inc.com', role: 'client', createdAt: '' },
-    progress: 90, createdAt: '', updatedAt: '',
-  },
-  {
-    id: '4', title: 'Analytics Dashboard', description: '', budget: 7200,
-    deadline: '2025-08-10', status: 'assigned', priority: 'medium',
-    clientId: 'c4', client: { id: 'c4', name: 'Pulse Media', email: 'pulse@media.com', role: 'client', createdAt: '' },
-    progress: 15, createdAt: '', updatedAt: '',
-  },
-]
-
-const MOCK_WORKLOGS: Worklog[] = [
-  {
-    id: 'w1', projectId: '1', date: '2025-05-18', hoursWorked: 6, progress: 68,
-    tasksCompleted: 'Completed checkout flow, integrated payment gateway',
-    freelancerId: 'f1',
-    freelancer: { id: 'f1', userId: 'u1', skills: [], experience: 4, hourlyRate: 75, status: 'active', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@dev.com', role: 'freelancer', createdAt: '' } },
-    project: MOCK_PROJECTS[0],
-    createdAt: '',
-  },
-  {
-    id: 'w2', projectId: '2', date: '2025-05-17', hoursWorked: 4, progress: 34,
-    tasksCompleted: 'Wireframes for onboarding screens', blockers: 'Awaiting brand assets',
-    freelancerId: 'f2',
-    freelancer: { id: 'f2', userId: 'u2', skills: [], experience: 6, hourlyRate: 90, status: 'active', user: { id: 'u2', name: 'Sam Chen', email: 'sam@ux.com', role: 'freelancer', createdAt: '' } },
-    project: MOCK_PROJECTS[1],
-    createdAt: '',
-  },
-  {
-    id: 'w3', projectId: '3', date: '2025-05-17', hoursWorked: 8, progress: 90,
-    tasksCompleted: 'OAuth integration, token refresh mechanism',
-    freelancerId: 'f3',
-    freelancer: { id: 'f3', userId: 'u3', skills: [], experience: 5, hourlyRate: 80, status: 'active', user: { id: 'u3', name: 'Jordan Lee', email: 'jordan@api.com', role: 'freelancer', createdAt: '' } },
-    project: MOCK_PROJECTS[2],
-    createdAt: '',
-  },
-]
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 interface MetricCardProps {
   label: string
@@ -119,30 +54,28 @@ export default function AdminDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [worklogs, setWorklogs] = useState<Worklog[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchAll = async () => {
-      try {
-        const [statsRes, projectsRes, worklogsRes] = await Promise.allSettled([
-          api.get('/projects/dashboard/stats'),
-          projectsApi.getAll({ limit: 8 }),
-          worklogsApi.getAll({ limit: 6 }),
-        ])
+      const [statsRes, projectsRes, worklogsRes] = await Promise.allSettled([
+        dashboardApi.getStats(),
+        projectsApi.getAll(),
+        worklogsApi.getAll({ limit: 6 }),
+      ])
 
-        setStats(statsRes.status === 'fulfilled' ? statsRes.value.data : MOCK_STATS)
-        setProjects(projectsRes.status === 'fulfilled' ? (projectsRes.value.data?.data ?? projectsRes.value.data) : MOCK_PROJECTS)
-        setWorklogs(worklogsRes.status === 'fulfilled' ? (worklogsRes.value.data?.data ?? worklogsRes.value.data) : MOCK_WORKLOGS)
-      } catch {
-        setStats(MOCK_STATS)
-        setProjects(MOCK_PROJECTS)
-        setWorklogs(MOCK_WORKLOGS)
-      } finally {
-        setLoading(false)
-      }
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
+      if (projectsRes.status === 'fulfilled') setProjects(projectsRes.value.data?.data ?? projectsRes.value.data)
+      if (worklogsRes.status === 'fulfilled') setWorklogs(worklogsRes.value.data?.data ?? worklogsRes.value.data)
+      const failed = [statsRes, projectsRes, worklogsRes].find(r => r.status === 'rejected')
+      if (failed) setError(apiError(failed.reason, 'Could not load some dashboard data'))
+      setLoading(false)
     }
     fetchAll()
   }, [])
 
+  // Every project is fetched so these lists are complete; only the display is capped
+  const recent = projects.slice(0, 8)
   const delayed = projects.filter(p => p.status === 'delayed' || p.status === 'blocked')
   const pending = projects.filter(p => p.status === 'pending_approval')
 
@@ -154,6 +87,12 @@ export default function AdminDashboardPage() {
         <h1 className="text-display text-4xl text-primary-ui">DASHBOARD</h1>
         <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Command Center — Real-time project intelligence</p>
       </div>
+
+      {error && (
+        <div className="mb-6">
+          <ErrorBanner title="Dashboard data unavailable" message={error} onClose={() => setError('')} />
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -187,7 +126,7 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
             </div>
-          ) : projects.length === 0 ? (
+          ) : recent.length === 0 ? (
             <p className="text-center text-mono-label py-8" style={{ color: 'var(--text-muted)' }}>No projects found</p>
           ) : (
             <div className="overflow-x-auto">
@@ -202,7 +141,7 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map(p => (
+                  {recent.map(p => (
                     <tr key={p.id}>
                       <td>
                         <p className="font-medium text-primary-ui text-sm truncate max-w-[180px]">{p.title}</p>
@@ -308,7 +247,7 @@ export default function AdminDashboardPage() {
             </p>
           ) : (
             <div className="space-y-3">
-              {delayed.map(p => (
+              {delayed.slice(0, 6).map(p => (
                 <div
                   key={p.id}
                   className="glass-card-dark rounded-lg p-4 flex items-center justify-between"
@@ -345,7 +284,7 @@ export default function AdminDashboardPage() {
             </p>
           ) : (
             <div className="space-y-3">
-              {pending.map(p => (
+              {pending.slice(0, 6).map(p => (
                 <div key={p.id} className="glass-card-dark rounded-lg p-4 flex items-center justify-between">
                   <div>
                     <p className="text-primary-ui text-sm font-medium">{p.title}</p>

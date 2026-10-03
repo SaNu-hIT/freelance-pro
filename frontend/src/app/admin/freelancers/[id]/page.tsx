@@ -11,7 +11,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi, projectsApi, worklogsApi, tasksApi } from '@/lib/api'
 import { FreelancerProfile, Project, Worklog, ProjectTask, ProjectStatus } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
-import { useFreelancerStore, DEFAULT_AVAILABILITY, AvailabilityConfig, DayKey } from '@/lib/freelancerStore'
+import { DEFAULT_AVAILABILITY, AvailabilityConfig, DayKey } from '@/lib/freelancerStore'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 const DAY_LABELS: { key: DayKey; short: string }[] = [
   { key: 'mon', short: 'Mon' },
@@ -106,43 +108,55 @@ export default function FreelancerDetailPage() {
   const [taskMap, setTaskMap]   = useState<Record<string, ProjectTask[]>>({})
   const [loading, setLoading]   = useState(true)
   const [avail, setAvail]         = useState<AvailabilityConfig>(DEFAULT_AVAILABILITY)
-  const fetchAvailability = useFreelancerStore(s => s.fetchAvailability)
-  const getAvailability   = useFreelancerStore(s => s.getAvailability)
+  const [error, setError]         = useState('')
 
   useEffect(() => {
     if (!id) return
-    freelancersApi.getOne(id).then(async fRes => {
-      const p: FreelancerProfile = fRes.data
-      setProfile(p)
-      // Load availability from DB then update local state
-      await fetchAvailability(p.id)
-      setAvail(getAvailability(p.id))
+    const load = async () => {
+      let p: FreelancerProfile
+      try {
+        p = (await freelancersApi.getOne(id)).data
+        setProfile(p)
+      } catch (err) {
+        setError(apiError(err, 'Could not load this team member'))
+        setLoading(false)
+        return
+      }
+      try {
+        const aRes = await freelancersApi.getAvailability(p.id)
+        if (aRes.data) setAvail(aRes.data as AvailabilityConfig)
 
-      const [r1, r2, wRes] = await Promise.all([
-        projectsApi.getAll({ assignedTo: id }),
-        projectsApi.getAll({ freelancerUserId: p.userId }),
-        worklogsApi.getAll({ freelancerId: id, limit: 1000 }),
-      ])
-      const list1: Project[] = r1.data?.data ?? r1.data ?? []
-      const list2: Project[] = r2.data?.data ?? r2.data ?? []
-      const seen = new Set<string>()
-      const merged = [...list1, ...list2].filter(proj => {
-        if (seen.has(proj.id)) return false
-        seen.add(proj.id)
-        return true
-      })
-      setProjects(merged)
-      const wData = wRes.data?.data ?? wRes.data ?? []
-      setWorklogs(Array.isArray(wData) ? wData : [])
+        const [r1, r2, wRes] = await Promise.all([
+          projectsApi.getAll({ assignedTo: id }),
+          projectsApi.getAll({ freelancerUserId: p.userId }),
+          worklogsApi.getAll({ freelancerId: id, limit: 1000 }),
+        ])
+        const list1: Project[] = r1.data?.data ?? r1.data ?? []
+        const list2: Project[] = r2.data?.data ?? r2.data ?? []
+        const seen = new Set<string>()
+        const merged = [...list1, ...list2].filter(proj => {
+          if (seen.has(proj.id)) return false
+          seen.add(proj.id)
+          return true
+        })
+        setProjects(merged)
+        const wData = wRes.data?.data ?? wRes.data ?? []
+        setWorklogs(Array.isArray(wData) ? wData : [])
 
-      const taskResults = await Promise.all(merged.map(proj => tasksApi.getByProject(proj.id)))
-      const map: Record<string, ProjectTask[]> = {}
-      merged.forEach((proj, i) => {
-        const all: ProjectTask[] = taskResults[i].data ?? []
-        map[proj.id] = all.filter(t => t.assignedFreelancerId === id)
-      })
-      setTaskMap(map)
-    }).catch(() => {}).finally(() => setLoading(false))
+        const taskResults = await Promise.all(merged.map(proj => tasksApi.getByProject(proj.id)))
+        const map: Record<string, ProjectTask[]> = {}
+        merged.forEach((proj, i) => {
+          const all: ProjectTask[] = taskResults[i].data ?? []
+          map[proj.id] = all.filter(t => t.assignedFreelancerId === id)
+        })
+        setTaskMap(map)
+      } catch (err) {
+        setError(apiError(err, "Could not load this member's availability, projects and work logs"))
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [id])
 
   if (loading) return (
@@ -157,6 +171,7 @@ export default function FreelancerDetailPage() {
 
   if (!profile) return (
     <DashboardLayout allowedRoles={['admin']}>
+      {error && <ErrorBanner title="Team member unavailable" message={error} />}
       <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
         Freelancer not found.
       </div>
@@ -194,6 +209,12 @@ export default function FreelancerDetailPage() {
         <ArrowLeft size={13} /> BACK TO OUR TEAM
       </button>
 
+      {error && (
+        <div style={{ marginBottom: 16 }}>
+          <ErrorBanner title="Some details could not be loaded" message={error} onClose={() => setError('')} />
+        </div>
+      )}
+
       {/* ── TWO-COLUMN LAYOUT ───────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 16, alignItems: 'start' }}>
 
@@ -216,7 +237,7 @@ export default function FreelancerDetailPage() {
               </div>
               {/* Badges */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <span style={{ background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>ACTIVE</span>
+                <span style={{ background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>{profile.status.toUpperCase()}</span>
                 {profile.track && (
                   <span style={{ background: profile.track === 'professional' ? 'rgb(var(--fg-rgb) / 0.1)' : 'rgb(var(--fg-rgb) / 0.1)', color: profile.track === 'professional' ? 'var(--fg)' : 'var(--fg)', fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     {profile.track}

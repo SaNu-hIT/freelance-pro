@@ -8,15 +8,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
 import { FreelancerProfile } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
-
-const MOCK_FREELANCERS: FreelancerProfile[] = [
-  { id: 'f1', userId: 'u1', skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'], experience: 4, hourlyRate: 75, status: 'active', bio: 'Full-stack engineer specializing in React and Node ecosystems.', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@dev.com', role: 'freelancer', createdAt: '2024-01-15' } },
-  { id: 'f2', userId: 'u2', skills: ['Figma', 'UI/UX', 'CSS', 'Tailwind'], experience: 6, hourlyRate: 90, status: 'active', bio: 'Senior UX designer with 6 years building SaaS products.', user: { id: 'u2', name: 'Sam Chen', email: 'sam@ux.com', role: 'freelancer', createdAt: '2024-02-10' } },
-  { id: 'f3', userId: 'u3', skills: ['Python', 'Django', 'REST API', 'AWS'], experience: 5, hourlyRate: 80, status: 'active', bio: 'Backend engineer focused on scalable APIs.', user: { id: 'u3', name: 'Jordan Lee', email: 'jordan@api.com', role: 'freelancer', createdAt: '2024-01-28' } },
-  { id: 'f4', userId: 'u4', skills: ['Flutter', 'Dart', 'iOS', 'Android'], experience: 3, hourlyRate: 65, status: 'pending', bio: 'Mobile developer with apps on both major stores.', user: { id: 'u4', name: 'Morgan Wu', email: 'morgan@mobile.dev', role: 'freelancer', createdAt: '2025-04-01' } },
-  { id: 'f5', userId: 'u5', skills: ['DevOps', 'Kubernetes', 'Docker', 'CI/CD'], experience: 7, hourlyRate: 110, status: 'pending', bio: 'Infrastructure architect specializing in cloud-native apps.', user: { id: 'u5', name: 'Casey Park', email: 'casey@devops.io', role: 'freelancer', createdAt: '2025-04-15' } },
-  { id: 'f6', userId: 'u6', skills: ['Vue.js', 'Laravel', 'PHP'], experience: 2, hourlyRate: 50, status: 'inactive', bio: 'Junior developer available for small-scale projects.', user: { id: 'u6', name: 'Riley Brooks', email: 'riley@vue.dev', role: 'freelancer', createdAt: '2023-11-20' } },
-]
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 const STATUS_COLORS = {
   active: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' },
@@ -34,17 +27,19 @@ export default function AdminFreelancersPage() {
   const [freelancers, setFreelancers] = useState<FreelancerProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await freelancersApi.getAll({ status: 'active' })
+        const res = await freelancersApi.getAll()
         const data = res.data?.data ?? res.data
-        setFreelancers(Array.isArray(data) ? data.filter((f: FreelancerProfile) => f.status === 'active') : [])
-      } catch {
-        setFreelancers(MOCK_FREELANCERS.filter(f => f.status === 'active'))
+        // The team is every approved member, active or deactivated; applicants live on the onboarding page
+        setFreelancers(Array.isArray(data) ? data.filter((f: FreelancerProfile) => f.onboardingStage === 'approved') : [])
+      } catch (err) {
+        setError(apiError(err, 'Could not load freelancers'))
       } finally {
         setLoading(false)
       }
@@ -77,6 +72,12 @@ export default function AdminFreelancersPage() {
         <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved freelancers on the platform</p>
       </div>
 
+      {error && (
+        <div className="mb-6">
+          <ErrorBanner title="Team unavailable" message={error} onClose={() => setError('')} />
+        </div>
+      )}
+
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         {[
@@ -103,7 +104,7 @@ export default function AdminFreelancersPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(['all', 'active'] as const).map(s => (
+          {(['all', 'active', 'inactive'] as const).map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}

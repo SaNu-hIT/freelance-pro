@@ -5,6 +5,8 @@ import { Phone, Sparkles, Clock, CheckCircle, XCircle, Mail, User, Calendar, Dol
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import api from '@/lib/api'
 import { useCurrencySymbol } from '@/lib/store'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 interface Inquiry {
   id: string
@@ -20,32 +22,6 @@ interface Inquiry {
   status: string
   createdAt: string
 }
-
-const MOCK: Inquiry[] = [
-  {
-    id: 'i1', type: 'project_idea', name: 'Sarah Johnson', email: 'sarah@techinc.com', phone: '+1 555 0101',
-    projectTitle: 'Customer Portal Rebuild', description: 'We need to rebuild our legacy customer portal into a modern React-based SaaS. Full auth, dashboard, billing integration with Stripe, and API for mobile app.',
-    budgetRange: '$15,000 – $50,000', timeline: '3–6 months', status: 'new', createdAt: '2025-05-20T09:30:00Z',
-  },
-  {
-    id: 'i2', type: 'callback', name: 'Marcus Lee', email: 'marcus@startupxyz.io', phone: '+1 555 0202',
-    preferredCallbackTime: 'Morning (9am–12pm)', status: 'new', createdAt: '2025-05-20T11:15:00Z',
-  },
-  {
-    id: 'i3', type: 'project_idea', name: 'Priya Sharma', email: 'priya@enterprise.co', phone: '+1 555 0303',
-    projectTitle: 'AI Analytics Dashboard', description: 'Need a real-time analytics dashboard integrating with our ML pipeline. Charts, filters, export, role-based access for 3 teams.',
-    budgetRange: '$5,000 – $15,000', timeline: '1–3 months', status: 'contacted', createdAt: '2025-05-19T14:00:00Z',
-  },
-  {
-    id: 'i4', type: 'callback', name: 'Tom Bridges', email: '', phone: '+44 7700 900123',
-    preferredCallbackTime: 'Evening (5pm–8pm)', status: 'contacted', createdAt: '2025-05-18T16:45:00Z',
-  },
-  {
-    id: 'i5', type: 'project_idea', name: 'Aiko Tanaka', email: 'aiko@mediahouse.jp', phone: '',
-    projectTitle: 'Mobile App for Content Creators', description: 'iOS/Android app for content scheduling, analytics, and collaboration. Instagram/TikTok integrations required.',
-    budgetRange: '$50,000+', timeline: '3–6 months', status: 'converted', createdAt: '2025-05-15T10:00:00Z',
-  },
-]
 
 const STATUS_META: Record<string, { label: string; bg: string; border: string; color: string }> = {
   new:       { label: 'NEW',       bg: 'rgb(var(--fg-rgb) / 0.12)',  border: 'rgb(var(--fg-rgb) / 0.35)',  color: 'var(--fg)' },
@@ -78,14 +54,15 @@ export default function AdminInquiriesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selected, setSelected] = useState<Inquiry | null>(null)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const load = async () => {
       try {
         const res = await api.get('/inquiries')
-        setInquiries(res.data)
-      } catch {
-        setInquiries(MOCK)
+        setInquiries(res.data ?? [])
+      } catch (err) {
+        setError(apiError(err, 'Could not load inquiries'))
       } finally {
         setLoading(false)
       }
@@ -96,12 +73,19 @@ export default function AdminInquiriesPage() {
   const advanceStatus = async (id: string, currentStatus: string) => {
     const next = NEXT_STATUS[currentStatus] ?? 'new'
     setUpdating(id)
+    setError('')
     try {
-      await api.patch(`/inquiries/${id}/status`, { status: next })
-    } catch { /* optimistic */ }
-    setInquiries(prev => prev.map(i => i.id === id ? { ...i, status: next } : i))
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status: next } : null)
-    setUpdating(null)
+      const res = await api.patch(`/inquiries/${id}/status`, { status: next })
+      const status: string = res.data?.status ?? next
+      setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i))
+      setSelected(prev => prev?.id === id ? { ...prev, status } : prev)
+      return true
+    } catch (err) {
+      setError(apiError(err, 'Could not update the inquiry status'))
+      return false
+    } finally {
+      setUpdating(null)
+    }
   }
 
   const filtered = inquiries.filter(i => {
@@ -125,6 +109,12 @@ export default function AdminInquiriesPage() {
         <h1 className="text-display text-4xl text-primary-ui">INQUIRIES</h1>
         <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Client project ideas and callback requests</p>
       </div>
+
+      {error && (
+        <div className="mb-6">
+          <ErrorBanner message={error} onClose={() => setError('')} />
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -350,6 +340,7 @@ export default function AdminInquiriesPage() {
 
             {/* Status & Actions */}
             <div className="mt-6 pt-5 border-t border-[var(--input-bg)] space-y-4">
+              {error && <ErrorBanner message={error} onClose={() => setError('')} />}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="label-field mb-1">Current Status</p>
@@ -368,7 +359,8 @@ export default function AdminInquiriesPage() {
                   )}
                   {selected.status !== 'closed' && (
                     <button
-                      onClick={() => { advanceStatus(selected.id, 'converted'); setTimeout(() => setSelected(null), 300) }}
+                      onClick={async () => { if (await advanceStatus(selected.id, 'converted')) setSelected(null) }}
+                      disabled={updating === selected.id}
                       className="btn-ghost flex items-center gap-2 text-sm rounded py-2 px-3"
                     >
                       Close
