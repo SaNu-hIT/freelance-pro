@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
+import { decimalTransformer } from './decimal.transformer';
 
 @Entity('freelancer_profiles')
 export class FreelancerProfile {
@@ -27,7 +28,7 @@ export class FreelancerProfile {
   @Column({ default: 0 })
   experience: number;
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0, transformer: decimalTransformer })
   hourlyRate: number;
 
   @Column({

@@ -11,6 +11,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { User } from './user.entity';
+import { decimalTransformer } from './decimal.transformer';
 import { FreelancerProfile } from './freelancer-profile.entity';
 import { Worklog } from './worklog.entity';
 import { Payment } from './payment.entity';
@@ -26,7 +27,7 @@ export class Project {
   @Column('text')
   description: string;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 2, transformer: decimalTransformer })
   budget: number;
 
   @Column('date')

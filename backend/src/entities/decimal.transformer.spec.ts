@@ -1,6 +1,8 @@
 import { getMetadataArgsStorage } from 'typeorm';
 import { Worklog } from './worklog.entity';
 import { Payment } from './payment.entity';
+import { Project } from './project.entity';
+import { FreelancerProfile } from './freelancer-profile.entity';
 
 describe('decimal columns', () => {
   it.each([
@@ -8,6 +10,8 @@ describe('decimal columns', () => {
     [Payment, 'amount'],
     [Payment, 'deductions'],
     [Payment, 'netAmount'],
+    [Project, 'budget'],
+    [FreelancerProfile, 'hourlyRate'],
   ])('%p.%s reads decimal strings from Postgres as numbers', (target, propertyName) => {
     const column = getMetadataArgsStorage().columns.find(
       (c) => c.target === target && c.propertyName === propertyName,
