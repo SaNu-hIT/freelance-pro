@@ -3,6 +3,10 @@
 import { useState, useRef, KeyboardEvent, useEffect } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useChatStore, ChatMessage } from '@/lib/chatStore'
+import { chatApi } from '@/lib/api'
+import { useAuthStore } from '@/lib/store'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 import {
   MessageSquare, Send, Search, Circle, Clock,
 } from 'lucide-react'
@@ -30,15 +34,40 @@ function fmtDate(iso: string) {
 export default function AdminChatPage() {
   const {
     messages,
-    sendMessage,
     markReadByAdmin,
     unreadForAdmin,
-    fetchMessages,
   } = useChatStore()
+  const user = useAuthStore(s => s.user)
 
   const [activeProject, setActiveProject] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState('')
+  const [sendError, setSendError] = useState('')
+  const [sending, setSending] = useState(false)
 
-  useEffect(() => { fetchMessages() }, [fetchMessages])
+  useEffect(() => {
+    chatApi.getMessages()
+      .then(res => { useChatStore.setState({ messages: res.data ?? [] }); setLoadError('') })
+      .catch(err => setLoadError(apiError(err, 'Could not load messages.')))
+  }, [])
+
+  /* poll the open conversation for new messages */
+  useEffect(() => {
+    if (!activeProject) return
+    const timer = setInterval(async () => {
+      try {
+        const res = await chatApi.getMessages(activeProject)
+        const incoming: ChatMessage[] = res.data ?? []
+        useChatStore.setState(s => ({
+          messages: [...s.messages.filter(m => m.projectId !== activeProject), ...incoming],
+        }))
+        setLoadError('')
+      } catch (err) {
+        setLoadError(apiError(err, 'Could not refresh messages.'))
+      }
+    }, 10000)
+    return () => clearInterval(timer)
+  }, [activeProject])
+
   const [draftMsg, setDraftMsg] = useState('')
   const [search, setSearch] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -72,20 +101,29 @@ export default function AdminChatPage() {
   }, [activeProject, messages.length]) // eslint-disable-line
 
   /* send reply */
-  const sendReply = () => {
-    if (!draftMsg.trim() || !activeProject || !activeInfo) return
-    sendMessage({
-      projectId: activeProject,
-      projectTitle: activeInfo.title,
-      from: 'admin',
-      sender: 'Project Manager',
-      senderId: 'admin-1',
-      text: draftMsg.trim(),
-      readByAdmin: true,
-      readByClient: false,
-    })
-    setDraftMsg('')
-    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+  const sendReply = async () => {
+    if (!draftMsg.trim() || !activeProject || !activeInfo || !user || sending) return
+    setSending(true)
+    setSendError('')
+    try {
+      const res = await chatApi.send({
+        projectId: activeProject,
+        projectTitle: activeInfo.title,
+        from: 'admin',
+        sender: user.name,
+        senderId: user.id,
+        text: draftMsg.trim(),
+        readByAdmin: true,
+        readByClient: false,
+      })
+      const saved: ChatMessage = res.data
+      useChatStore.setState(s => ({ messages: [...s.messages, saved] }))
+      setDraftMsg('')
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    } catch (err) {
+      setSendError(apiError(err, 'Message not sent. Try again.'))
+    }
+    setSending(false)
   }
 
   return (
@@ -107,6 +145,8 @@ export default function AdminChatPage() {
             </h1>
           </div>
         </div>
+
+        {loadError && <div className="mb-4 shrink-0"><ErrorBanner title="Messages may be out of date" message={loadError} onClose={() => setLoadError('')} /></div>}
 
         {/* ── Split panel ── */}
         <div className="flex flex-1 min-h-0 gap-0 rounded-2xl overflow-hidden"
@@ -291,6 +331,7 @@ export default function AdminChatPage() {
               {/* input */}
               <div className="px-6 py-4 border-t border-theme shrink-0"
                 style={{ background: 'var(--bg-sidebar)' }}>
+                {sendError && <div className="mb-3"><ErrorBanner title="Not sent" message={sendError} onClose={() => setSendError('')} /></div>}
                 <div className="flex items-center gap-3">
                   <input
                     className="input-field flex-1 py-3"
@@ -303,10 +344,10 @@ export default function AdminChatPage() {
                   />
                   <button
                     onClick={sendReply}
-                    disabled={!draftMsg.trim()}
+                    disabled={!draftMsg.trim() || sending}
                     className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-40"
                     style={{ background: 'var(--fg)', color: 'var(--bg)' }}>
-                    <Send size={14} /> Send
+                    <Send size={14} /> {sending ? 'Sending…' : 'Send'}
                   </button>
                 </div>
                 <p className="text-mono-label mt-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>

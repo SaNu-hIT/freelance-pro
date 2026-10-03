@@ -7,12 +7,14 @@ import {
   ArrowLeft, DollarSign, Calendar, AlertTriangle, CheckCircle2,
   Circle, ChevronRight, Activity, Clock, Users, ExternalLink,
   Globe, Code2, FileSpreadsheet, Pencil, Plus, Layers, X,
-  ChevronDown,
+  ChevronDown, MessageSquare, FileText, Download, Upload, Trash2, Send,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { projectsApi, tasksApi, sprintsApi, worklogsApi } from '@/lib/api'
-import { Project, ProjectTask, ProjectSprint, Worklog, ProjectStatus, ProjectPriority } from '@/lib/types'
+import { projectsApi, tasksApi, sprintsApi, worklogsApi, projectRequestsApi, documentsApi } from '@/lib/api'
+import { Project, ProjectTask, ProjectSprint, Worklog, ProjectStatus, ProjectPriority, ProjectRequest, ProjectDocument, DocumentType } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
+import { apiError, formatBytes } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -66,6 +68,14 @@ function StatusPill({ status }: { status: ProjectStatus }) {
     </span>
   )
 }
+
+const DOC_TYPES: DocumentType[] = ['deliverable', 'contract', 'report', 'invoice', 'attachment']
+
+const sectionLabel: React.CSSProperties = { fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase' }
+const tag: React.CSSProperties = { fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', textTransform: 'uppercase', whiteSpace: 'nowrap' }
+const field: React.CSSProperties = { padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: 13, boxSizing: 'border-box' }
+const smallBtn: React.CSSProperties = { padding: '6px 12px', borderRadius: 8, border: '1px solid rgb(var(--fg-rgb) / 0.3)', background: 'rgb(var(--fg-rgb) / 0.1)', color: 'var(--fg)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }
+const iconBtn: React.CSSProperties = { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4, display: 'flex', borderRadius: 4 }
 
 const card: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -121,6 +131,28 @@ export default function ProjectDetailPage() {
   const [sprints, setSprints]   = useState<ProjectSprint[]>([])
   const [worklogs, setWorklogs] = useState<Worklog[]>([])
   const [loading, setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [taskError, setTaskError] = useState('')
+
+  // Requests
+  const [requests, setRequests]           = useState<ProjectRequest[]>([])
+  const [requestsError, setRequestsError] = useState('')
+  const [askOpen, setAskOpen]             = useState(false)
+  const [askSubject, setAskSubject]       = useState('')
+  const [askBody, setAskBody]             = useState('')
+  const [asking, setAsking]               = useState(false)
+  const [replyDrafts, setReplyDrafts]     = useState<Record<string, string>>({})
+  const [resolvingId, setResolvingId]     = useState<string | null>(null)
+
+  // Documents
+  const [documents, setDocuments]   = useState<ProjectDocument[]>([])
+  const [docsError, setDocsError]   = useState('')
+  const [docFile, setDocFile]       = useState<File | null>(null)
+  const [docType, setDocType]       = useState<DocumentType>('deliverable')
+  const [docStatus, setDocStatus]   = useState<'delivered' | 'in-review'>('delivered')
+  const [uploading, setUploading]   = useState(false)
+  const [fileInputKey, setFileInputKey] = useState(0)
+  const [docBusyId, setDocBusyId]   = useState<string | null>(null)
 
   // Sprint add state
   const [newSprintName, setNewSprintName]   = useState('')
@@ -133,6 +165,14 @@ export default function ProjectDetailPage() {
   const [newTaskTitle, setNewTaskTitle]       = useState('')
   const [newTaskSprint, setNewTaskSprint]     = useState<string>('')
   const [addingTask, setAddingTask]           = useState(false)
+
+  const loadRequests = () => projectRequestsApi.list({ projectId: id })
+    .then(res => { setRequests(res.data); setRequestsError('') })
+    .catch(err => setRequestsError(apiError(err, 'Could not load requests.')))
+
+  const loadDocuments = () => documentsApi.list(id)
+    .then(res => { setDocuments(res.data); setDocsError('') })
+    .catch(err => setDocsError(apiError(err, 'Could not load documents.')))
 
   useEffect(() => {
     if (!id) return
@@ -148,8 +188,90 @@ export default function ProjectDetailPage() {
       setSprints(Array.isArray(sRes.data) ? sRes.data : [])
       const wData = wRes.data?.data ?? wRes.data ?? []
       setWorklogs(Array.isArray(wData) ? wData : [])
-    }).catch(() => {}).finally(() => setLoading(false))
-  }, [id])
+    }).catch(err => setLoadError(apiError(err, 'Could not load this project.')))
+      .finally(() => setLoading(false))
+    loadRequests()
+    loadDocuments()
+  }, [id]) // eslint-disable-line
+
+  const handleAskClient = async () => {
+    if (!askSubject.trim() || !askBody.trim()) return
+    setAsking(true)
+    setRequestsError('')
+    try {
+      await projectRequestsApi.create({ projectId: id, kind: 'question', subject: askSubject.trim(), body: askBody.trim() })
+      setAskSubject(''); setAskBody(''); setAskOpen(false)
+      await loadRequests()
+    } catch (err) {
+      setRequestsError(apiError(err, 'Could not send the question.'))
+    }
+    setAsking(false)
+  }
+
+  const handleResolve = async (requestId: string) => {
+    setResolvingId(requestId)
+    setRequestsError('')
+    try {
+      await projectRequestsApi.resolve(requestId, replyDrafts[requestId]?.trim() || undefined)
+      setReplyDrafts(d => { const next = { ...d }; delete next[requestId]; return next })
+      await loadRequests()
+    } catch (err) {
+      setRequestsError(apiError(err, 'Could not resolve the request.'))
+    }
+    setResolvingId(null)
+  }
+
+  const handleUpload = async () => {
+    if (!docFile) return
+    setUploading(true)
+    setDocsError('')
+    try {
+      await documentsApi.upload(id, docFile, { type: docType, status: docStatus })
+      setDocFile(null)
+      setFileInputKey(k => k + 1)
+      await loadDocuments()
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setDocsError(status === 413 ? 'File is over the 10 MB limit.' : apiError(err, 'Could not upload the file.'))
+    }
+    setUploading(false)
+  }
+
+  const handleDownload = async (doc: ProjectDocument) => {
+    setDocBusyId(doc.id)
+    setDocsError('')
+    try {
+      await documentsApi.download(doc.id, doc.name)
+    } catch (err) {
+      setDocsError(apiError(err, 'Could not download the file.'))
+    }
+    setDocBusyId(null)
+  }
+
+  const handleToggleDocStatus = async (doc: ProjectDocument) => {
+    setDocBusyId(doc.id)
+    setDocsError('')
+    try {
+      const res = await documentsApi.update(doc.id, { status: doc.status === 'delivered' ? 'in-review' : 'delivered' })
+      setDocuments(prev => prev.map(d => d.id === doc.id ? { ...d, ...res.data } : d))
+    } catch (err) {
+      setDocsError(apiError(err, 'Could not update the document.'))
+    }
+    setDocBusyId(null)
+  }
+
+  const handleDeleteDoc = async (doc: ProjectDocument) => {
+    if (!confirm(`Delete "${doc.name}"? This cannot be undone.`)) return
+    setDocBusyId(doc.id)
+    setDocsError('')
+    try {
+      await documentsApi.delete(doc.id)
+      setDocuments(prev => prev.filter(d => d.id !== doc.id))
+    } catch (err) {
+      setDocsError(apiError(err, 'Could not delete the document.'))
+    }
+    setDocBusyId(null)
+  }
 
   const handleAddSprint = async () => {
     if (!newSprintName.trim() || !id) return
@@ -161,59 +283,70 @@ export default function ProjectDetailPage() {
       ...(newSprintStart && { startDate: newSprintStart }),
       ...(newSprintEnd   && { endDate:   newSprintEnd }),
     }
+    setTaskError('')
     try {
       const res = await sprintsApi.create(payload)
       setSprints(prev => [...prev, res.data])
-    } catch {
-      const fake: ProjectSprint = {
-        id: `tmp-${Date.now()}`, projectId: id, name: payload.name,
-        order: payload.order, startDate: newSprintStart || null, endDate: newSprintEnd || null,
-        createdAt: new Date().toISOString(),
-      }
-      setSprints(prev => [...prev, fake])
+      setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
+    } catch (err) {
+      setTaskError(apiError(err, 'Could not add the sprint.'))
     }
-    setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
     setAddingSprint(false)
   }
 
   const handleDeleteSprint = async (sprintId: string) => {
+    setTaskError('')
+    try {
+      await sprintsApi.delete(sprintId)
+    } catch (err) {
+      setTaskError(apiError(err, 'Could not delete the sprint.'))
+      return
+    }
     setSprints(prev => prev.filter(s => s.id !== sprintId))
-    setTasks(prev => prev.filter(t => t.sprintId !== sprintId))
-    try { await sprintsApi.delete(sprintId) } catch {}
+    // Reload tasks so the list shows what the server did with the sprint's tasks
+    try {
+      const tData = (await tasksApi.getByProject(id)).data
+      setTasks(Array.isArray(tData) ? tData : tData?.data ?? [])
+    } catch (err) {
+      setTaskError(apiError(err, 'Sprint deleted, but the task list could not be reloaded.'))
+    }
   }
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim() || !id) return
     setAddingTask(true)
-    const tempId = `tmp-${Date.now()}`
-    const tempTask: ProjectTask = {
-      id: tempId, projectId: id, sprintId: newTaskSprint || null,
-      assignedFreelancerId: null,
-      title: newTaskTitle.trim(), completed: false, order: tasks.length,
-      completedAt: null, createdAt: new Date().toISOString(),
-    }
-    setTasks(prev => [...prev, tempTask])
-    setNewTaskTitle('')
+    setTaskError('')
     try {
       const res = await tasksApi.create({
-        projectId: id, title: tempTask.title, order: tempTask.order,
+        projectId: id, title: newTaskTitle.trim(), order: tasks.length,
         sprintId: newTaskSprint || undefined,
       })
-      setTasks(prev => prev.map(t => t.id === tempId ? res.data : t))
-    } catch {}
+      setTasks(prev => [...prev, res.data])
+      setNewTaskTitle('')
+    } catch (err) {
+      setTaskError(apiError(err, 'Could not add the task.'))
+    }
     setAddingTask(false)
   }
 
   const handleToggleTask = async (task: ProjectTask) => {
-    const updated = { ...task, completed: !task.completed }
-    setTasks(prev => prev.map(t => t.id === task.id ? updated : t))
-    try { await tasksApi.update(task.id, { completed: !task.completed }) }
-    catch { setTasks(prev => prev.map(t => t.id === task.id ? task : t)) }
+    setTaskError('')
+    try {
+      const res = await tasksApi.update(task.id, { completed: !task.completed })
+      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...res.data } : t))
+    } catch (err) {
+      setTaskError(apiError(err, 'Could not update the task.'))
+    }
   }
 
   const handleDeleteTask = async (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId))
-    try { await tasksApi.delete(taskId) } catch {}
+    setTaskError('')
+    try {
+      await tasksApi.delete(taskId)
+      setTasks(prev => prev.filter(t => t.id !== taskId))
+    } catch (err) {
+      setTaskError(apiError(err, 'Could not delete the task.'))
+    }
   }
 
   const toggleSprintCollapse = (sprintId: string) => {
@@ -236,7 +369,9 @@ export default function ProjectDetailPage() {
 
   if (!project) return (
     <DashboardLayout allowedRoles={['admin']}>
-      <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Project not found.</div>
+      {loadError
+        ? <ErrorBanner title="Could not load project" message={loadError} />
+        : <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Project not found.</div>}
     </DashboardLayout>
   )
 
@@ -487,6 +622,8 @@ export default function ProjectDetailPage() {
               <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{openTasks.length} open</span>
             </div>
 
+            {taskError && <div style={{ marginBottom: 12 }}><ErrorBanner message={taskError} onClose={() => setTaskError('')} /></div>}
+
             {/* Sprint list */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
               {sprints.map(sprint => {
@@ -512,6 +649,11 @@ export default function ProjectDetailPage() {
                       </div>
                       {sprint.endDate && (
                         <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>ends {fmtShort(sprint.endDate)}</span>
+                      )}
+                      {sprint.approvedAt && (
+                        <span style={{ ...tag, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <CheckCircle2 size={10} /> Approved by client {fmtShort(sprint.approvedAt)}
+                        </span>
                       )}
                       <button onClick={e => { e.stopPropagation(); handleDeleteSprint(sprint.id) }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2, display: 'flex', borderRadius: 4 }}
@@ -616,6 +758,149 @@ export default function ProjectDetailPage() {
                     <Layers size={13} /> Add Sprint
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Requests */}
+          <div style={card}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <MessageSquare size={14} style={{ color: 'var(--fg)' }} />
+              <span style={sectionLabel}>Requests ({requests.length})</span>
+              <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{requests.filter(r => r.status === 'open').length} open</span>
+              <button onClick={() => setAskOpen(o => !o)} style={smallBtn}>
+                {askOpen ? <><X size={12} /> Cancel</> : <><Plus size={12} /> Ask client</>}
+              </button>
+            </div>
+
+            {requestsError && <div style={{ marginBottom: 12 }}><ErrorBanner message={requestsError} onClose={() => setRequestsError('')} /></div>}
+
+            {askOpen && (
+              <div style={{ padding: 12, borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid rgb(var(--fg-rgb) / 0.15)', marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <p style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.18em', margin: 0 }}>QUESTION FOR THE CLIENT</p>
+                <input style={{ ...field, width: '100%' }} placeholder="Subject" value={askSubject}
+                  onChange={e => setAskSubject(e.target.value)} disabled={asking} />
+                <textarea style={{ ...field, width: '100%', resize: 'vertical' }} rows={3} placeholder="What do you need from the client?"
+                  value={askBody} onChange={e => setAskBody(e.target.value)} disabled={asking} />
+                <div>
+                  <button onClick={handleAskClient} disabled={!askSubject.trim() || !askBody.trim() || asking}
+                    style={{ ...smallBtn, opacity: !askSubject.trim() || !askBody.trim() || asking ? 0.4 : 1 }}>
+                    <Send size={12} /> {asking ? 'Sending…' : 'Send question'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {requests.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>No requests yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {requests.map(r => {
+                  const canResolve = r.status === 'open' && (r.kind === 'change' || r.kind === 'escalation')
+                  return (
+                    <div key={r.id} style={{ padding: '12px 14px', borderRadius: 10, background: 'var(--bg-elevated)', border: `1px solid ${r.status === 'open' ? 'rgb(var(--fg-rgb) / 0.2)' : 'var(--border)'}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+                        <span style={tag}>{r.kind}</span>
+                        {r.urgency !== 'normal' && <span style={tag}>{r.urgency}</span>}
+                        <span style={{ ...tag, background: r.status === 'open' ? 'rgb(var(--fg-rgb) / 0.1)' : 'transparent', color: r.status === 'open' ? 'var(--fg)' : 'var(--text-muted)', border: '1px solid var(--border)' }}>{r.status}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{r.subject}</span>
+                        <span style={{ marginLeft: 'auto', fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                          {r.fromUser?.name ?? 'Unknown'} · {fmtShort(r.createdAt)}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{r.body}</p>
+                      {r.reply && (
+                        <p style={{ fontSize: 12, color: 'var(--fg)', margin: '8px 0 0', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>→ {r.reply}</p>
+                      )}
+                      {r.status === 'resolved' && !r.reply && r.resolvedAt && (
+                        <p style={{ fontSize: 10, color: 'var(--text-muted)', margin: '8px 0 0', fontFamily: 'var(--font-mono)' }}>Resolved {fmtShort(r.resolvedAt)}</p>
+                      )}
+                      {r.status === 'open' && r.kind === 'question' && (
+                        <p style={{ fontSize: 10, color: 'var(--text-muted)', margin: '8px 0 0', fontFamily: 'var(--font-mono)' }}>Waiting for the client to answer</p>
+                      )}
+                      {canResolve && (
+                        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                          <input style={{ ...field, flex: 1 }} placeholder="Reply (optional)"
+                            value={replyDrafts[r.id] ?? ''}
+                            onChange={e => setReplyDrafts(d => ({ ...d, [r.id]: e.target.value }))}
+                            disabled={resolvingId === r.id} />
+                          <button onClick={() => handleResolve(r.id)} disabled={resolvingId === r.id}
+                            style={{ ...smallBtn, opacity: resolvingId === r.id ? 0.4 : 1 }}>
+                            <CheckCircle2 size={12} /> {resolvingId === r.id ? 'Resolving…' : 'Resolve'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Documents */}
+          <div style={card}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <FileText size={14} style={{ color: 'var(--fg)' }} />
+              <span style={sectionLabel}>Documents ({documents.length})</span>
+            </div>
+
+            {docsError && <div style={{ marginBottom: 12 }}><ErrorBanner message={docsError} onClose={() => setDocsError('')} /></div>}
+
+            {documents.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>No documents yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                {documents.map(d => {
+                  const busy = docBusyId === d.id
+                  return (
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, background: 'var(--bg-elevated)', opacity: busy ? 0.6 : 1 }}>
+                      <FileText size={14} style={{ color: 'var(--fg)', flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+                        <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                          {formatBytes(d.size)} · {d.uploadedBy?.name ?? 'Unknown'} · {fmtShort(d.createdAt)}
+                        </div>
+                      </div>
+                      <span style={tag}>{d.type}</span>
+                      <button onClick={() => handleToggleDocStatus(d)} disabled={busy} title="Toggle delivered / in review"
+                        style={{ ...tag, border: '1px solid rgb(var(--fg-rgb) / 0.3)', cursor: 'pointer' }}>
+                        {d.status === 'delivered' ? 'Delivered' : 'In review'}
+                      </button>
+                      <button onClick={() => handleDownload(d)} disabled={busy} title="Download" style={iconBtn}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--fg)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>
+                        <Download size={13} />
+                      </button>
+                      <button onClick={() => handleDeleteDoc(d)} disabled={busy} title="Delete" style={iconBtn}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--fg)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Upload */}
+            <div style={{ padding: 12, borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid rgb(var(--fg-rgb) / 0.15)' }}>
+              <p style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.18em', marginBottom: 8 }}>UPLOAD DOCUMENT · MAX 10 MB</p>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <input key={fileInputKey} type="file" onChange={e => setDocFile(e.target.files?.[0] ?? null)} disabled={uploading}
+                  style={{ ...field, flex: 1, minWidth: 180, padding: '5px 10px', fontSize: 12 }} />
+                <select value={docType} onChange={e => setDocType(e.target.value as DocumentType)} disabled={uploading}
+                  style={{ ...field, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+                  {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <select value={docStatus} onChange={e => setDocStatus(e.target.value as 'delivered' | 'in-review')} disabled={uploading}
+                  style={{ ...field, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+                  <option value="delivered">delivered</option>
+                  <option value="in-review">in review</option>
+                </select>
+                <button onClick={handleUpload} disabled={!docFile || uploading}
+                  style={{ ...smallBtn, opacity: !docFile || uploading ? 0.4 : 1 }}>
+                  <Upload size={12} /> {uploading ? 'Uploading…' : 'Upload'}
+                </button>
               </div>
             </div>
           </div>

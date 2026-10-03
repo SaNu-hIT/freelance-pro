@@ -15,6 +15,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { projectsApi, freelancersApi, tasksApi, sprintsApi } from '@/lib/api'
 import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask, ProjectSprint } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 const ALL_STATUSES: ProjectStatus[] = ['new', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed']
 const ALL_PRIORITIES: ProjectPriority[] = ['low', 'medium', 'high', 'critical']
@@ -58,11 +60,6 @@ function MemberAvatar({ name, size = 24 }: { name: string; size?: number }) {
     </div>
   )
 }
-
-const MOCK_PROJECTS: Project[] = [
-  { id: '1', title: 'E-Commerce Platform Rebuild', description: 'Full rebuild of legacy e-commerce stack.', budget: 14500, deadline: new Date(Date.now() + 42 * 86400000).toISOString().slice(0, 10), status: 'in_progress', priority: 'high', clientId: 'c1', client: { id: 'c1', name: 'Acme Corp', email: 'acme@corp.com', role: 'client', createdAt: '' }, progress: 65, repoUrl: 'https://github.com/acme-corp/ecommerce-rebuild', liveUrl: 'https://staging.acme-store.com', correctionSheetUrl: 'https://docs.google.com/spreadsheets/d/ecommerce', createdAt: '', updatedAt: '' },
-  { id: '2', title: 'Analytics Dashboard', description: 'Real-time analytics with D3 charts.', budget: 8500, deadline: new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10), status: 'in_progress', priority: 'medium', clientId: 'c2', client: { id: 'c2', name: 'Nexus Labs', email: 'nexus@labs.io', role: 'client', createdAt: '' }, progress: 38, repoUrl: 'https://github.com/nexus/analytics', correctionSheetUrl: 'https://docs.google.com/spreadsheets/d/analytics', createdAt: '', updatedAt: '' },
-]
 
 const EMPTY_FORM = {
   title: '', description: '', budget: '', deadline: '',
@@ -112,31 +109,42 @@ function AdminProjectsPageInner() {
   const [newSprintEnd, setNewSprintEnd] = useState('')
   const [addingSprint, setAddingSprint] = useState(false)
 
+  // Errors: page load, create/edit modal, delete dialog, view drawer (sprints & tasks)
+  const [loadError, setLoadError] = useState('')
+  const [saveError, setSaveError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [drawerError, setDrawerError] = useState('')
+
   useEffect(() => {
     const load = async () => {
-      try {
-        const [pRes, fRes] = await Promise.allSettled([projectsApi.getAll(), freelancersApi.getAll()])
-        setProjects(pRes.status === 'fulfilled' ? (pRes.value.data?.data ?? pRes.value.data) : MOCK_PROJECTS)
-        setFreelancers(fRes.status === 'fulfilled' ? (fRes.value.data?.data ?? fRes.value.data) : [])
-      } catch { setProjects(MOCK_PROJECTS) }
-      finally { setLoading(false) }
+      const [pRes, fRes] = await Promise.allSettled([projectsApi.getAll(), freelancersApi.getAll()])
+      const errors: string[] = []
+      if (pRes.status === 'fulfilled') setProjects(pRes.value.data?.data ?? pRes.value.data)
+      else errors.push(apiError(pRes.reason, 'Could not load projects.'))
+      if (fRes.status === 'fulfilled') setFreelancers(fRes.value.data?.data ?? fRes.value.data)
+      else errors.push(apiError(fRes.reason, 'Could not load freelancers.'))
+      setLoadError(errors.join(' '))
+      setLoading(false)
     }
     load()
   }, [])
 
   const loadProjectData = async (projectId: string) => {
     setTasksLoading(true)
+    setDrawerError('')
     setSprints([])
     setTasks([])
-    try {
-      const [sRes, tRes] = await Promise.allSettled([
-        sprintsApi.getByProject(projectId),
-        tasksApi.getByProject(projectId),
-      ])
-      setSprints(sRes.status === 'fulfilled' ? sRes.value.data : [])
-      setTasks(tRes.status === 'fulfilled' ? tRes.value.data : [])
-    } catch {}
-    finally { setTasksLoading(false) }
+    const [sRes, tRes] = await Promise.allSettled([
+      sprintsApi.getByProject(projectId),
+      tasksApi.getByProject(projectId),
+    ])
+    const errors: string[] = []
+    if (sRes.status === 'fulfilled') setSprints(sRes.value.data)
+    else errors.push(apiError(sRes.reason, 'Could not load sprints.'))
+    if (tRes.status === 'fulfilled') setTasks(tRes.value.data)
+    else errors.push(apiError(tRes.reason, 'Could not load tasks.'))
+    setDrawerError(errors.join(' '))
+    setTasksLoading(false)
   }
 
   // Auto-open edit panel when ?edit=<id> query param is present
@@ -160,10 +168,11 @@ function AdminProjectsPageInner() {
     loadProjectData(p.id)
   }
 
-  const openCreate = () => { setForm(EMPTY_FORM); setSelectedProject(null); setPanelMode('create') }
+  const openCreate = () => { setForm(EMPTY_FORM); setSelectedProject(null); setSaveError(''); setPanelMode('create') }
 
   const openEdit = (p: Project) => {
     setSelectedProject(p)
+    setSaveError('')
     setForm({
       title: p.title, description: p.description, budget: String(p.budget),
       deadline: p.deadline?.slice(0, 10) ?? '', status: p.status, priority: p.priority,
@@ -184,65 +193,94 @@ function AdminProjectsPageInner() {
 
   const handleSave = async () => {
     setSaving(true)
-    try {
-      const payload = { ...form, budget: parseFloat(form.budget) || 0 }
-      if (panelMode === 'create') {
-        const res = await projectsApi.create(payload)
-        setProjects(prev => [res.data, ...prev])
-      } else if (selectedProject) {
+    setSaveError('')
+    const payload = { ...form, budget: parseFloat(form.budget) || 0 }
+    if (panelMode === 'create') {
+      let created: Project
+      try {
+        created = (await projectsApi.create(payload)).data
+      } catch (err) {
+        setSaveError(apiError(err, 'Could not create the project.'))
+        setSaving(false)
+        return
+      }
+      // Create ignores status and team; set them with a follow-up update
+      if (form.teamMemberIds.length > 0 || form.status !== created.status) {
+        try {
+          created = (await projectsApi.update(created.id, { status: form.status, teamMemberIds: form.teamMemberIds })).data
+        } catch (err) {
+          setProjects(prev => [created, ...prev])
+          setSelectedProject(created)
+          setPanelMode('edit')
+          setSaveError(`Project created, but its status and team were not saved: ${apiError(err, 'update failed.')}`)
+          setSaving(false)
+          return
+        }
+      }
+      setProjects(prev => [created, ...prev])
+    } else if (selectedProject) {
+      try {
         const res = await projectsApi.update(selectedProject.id, payload)
         setProjects(prev => prev.map(p => p.id === selectedProject.id ? res.data : p))
+      } catch (err) {
+        setSaveError(apiError(err, 'Could not save the project.'))
+        setSaving(false)
+        return
       }
-    } catch {
-      if (panelMode === 'create') {
-        const newP: Project = { id: Date.now().toString(), ...form, budget: parseFloat(form.budget) || 0, progress: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-        setProjects(prev => [newP, ...prev])
-      } else if (selectedProject) {
-        setProjects(prev => prev.map(p => p.id === selectedProject.id ? { ...p, ...form, budget: parseFloat(form.budget) || 0 } : p))
-      }
-    } finally { setSaving(false); setPanelMode(null) }
+    }
+    setSaving(false)
+    setPanelMode(null)
   }
 
   const handleDelete = async (id: string) => {
-    try { await projectsApi.delete(id) } catch {}
+    setDeleteError('')
+    try {
+      await projectsApi.delete(id)
+    } catch (err) {
+      setDeleteError(apiError(err, 'Could not delete the project.'))
+      return
+    }
     setProjects(prev => prev.filter(p => p.id !== id))
     setDeleteId(null)
   }
 
   // Task handlers
   const handleToggleTask = async (task: ProjectTask) => {
-    const updated = { ...task, completed: !task.completed }
-    setTasks(prev => prev.map(t => t.id === task.id ? updated : t))
-    try { await tasksApi.update(task.id, { completed: !task.completed }) }
-    catch { setTasks(prev => prev.map(t => t.id === task.id ? task : t)) }
+    setDrawerError('')
+    try {
+      const res = await tasksApi.update(task.id, { completed: !task.completed })
+      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...res.data } : t))
+    } catch (err) {
+      setDrawerError(apiError(err, 'Could not update the task.'))
+    }
   }
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim() || !selectedProject) return
     setAddingTask(true)
-    const tempId = `tmp-${Date.now()}`
-    const tempTask: ProjectTask = {
-      id: tempId, projectId: selectedProject.id, sprintId: newTaskSprint || null,
-      assignedFreelancerId: newTaskAssignee || null,
-      title: newTaskTitle.trim(), completed: false, order: tasks.length,
-      completedAt: null, createdAt: new Date().toISOString(),
-    }
-    setTasks(prev => [...prev, tempTask])
-    setNewTaskTitle('')
+    setDrawerError('')
     try {
       const res = await tasksApi.create({
-        projectId: selectedProject.id, title: tempTask.title, order: tempTask.order,
+        projectId: selectedProject.id, title: newTaskTitle.trim(), order: tasks.length,
         sprintId: newTaskSprint || undefined,
         assignedFreelancerId: newTaskAssignee || undefined,
       })
-      setTasks(prev => prev.map(t => t.id === tempId ? res.data : t))
-    } catch {}
+      setTasks(prev => [...prev, res.data])
+      setNewTaskTitle('')
+    } catch (err) {
+      setDrawerError(apiError(err, 'Could not add the task.'))
+    }
     setAddingTask(false)
   }
 
   const handleDeleteTask = async (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId))
-    try { await tasksApi.delete(taskId) } catch {}
+    setDrawerError('')
+    try {
+      await tasksApi.delete(taskId)
+      setTasks(prev => prev.filter(t => t.id !== taskId))
+    } catch (err) {
+      setDrawerError(apiError(err, 'Could not delete the task.'))
+    }
   }
 
   const handleAddSprint = async () => {
@@ -255,25 +293,33 @@ function AdminProjectsPageInner() {
       ...(newSprintStart && { startDate: newSprintStart }),
       ...(newSprintEnd   && { endDate:   newSprintEnd }),
     }
+    setDrawerError('')
     try {
       const res = await sprintsApi.create(payload)
       setSprints(prev => [...prev, res.data])
-    } catch {
-      const fake: ProjectSprint = {
-        id: `tmp-${Date.now()}`, projectId: selectedProject.id, name: payload.name,
-        order: payload.order, startDate: newSprintStart || null, endDate: newSprintEnd || null,
-        createdAt: new Date().toISOString(),
-      }
-      setSprints(prev => [...prev, fake])
+      setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
+    } catch (err) {
+      setDrawerError(apiError(err, 'Could not add the sprint.'))
     }
-    setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
     setAddingSprint(false)
   }
 
   const handleDeleteSprint = async (sprintId: string) => {
+    if (!selectedProject) return
+    setDrawerError('')
+    try {
+      await sprintsApi.delete(sprintId)
+    } catch (err) {
+      setDrawerError(apiError(err, 'Could not delete the sprint.'))
+      return
+    }
     setSprints(prev => prev.filter(s => s.id !== sprintId))
-    setTasks(prev => prev.filter(t => t.sprintId !== sprintId))
-    try { await sprintsApi.delete(sprintId) } catch {}
+    // Reload tasks so the list shows what the server did with the sprint's tasks
+    try {
+      setTasks((await tasksApi.getByProject(selectedProject.id)).data)
+    } catch (err) {
+      setDrawerError(apiError(err, 'Sprint deleted, but the task list could not be reloaded.'))
+    }
   }
 
   const toggleSprintCollapse = (sprintId: string) => {
@@ -310,6 +356,8 @@ function AdminProjectsPageInner() {
         </div>
         <button onClick={openCreate} className="btn-primary flex items-center gap-2 rounded text-sm"><Plus size={16} /> New Project</button>
       </div>
+
+      {loadError && <div className="mb-6"><ErrorBanner title="Could not load data" message={loadError} onClose={() => setLoadError('')} /></div>}
 
       {/* Filters */}
       <div className="glass-card-dark rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3">
@@ -738,6 +786,8 @@ function AdminProjectsPageInner() {
                   )}
                 </div>
 
+                {drawerError && <ErrorBanner message={drawerError} onClose={() => setDrawerError('')} />}
+
                 {/* Sprint list */}
                 {tasksLoading ? (
                   <div className="space-y-3">{[...Array(3)].map((_, i) => (
@@ -921,6 +971,7 @@ function AdminProjectsPageInner() {
 
               {/* LEFT — core project details */}
               <div className="w-[55%] shrink-0 border-r border-theme overflow-y-auto px-8 py-7 space-y-6">
+                {saveError && <ErrorBanner title="Not saved" message={saveError} onClose={() => setSaveError('')} />}
                 <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PROJECT DETAILS</p>
 
                 {/* Title */}
@@ -1101,14 +1152,15 @@ function AdminProjectsPageInner() {
       {/* Delete Confirmation */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[rgb(var(--bg-rgb)/.92)]" onClick={() => setDeleteId(null)} />
+          <div className="absolute inset-0 bg-[rgb(var(--bg-rgb)/.92)]" onClick={() => { setDeleteId(null); setDeleteError('') }} />
           <div className="glass-card rounded-xl p-8 relative z-10 w-full max-w-md text-center" style={{ borderColor: 'rgb(var(--fg-rgb) / 0.5)' }}>
             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgb(var(--fg-rgb) / 0.1)' }}><Trash2 size={20} style={{ color: 'var(--fg)' }} /></div>
             <h3 className="text-primary-ui font-bold text-lg mb-2">Delete Project</h3>
             <p className="text-mono-label mb-6" style={{ color: 'var(--text-muted)' }}>This action cannot be undone. The project and all associated data will be permanently removed.</p>
+            {deleteError && <div className="mb-6 text-left"><ErrorBanner title="Not deleted" message={deleteError} /></div>}
             <div className="flex gap-3 justify-center">
               <button onClick={() => handleDelete(deleteId)} className="btn-primary rounded px-6" style={{ background: 'var(--fg)' }}>Delete</button>
-              <button onClick={() => setDeleteId(null)} className="btn-ghost rounded px-6">Cancel</button>
+              <button onClick={() => { setDeleteId(null); setDeleteError('') }} className="btn-ghost rounded px-6">Cancel</button>
             </div>
           </div>
         </div>
