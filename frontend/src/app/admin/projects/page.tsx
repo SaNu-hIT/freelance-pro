@@ -8,7 +8,7 @@ import {
   CheckSquare, Square, Clock, User, DollarSign,
   Calendar, ListChecks, Globe, FileSpreadsheet,
   ExternalLink, Timer, Layers, ChevronRight, ChevronDown as ChevDown, Code2, Users,
-  Activity, TrendingUp, Mail, Zap, LayoutGrid, List, AlertCircle, UserPlus,
+  Activity, TrendingUp, Mail, Zap, LayoutGrid, List, UserPlus,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -17,6 +17,7 @@ import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask
 import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import NewClientForm, { FieldError, FieldErrors, invalidStyle } from '@/components/admin/NewClientForm'
 
 const ALL_STATUSES: ProjectStatus[] = ['new', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed']
 const ALL_PRIORITIES: ProjectPriority[] = ['low', 'medium', 'high', 'critical']
@@ -69,9 +70,6 @@ const EMPTY_FORM = {
 }
 
 type ProjectForm = typeof EMPTY_FORM
-type FieldErrors = Partial<Record<string, string>>
-
-const EMPTY_CLIENT = { name: '', email: '', company: '', phone: '', password: '' }
 
 const isHttpUrl = (v: string) => {
   try { return ['http:', 'https:'].includes(new URL(v).protocol) } catch { return false }
@@ -92,26 +90,6 @@ function validateProject(f: ProjectForm, creating: boolean): FieldErrors {
   }
   return e
 }
-
-function validateClient(c: typeof EMPTY_CLIENT): FieldErrors {
-  const e: FieldErrors = {}
-  if (!c.name.trim()) e.name = 'Name is required.'
-  if (!c.email.trim()) e.email = 'Email is required.'
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email.trim())) e.email = 'Enter a valid email.'
-  if (c.password.length < 8) e.password = 'Temporary password must be at least 8 characters.'
-  return e
-}
-
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null
-  return (
-    <p id={id} role="alert" className="flex items-center gap-1.5 text-xs font-semibold mt-1.5" style={{ color: 'var(--fg)' }}>
-      <AlertCircle size={12} className="shrink-0" /> {message}
-    </p>
-  )
-}
-
-const invalidStyle = (bad?: string) => bad ? { borderColor: 'var(--fg)', boxShadow: '0 0 0 1px var(--fg)' } : undefined
 
 type PanelMode = 'view' | 'edit' | 'create' | null
 
@@ -162,10 +140,6 @@ function AdminProjectsPageInner() {
 
   // Inline "new client" form inside the project modal
   const [showNewClient, setShowNewClient] = useState(false)
-  const [newClient, setNewClient] = useState(EMPTY_CLIENT)
-  const [clientErrors, setClientErrors] = useState<FieldErrors>({})
-  const [clientSaveError, setClientSaveError] = useState('')
-  const [creatingClient, setCreatingClient] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [drawerError, setDrawerError] = useState('')
 
@@ -226,7 +200,7 @@ function AdminProjectsPageInner() {
 
   const resetFormExtras = () => {
     setSaveError(''); setFieldErrors({})
-    setShowNewClient(false); setNewClient(EMPTY_CLIENT); setClientErrors({}); setClientSaveError('')
+    setShowNewClient(false)
   }
 
   const openCreate = () => { setForm(EMPTY_FORM); setSelectedProject(null); resetFormExtras(); setPanelMode('create') }
@@ -235,36 +209,6 @@ function AdminProjectsPageInner() {
   const setField = <K extends keyof ProjectForm>(key: K, value: ProjectForm[K]) => {
     setForm(f => ({ ...f, [key]: value }))
     setFieldErrors(e => (e[key] ? { ...e, [key]: undefined } : e))
-  }
-
-  const setClientField = (key: keyof typeof EMPTY_CLIENT, value: string) => {
-    setNewClient(c => ({ ...c, [key]: value }))
-    setClientErrors(e => (e[key] ? { ...e, [key]: undefined } : e))
-  }
-
-  const handleCreateClient = async () => {
-    const errors = validateClient(newClient)
-    setClientErrors(errors)
-    setClientSaveError('')
-    if (Object.keys(errors).length) return
-    setCreatingClient(true)
-    try {
-      const { data } = await usersApi.createClient({
-        name: newClient.name.trim(),
-        email: newClient.email.trim(),
-        password: newClient.password,
-        ...(newClient.company.trim() ? { company: newClient.company.trim() } : {}),
-        ...(newClient.phone.trim() ? { phone: newClient.phone.trim() } : {}),
-      })
-      setClients(prev => [data, ...prev])
-      setField('clientId', data.id)
-      setShowNewClient(false)
-      setNewClient(EMPTY_CLIENT)
-    } catch (err) {
-      setClientSaveError(apiError(err, 'Could not create the client.'))
-    } finally {
-      setCreatingClient(false)
-    }
   }
 
   const openEdit = (p: Project) => {
@@ -1103,7 +1047,7 @@ function AdminProjectsPageInner() {
                   <div className="flex items-center justify-between">
                     <label htmlFor="project-client" className="label-field">Client{panelMode === 'create' ? ' *' : ''}</label>
                     {!showNewClient && (
-                      <button type="button" onClick={() => { setShowNewClient(true); setClientSaveError('') }}
+                      <button type="button" onClick={() => setShowNewClient(true)}
                         className="flex items-center gap-1 text-xs font-semibold mb-1.5" style={{ color: 'var(--fg)' }}>
                         <UserPlus size={12} /> New client
                       </button>
@@ -1126,52 +1070,16 @@ function AdminProjectsPageInner() {
                     <div className="mt-3 rounded-xl p-4 space-y-3" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                       <div className="flex items-center justify-between">
                         <p className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>NEW CLIENT ACCOUNT</p>
-                        <button type="button" aria-label="Cancel new client" onClick={() => { setShowNewClient(false); setClientErrors({}); setClientSaveError('') }}
+                        <button type="button" aria-label="Cancel new client" onClick={() => setShowNewClient(false)}
                           style={{ color: 'var(--text-muted)' }}>
                           <X size={14} />
                         </button>
                       </div>
-                      {clientSaveError && <ErrorBanner title="Client not created" message={clientSaveError} onClose={() => setClientSaveError('')} />}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label htmlFor="client-name" className="label-field">Name *</label>
-                          <input id="client-name" className="input-field" placeholder="Contact or company name"
-                            aria-invalid={!!clientErrors.name} aria-describedby="client-name-error" style={invalidStyle(clientErrors.name)}
-                            value={newClient.name} onChange={e => setClientField('name', e.target.value)} />
-                          <FieldError id="client-name-error" message={clientErrors.name} />
-                        </div>
-                        <div>
-                          <label htmlFor="client-email" className="label-field">Email *</label>
-                          <input id="client-email" type="email" className="input-field" placeholder="client@company.com"
-                            aria-invalid={!!clientErrors.email} aria-describedby="client-email-error" style={invalidStyle(clientErrors.email)}
-                            value={newClient.email} onChange={e => setClientField('email', e.target.value)} />
-                          <FieldError id="client-email-error" message={clientErrors.email} />
-                        </div>
-                        <div>
-                          <label htmlFor="client-company" className="label-field">Company</label>
-                          <input id="client-company" className="input-field" placeholder="Optional"
-                            value={newClient.company} onChange={e => setClientField('company', e.target.value)} />
-                        </div>
-                        <div>
-                          <label htmlFor="client-phone" className="label-field">Phone</label>
-                          <input id="client-phone" className="input-field" placeholder="Optional"
-                            value={newClient.phone} onChange={e => setClientField('phone', e.target.value)} />
-                        </div>
-                      </div>
-                      <div>
-                        <label htmlFor="client-password" className="label-field">Temporary password *</label>
-                        <input id="client-password" type="text" autoComplete="off" className="input-field" placeholder="At least 8 characters"
-                          aria-invalid={!!clientErrors.password} aria-describedby="client-password-error client-password-hint" style={invalidStyle(clientErrors.password)}
-                          value={newClient.password} onChange={e => setClientField('password', e.target.value)} />
-                        <FieldError id="client-password-error" message={clientErrors.password} />
-                        <p id="client-password-hint" className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
-                          Share this with the client. They can change it in their account settings.
-                        </p>
-                      </div>
-                      <button type="button" onClick={handleCreateClient} disabled={creatingClient}
-                        className="btn-primary flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
-                        {creatingClient ? <><Clock size={13} className="animate-spin" /> Creating…</> : <><UserPlus size={13} /> Create client</>}
-                      </button>
+                      <NewClientForm onCreated={c => {
+                        setClients(prev => [c, ...prev])
+                        setField('clientId', c.id)
+                        setShowNewClient(false)
+                      }} />
                     </div>
                   )}
                 </div>
