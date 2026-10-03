@@ -1,19 +1,28 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { ProjectsService } from '../projects/projects.service';
 
 describe('TasksController', () => {
   let service: { update: jest.Mock; isProjectMember: jest.Mock; findByProject: jest.Mock };
   let controller: TasksController;
+  let projects: { assertAccess: jest.Mock };
   const req = (role: string) => ({ user: { id: 'u1', role } });
 
   beforeEach(() => {
     service = { update: jest.fn().mockResolvedValue({}), isProjectMember: jest.fn(), findByProject: jest.fn() };
-    controller = new TasksController(service as unknown as TasksService);
+    projects = { assertAccess: jest.fn().mockResolvedValue({}) };
+    controller = new TasksController(service as unknown as TasksService, projects as unknown as ProjectsService);
   });
 
-  it('rejects listing without projectId', () => {
-    expect(() => controller.findByProject(undefined as any)).toThrow(BadRequestException);
+  it('rejects listing without projectId', async () => {
+    await expect(controller.findByProject(undefined as any, req('admin'))).rejects.toThrow(BadRequestException);
+  });
+
+  it('checks project access before listing tasks', async () => {
+    projects.assertAccess.mockRejectedValue(new ForbiddenException());
+    await expect(controller.findByProject('p1', req('client'))).rejects.toThrow(ForbiddenException);
+    expect(service.findByProject).not.toHaveBeenCalled();
   });
 
   it('lets admin update any field', async () => {

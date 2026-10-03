@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, In, Repository } from 'typeorm';
 import { Project } from '../entities/project.entity';
@@ -47,6 +47,21 @@ export class ProjectsService {
 
     const [data, total] = await qb.getManyAndCount();
     return { data, total };
+  }
+
+  // Admins see every project, clients their own, freelancers the ones they're on.
+  async assertAccess(user: { id: string; role: string }, projectId: string): Promise<Project> {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: { teamMembers: true },
+    });
+    if (!project) throw new NotFoundException(`Project ${projectId} not found`);
+    const allowed =
+      user.role === 'admin' ||
+      (user.role === 'client' && project.clientId === user.id) ||
+      (user.role === 'freelancer' && project.teamMembers.some((m) => m.userId === user.id));
+    if (!allowed) throw new ForbiddenException('Access denied');
+    return project;
   }
 
   async findOne(id: string): Promise<Project> {
