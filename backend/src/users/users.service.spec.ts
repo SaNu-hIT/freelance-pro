@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 
@@ -43,7 +43,7 @@ describe('UsersService', () => {
   });
 
   it('changes the password only with the current one', async () => {
-    await expect(service.changePassword('u1', 'wrong', 'newpass12')).rejects.toThrow(UnauthorizedException);
+    await expect(service.changePassword('u1', 'wrong', 'newpass12')).rejects.toThrow(BadRequestException);
     expect(users.update).not.toHaveBeenCalled();
     await service.changePassword('u1', 'oldpass12', 'newpass12');
     const saved = users.update.mock.calls[0][1].password;

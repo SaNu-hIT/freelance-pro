@@ -3,7 +3,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -90,7 +89,8 @@ export class UsersService {
       .getOne();
     if (!user) throw new NotFoundException('User not found');
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Current password is incorrect');
+      // Not 401: the web client treats 401 as an expired session and signs the user out
+      throw new BadRequestException('Current password is incorrect');
     }
     return user;
   }
