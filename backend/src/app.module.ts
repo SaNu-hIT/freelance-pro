@@ -26,6 +26,8 @@ import { ChatModule } from './chat/chat.module';
 import { ChatMessage } from './entities/chat-message.entity';
 import { ProjectRequest } from './entities/project-request.entity';
 import { ProjectRequestsModule } from './project-requests/project-requests.module';
+import { ProjectDocument } from './entities/project-document.entity';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -40,7 +42,7 @@ import { ProjectRequestsModule } from './project-requests/project-requests.modul
         username: configService.get<string>('DATABASE_USER', 'postgres'),
         password: configService.get<string>('DATABASE_PASSWORD', 'postgres'),
         database: configService.get<string>('DATABASE_NAME', 'freelance_pro'),
-        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage, ProjectRequest],
+        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage, ProjectRequest, ProjectDocument],
         synchronize: true,
         logging: false,
       }),
@@ -50,6 +52,7 @@ import { ProjectRequestsModule } from './project-requests/project-requests.modul
     UsersModule,
     ProjectsModule,
     ProjectRequestsModule,
+    DocumentsModule,
     WorklogsModule,
     FreelancersModule,
     PaymentsModule,
