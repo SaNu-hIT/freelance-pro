@@ -10,6 +10,8 @@ import { CrimsonCube } from '@/components/ui/CrimsonCube'
 import { MorphBlob } from '@/components/ui/MorphBlob'
 import api from '@/lib/api'
 import { useCurrencySymbol } from '@/lib/store'
+import { apiError } from '@/lib/utils'
+import ErrorBanner from '@/components/ui/ErrorBanner'
 
 type IdeaForm = {
   name: string
@@ -65,25 +67,32 @@ export default function ClientsPage() {
     name: '', phone: '', email: '', preferredCallbackTime: '',
   })
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState<'idea' | 'callback' | null>(null)
 
   const handleIdeaSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setSubmitError('')
     try {
       await api.post('/inquiries', { ...ideaForm, type: 'project_idea' })
-    } catch { /* save locally on fail */ }
-    setSubmitted('idea')
+      setSubmitted('idea')
+    } catch (err) {
+      setSubmitError(apiError(err, 'We could not send your request. Please try again.'))
+    }
     setSubmitting(false)
   }
 
   const handleCallbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setSubmitError('')
     try {
       await api.post('/inquiries', { ...callbackForm, type: 'callback' })
-    } catch { /* save locally on fail */ }
-    setSubmitted('callback')
+      setSubmitted('callback')
+    } catch (err) {
+      setSubmitError(apiError(err, 'We could not send your request. Please try again.'))
+    }
     setSubmitting(false)
   }
 
@@ -236,7 +245,7 @@ export default function ClientsPage() {
           {/* Tabs */}
           <div className="flex rounded-xl overflow-hidden border border-[var(--input-bg)] mb-8">
             <button
-              onClick={() => { setActiveTab('idea'); setSubmitted(null) }}
+              onClick={() => { setActiveTab('idea'); setSubmitted(null); setSubmitError('') }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'idea'
                   ? 'bg-[var(--fg)] text-[var(--bg)]'
@@ -247,7 +256,7 @@ export default function ClientsPage() {
               SUBMIT A PROJECT IDEA
             </button>
             <button
-              onClick={() => { setActiveTab('callback'); setSubmitted(null) }}
+              onClick={() => { setActiveTab('callback'); setSubmitted(null); setSubmitError('') }}
               className={`flex-1 py-4 text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'callback'
                   ? 'bg-[var(--fg)] text-[var(--bg)]'
@@ -383,6 +392,8 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
+                {submitError && <ErrorBanner title="Not sent" message={submitError} onClose={() => setSubmitError('')} />}
+
                 <button
                   type="submit"
                   disabled={submitting}
@@ -494,6 +505,8 @@ export default function ClientsPage() {
                     ))}
                   </div>
                 </div>
+
+                {submitError && <ErrorBanner title="Not sent" message={submitError} onClose={() => setSubmitError('')} />}
 
                 <button
                   type="submit"
