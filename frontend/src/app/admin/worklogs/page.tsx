@@ -8,7 +8,7 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { worklogsApi, projectsApi, freelancersApi } from '@/lib/api'
 import { Worklog, Project, FreelancerProfile } from '@/lib/types'
-import { localDate } from '@/lib/utils'
+import { localDate, sessionRange } from '@/lib/utils'
 
 const today = localDate()
 
@@ -50,6 +50,7 @@ function StandupCard({ w, onView }: { w: Worklog; onView: () => void }) {
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
             <Clock size={11} style={{ color: 'var(--fg)' }} />
             <span className="font-bold text-xs" style={{ color: 'var(--fg)' }}>{w.hoursWorked}h</span>
+            {sessionRange(w) && <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{sessionRange(w)}</span>}
           </div>
           {w.project?.priority && (
             <span className="text-mono-label px-2 py-0.5 rounded text-xs" style={{
@@ -339,7 +340,10 @@ export default function AdminWorklogsPage() {
                         {w.project?.title ?? `#${w.projectId}`}
                       </span>
                     </td>
-                    <td><span className="text-crimson font-bold text-sm">{w.hoursWorked}h</span></td>
+                    <td>
+                      <span className="text-crimson font-bold text-sm">{w.hoursWorked}h</span>
+                      {sessionRange(w) && <span className="block text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{sessionRange(w)}</span>}
+                    </td>
                     <td style={{ minWidth: 110 }}>
                       <div className="flex items-center gap-2">
                         <div className="progress-bar flex-1"><div className="progress-fill" style={{ width: `${w.progress}%` }} /></div>
@@ -403,6 +407,13 @@ export default function AdminWorklogsPage() {
                 <p className="label-field">Project</p>
                 <p className="text-primary-ui font-medium">{detailLog.project?.title ?? `#${detailLog.projectId}`}</p>
               </div>
+
+              {sessionRange(detailLog) && (
+                <div>
+                  <p className="label-field">Session</p>
+                  <p className="text-primary-ui font-medium">{sessionRange(detailLog)}</p>
+                </div>
+              )}
 
               <div>
                 <p className="label-field">Tasks Completed</p>

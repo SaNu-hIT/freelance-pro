@@ -9,7 +9,7 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { projectsApi, worklogsApi, tasksApi, sprintsApi } from '@/lib/api'
 import { Project, Worklog, ProjectTask, ProjectSprint } from '@/lib/types'
-import { localDate } from '@/lib/utils'
+import { localDate, sessionRange } from '@/lib/utils'
 
 const LS_START   = 'worklog_start_time'
 const LS_PROJECT = 'worklog_project_id'
@@ -262,6 +262,8 @@ export default function FreelancerWorklogsPage() {
         progress,
         blockers: blockers || undefined,
         nextSteps: nextSteps || undefined,
+        startedAt: startISO && endISO ? startISO : undefined,
+        endedAt: startISO && endISO ? endISO : undefined,
       }
       await worklogsApi.create(payload as unknown as Record<string, unknown>)
       // Re-fetch so the list always shows exactly what the server has (avoids shape mismatch from optimistic update)
@@ -702,7 +704,7 @@ export default function FreelancerWorklogsPage() {
                           <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{w.tasksCompleted}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{fmtDate(w.date)}</p>
+                          <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{fmtDate(w.date)}{sessionRange(w) && ` · ${sessionRange(w)}`}</p>
                           <div className="flex items-center gap-1.5">
                             <div className="w-12 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--input-bg)' }}>
                               <div style={{ width: `${w.progress}%`, height: '100%', background: 'var(--fg)', borderRadius: 99 }} />
@@ -748,6 +750,12 @@ export default function FreelancerWorklogsPage() {
                 </div>
               ))}
             </div>
+            {sessionRange(viewLog) && (
+              <div>
+                <p className="label-field mb-1">Session</p>
+                <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{sessionRange(viewLog)}</p>
+              </div>
+            )}
             <div>
               <p className="label-field mb-1">Tasks Completed</p>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{viewLog.tasksCompleted}</p>

@@ -45,6 +45,12 @@ describe('WorklogsService.create', () => {
     expect(projects.update).toHaveBeenCalledWith('p1', { progress: 50 });
   });
 
+  it('saves the timer session start and end', async () => {
+    const session = { startedAt: '2026-10-03T04:00:00.000Z', endedAt: '2026-10-03T06:30:00.000Z' };
+    await service.create({ ...dto, ...session } as any, 'u1');
+    expect(worklogs.save).toHaveBeenCalledWith(expect.objectContaining(session));
+  });
+
   it('rejects a project the freelancer is not on, without touching progress', async () => {
     memberCount = 0;
     await expect(service.create(dto as any, 'u1')).rejects.toThrow(ForbiddenException);
@@ -76,5 +82,12 @@ describe('CreateWorklogDto', () => {
       projectId: '12cce3da-4be1-4c0b-aeab-6c14e3e442ab', date: '2026-10-03', hoursWorked: 1, tasksCompleted: '', progress: 0,
     }));
     expect(errors.map((e) => e.property)).toEqual(['tasksCompleted']);
+  });
+
+  it('accepts ISO session times and rejects anything else', async () => {
+    const base = { projectId: '12cce3da-4be1-4c0b-aeab-6c14e3e442ab', date: '2026-10-03', hoursWorked: 1, tasksCompleted: 'x', progress: 0 };
+    expect(await validate(plainToInstance(CreateWorklogDto, { ...base, startedAt: '2026-10-03T04:00:00.000Z', endedAt: '2026-10-03T05:00:00.000Z' }))).toEqual([]);
+    const errors = await validate(plainToInstance(CreateWorklogDto, { ...base, startedAt: 'soon' }));
+    expect(errors.map((e) => e.property)).toEqual(['startedAt']);
   });
 });

@@ -66,6 +66,8 @@ export interface Worklog {
   blockers?: string
   nextSteps?: string
   fileUrls?: string[]
+  startedAt?: string | null
+  endedAt?: string | null
   createdAt: string
 }
 

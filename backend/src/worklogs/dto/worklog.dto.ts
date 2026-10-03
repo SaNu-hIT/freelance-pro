@@ -37,6 +37,14 @@ export class CreateWorklogDto {
   @IsOptional()
   @IsString()
   nextSteps?: string;
+
+  @IsOptional()
+  @IsDateString()
+  startedAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endedAt?: string;
 }
 
 export class UpdateWorklogDto {

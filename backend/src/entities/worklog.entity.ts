@@ -47,6 +47,13 @@ export class Worklog {
   @Column({ nullable: true, type: 'text' })
   nextSteps: string;
 
+  // Timer session bounds; null for hours entered by hand
+  @Column({ nullable: true, type: 'timestamptz' })
+  startedAt: Date | null;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  endedAt: Date | null;
+
   @Column('text', { array: true, default: [] })
   fileUrls: string[];
 
