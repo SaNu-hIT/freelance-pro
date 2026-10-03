@@ -12,8 +12,8 @@ import {
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi, freelancersApi, tasksApi, sprintsApi } from '@/lib/api'
-import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask, ProjectSprint } from '@/lib/types'
+import { projectsApi, freelancersApi, tasksApi, sprintsApi, usersApi } from '@/lib/api'
+import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask, ProjectSprint, User as AppUser } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
@@ -62,7 +62,7 @@ function MemberAvatar({ name, size = 24 }: { name: string; size?: number }) {
 }
 
 const EMPTY_FORM = {
-  title: '', description: '', budget: '', deadline: '',
+  title: '', description: '', budget: '', deadline: '', clientId: '',
   status: 'new' as ProjectStatus, priority: 'medium' as ProjectPriority,
   teamMemberIds: [] as string[],
   repoUrl: '', liveUrl: '', correctionSheetUrl: '',
@@ -84,6 +84,7 @@ function AdminProjectsPageInner() {
   const searchParams = useSearchParams()
   const [projects, setProjects] = useState<Project[]>([])
   const [freelancers, setFreelancers] = useState<FreelancerProfile[]>([])
+  const [clients, setClients] = useState<AppUser[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all')
@@ -117,12 +118,14 @@ function AdminProjectsPageInner() {
 
   useEffect(() => {
     const load = async () => {
-      const [pRes, fRes] = await Promise.allSettled([projectsApi.getAll(), freelancersApi.getAll()])
+      const [pRes, fRes, cRes] = await Promise.allSettled([projectsApi.getAll(), freelancersApi.getAll(), usersApi.list('client')])
       const errors: string[] = []
       if (pRes.status === 'fulfilled') setProjects(pRes.value.data?.data ?? pRes.value.data)
       else errors.push(apiError(pRes.reason, 'Could not load projects.'))
       if (fRes.status === 'fulfilled') setFreelancers(fRes.value.data?.data ?? fRes.value.data)
       else errors.push(apiError(fRes.reason, 'Could not load freelancers.'))
+      if (cRes.status === 'fulfilled') setClients(cRes.value.data ?? [])
+      else errors.push(apiError(cRes.reason, 'Could not load clients.'))
       setLoadError(errors.join(' '))
       setLoading(false)
     }
@@ -175,7 +178,8 @@ function AdminProjectsPageInner() {
     setSaveError('')
     setForm({
       title: p.title, description: p.description, budget: String(p.budget),
-      deadline: p.deadline?.slice(0, 10) ?? '', status: p.status, priority: p.priority,
+      deadline: p.deadline?.slice(0, 10) ?? '', clientId: p.clientId ?? p.client?.id ?? '',
+      status: p.status, priority: p.priority,
       teamMemberIds: p.teamMembers?.map(m => m.id) ?? [],
       repoUrl: p.repoUrl ?? '', liveUrl: p.liveUrl ?? '', correctionSheetUrl: p.correctionSheetUrl ?? '',
     })
@@ -192,9 +196,15 @@ function AdminProjectsPageInner() {
   }
 
   const handleSave = async () => {
+    if (panelMode === 'create' && !form.clientId) {
+      setSaveError('Choose the client this project is for.')
+      return
+    }
     setSaving(true)
     setSaveError('')
-    const payload = { ...form, budget: parseFloat(form.budget) || 0 }
+    // Older projects may have no client account yet; leave clientId out rather than send ''
+    const { clientId, ...rest } = form
+    const payload = { ...rest, budget: parseFloat(form.budget) || 0, ...(clientId ? { clientId } : {}) }
     if (panelMode === 'create') {
       let created: Project
       try {
@@ -979,6 +989,21 @@ function AdminProjectsPageInner() {
                   <label className="label-field">Project Title</label>
                   <input className="input-field text-base" placeholder="Enter project title…"
                     value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                </div>
+
+                {/* Client */}
+                <div>
+                  <label htmlFor="project-client" className="label-field">Client</label>
+                  <div className="relative">
+                    <select id="project-client" className="input-field appearance-none pr-8" value={form.clientId}
+                      onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))}>
+                      <option value="" disabled>{clients.length ? 'Select a client…' : 'No client accounts yet'}</option>
+                      {clients.map(c => (
+                        <option key={c.id} value={c.id}>{c.company ? `${c.name} (${c.company})` : c.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                  </div>
                 </div>
 
                 {/* Description */}
