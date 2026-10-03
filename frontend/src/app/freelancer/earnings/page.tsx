@@ -8,20 +8,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingUp, DollarSign, Clock, Minus } from 'lucide-react'
 import { useCurrencySymbol } from '@/lib/store'
 
-const MOCK_PAYMENTS: Payment[] = [
-  { id: 'p1', projectId: '5', freelancerId: 'f1', amount: 2800, deductions: 280, netAmount: 2520, status: 'paid', createdAt: new Date(Date.now() - 15 * 86400000).toISOString() },
-  { id: 'p2', projectId: '1', freelancerId: 'f1', amount: 1500, deductions: 150, netAmount: 1350, status: 'pending', createdAt: new Date(Date.now() - 5 * 86400000).toISOString() },
-  { id: 'p3', projectId: '3', freelancerId: 'f1', amount: 2100, deductions: 210, netAmount: 1890, status: 'partial', createdAt: new Date(Date.now() - 25 * 86400000).toISOString() },
-  { id: 'p4', projectId: '2', freelancerId: 'f1', amount: 800, deductions: 80, netAmount: 720, status: 'paid', createdAt: new Date(Date.now() - 45 * 86400000).toISOString() },
-]
-
-const MOCK_PROJECTS: Project[] = [
-  { id: '1', title: 'E-Commerce Platform Redesign', description: '', budget: 4500, deadline: '', status: 'in_progress', priority: 'high', clientId: 'c1', progress: 65, createdAt: '', updatedAt: '' },
-  { id: '2', title: 'Mobile App Backend API', description: '', budget: 3200, deadline: '', status: 'assigned', priority: 'medium', clientId: 'c2', progress: 30, createdAt: '', updatedAt: '' },
-  { id: '3', title: 'Dashboard Analytics Module', description: '', budget: 2100, deadline: '', status: 'delayed', priority: 'critical', clientId: 'c1', progress: 80, createdAt: '', updatedAt: '' },
-  { id: '5', title: 'Payment Gateway Setup', description: '', budget: 2800, deadline: '', status: 'completed', priority: 'high', clientId: 'c2', progress: 100, createdAt: '', updatedAt: '' },
-]
-
 const CHART_DATA = [
   { month: 'Dec', earnings: 0 },
   { month: 'Jan', earnings: 800 },
@@ -54,11 +40,11 @@ export default function FreelancerEarningsPage() {
           paymentsApi.getAll(),
           projectsApi.getAll(),
         ])
-        setPayments(pRes.data?.data ?? pRes.data ?? MOCK_PAYMENTS)
-        setProjects(projRes.data?.data ?? projRes.data ?? MOCK_PROJECTS)
+        setPayments(pRes.data?.data ?? pRes.data ?? [])
+        setProjects(projRes.data?.data ?? projRes.data ?? [])
       } catch {
-        setPayments(MOCK_PAYMENTS)
-        setProjects(MOCK_PROJECTS)
+        setPayments([])
+        setProjects([])
       } finally {
         setLoading(false)
       }

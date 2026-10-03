@@ -11,81 +11,6 @@ import { Briefcase, Clock, DollarSign, CheckSquare, Square, AlertTriangle, Shiel
 import { useFreelancerStore } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
 
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: '1',
-    title: 'E-Commerce Platform Redesign',
-    description: 'Full redesign of the client shopping experience.',
-    budget: 4500,
-    deadline: new Date(Date.now() + 3 * 86400000).toISOString(),
-    status: 'in_progress',
-    priority: 'high',
-    clientId: 'c1',
-    progress: 65,
-    createdAt: new Date(Date.now() - 20 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Mobile App Backend API',
-    description: 'REST API development for the iOS/Android app.',
-    budget: 3200,
-    deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
-    status: 'assigned',
-    priority: 'medium',
-    clientId: 'c2',
-    progress: 30,
-    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Dashboard Analytics Module',
-    description: 'Build analytics and reporting dashboard.',
-    budget: 2100,
-    deadline: new Date(Date.now() - 2 * 86400000).toISOString(),
-    status: 'delayed',
-    priority: 'critical',
-    clientId: 'c1',
-    progress: 80,
-    createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
-
-const MOCK_WORKLOGS: Worklog[] = [
-  {
-    id: 'w1',
-    projectId: '1',
-    freelancerId: 'f1',
-    date: new Date(Date.now() - 86400000).toISOString(),
-    hoursWorked: 6.5,
-    tasksCompleted: 'Implemented product listing page, fixed responsive issues.',
-    progress: 65,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: 'w2',
-    projectId: '2',
-    freelancerId: 'f1',
-    date: new Date(Date.now() - 2 * 86400000).toISOString(),
-    hoursWorked: 4,
-    tasksCompleted: 'Set up database schema, created user auth endpoints.',
-    progress: 30,
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    id: 'w3',
-    projectId: '3',
-    freelancerId: 'f1',
-    date: new Date(Date.now() - 3 * 86400000).toISOString(),
-    hoursWorked: 7,
-    tasksCompleted: 'Chart components, data aggregation layer.',
-    progress: 80,
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-  },
-]
-
 const TASKS = [
   { id: 1, label: 'Review PR feedback on product listing', projectId: '1', done: true },
   { id: 2, label: 'Fix mobile nav overflow bug', projectId: '1', done: false },
@@ -157,11 +82,11 @@ export default function FreelancerDashboardPage() {
           projectsApi.getAll(),
           worklogsApi.getAll({ limit: 1000 }),
         ])
-        setProjects(pRes.data?.data ?? pRes.data ?? MOCK_PROJECTS)
-        setWorklogs(wRes.data?.data ?? wRes.data ?? MOCK_WORKLOGS)
+        setProjects(pRes.data?.data ?? pRes.data ?? [])
+        setWorklogs(wRes.data?.data ?? wRes.data ?? [])
       } catch {
-        setProjects(MOCK_PROJECTS)
-        setWorklogs(MOCK_WORKLOGS)
+        setProjects([])
+        setWorklogs([])
       } finally {
         setLoading(false)
       }

@@ -10,97 +10,6 @@ import { worklogsApi, projectsApi, freelancersApi } from '@/lib/api'
 import { Worklog, Project, FreelancerProfile } from '@/lib/types'
 
 const today = new Date().toISOString().slice(0, 10)
-const yesterday = (() => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10) })()
-const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10) }
-
-const MOCK_WORKLOGS: Worklog[] = [
-  {
-    id: 'w1', projectId: '1', date: today, hoursWorked: 7,
-    progress: 65,
-    tasksCompleted: 'Completed Stripe checkout flow integration. Added webhook handler for payment_intent.succeeded events. Unit tests written for cart service.',
-    blockers: undefined, nextSteps: 'Start order management admin panel.',
-    fileUrls: ['checkout-flow.png', 'test-results.pdf'], freelancerId: 'f1',
-    freelancer: { id: 'f1', userId: 'u1', skills: ['React', 'TypeScript', 'Node.js'], experience: 5, hourlyRate: 85, status: 'active', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '1', title: 'E-Commerce Platform Rebuild', description: '', budget: 14500, deadline: daysAgo(-42), status: 'in_progress', priority: 'high', clientId: 'c1', progress: 65, createdAt: '', updatedAt: '' },
-    createdAt: `${today}T18:00:00Z`,
-  },
-  {
-    id: 'w2', projectId: '2', date: today, hoursWorked: 6,
-    progress: 38,
-    tasksCompleted: 'Implemented D3 line charts for revenue and user growth metrics. Added 7/30/90-day toggle controls.',
-    blockers: 'Waiting for client to grant read access to production data warehouse. Using mock data for now.',
-    nextSteps: 'Build bar chart for channel attribution once DB access is granted.',
-    fileUrls: [], freelancerId: 'f2',
-    freelancer: { id: 'f2', userId: 'u2', skills: ['Python', 'FastAPI', 'AWS'], experience: 6, hourlyRate: 95, status: 'active', user: { id: 'u2', name: 'Priya Sharma', email: 'priya@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '2', title: 'Analytics Dashboard', description: '', budget: 8500, deadline: daysAgo(-60), status: 'in_progress', priority: 'medium', clientId: 'c2', progress: 38, createdAt: '', updatedAt: '' },
-    createdAt: `${today}T17:30:00Z`,
-  },
-  {
-    id: 'w3', projectId: '3', date: today, hoursWorked: 8,
-    progress: 45,
-    tasksCompleted: 'Google Maps integration for real-time driver tracking. Implemented WebSocket-based location broadcasting from driver app.',
-    blockers: undefined,
-    nextSteps: 'Push notifications setup with FCM.',
-    fileUrls: ['maps-demo.gif'], freelancerId: 'f3',
-    freelancer: { id: 'f3', userId: 'u3', skills: ['Flutter', 'React Native', 'Firebase'], experience: 4, hourlyRate: 80, status: 'active', user: { id: 'u3', name: 'Marcus Chen', email: 'marcus@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '3', title: 'Mobile App — iOS & Android', description: '', budget: 18000, deadline: daysAgo(-90), status: 'in_progress', priority: 'critical', clientId: 'c1', progress: 45, createdAt: '', updatedAt: '' },
-    createdAt: `${today}T16:45:00Z`,
-  },
-  {
-    id: 'w4', projectId: '4', date: today, hoursWorked: 5,
-    progress: 88,
-    tasksCompleted: 'Final review pass on Storybook documentation. Fixed 3 accessibility issues found in automated audit. Prepping npm publish script.',
-    blockers: undefined,
-    nextSteps: 'Publish npm package and submit for client approval.',
-    fileUrls: ['storybook-preview.png'], freelancerId: 'f4',
-    freelancer: { id: 'f4', userId: 'u4', skills: ['Figma', 'UI/UX Design', 'React'], experience: 7, hourlyRate: 90, status: 'active', user: { id: 'u4', name: 'Zara Ahmed', email: 'zara@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '4', title: 'Brand Refresh & Design System', description: '', budget: 11000, deadline: daysAgo(-25), status: 'pending_approval', priority: 'high', clientId: 'c3', progress: 88, createdAt: '', updatedAt: '' },
-    createdAt: `${today}T15:00:00Z`,
-  },
-  {
-    id: 'w5', projectId: '5', date: today, hoursWorked: 9,
-    progress: 20,
-    tasksCompleted: 'Terraform modules for VPC and EKS cluster complete. CI pipeline builds Docker images and pushes to ECR. Deployed to staging successfully.',
-    blockers: 'Client IT team has not yet provided IAM credentials with required policies for production account.',
-    nextSteps: 'Configure Kubernetes namespaces and RBAC once access is granted.',
-    fileUrls: ['terraform-plan.txt', 'ci-output.log'], freelancerId: 'f5',
-    freelancer: { id: 'f5', userId: 'u5', skills: ['DevOps', 'Docker', 'Kubernetes', 'AWS'], experience: 8, hourlyRate: 110, status: 'active', user: { id: 'u5', name: 'Lucas Oliveira', email: 'lucas@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '5', title: 'Cloud Migration & DevOps', description: '', budget: 22000, deadline: daysAgo(-75), status: 'assigned', priority: 'critical', clientId: 'c2', progress: 20, createdAt: '', updatedAt: '' },
-    createdAt: `${today}T14:00:00Z`,
-  },
-  // Yesterday's logs
-  {
-    id: 'w6', projectId: '1', date: yesterday, hoursWorked: 6.5,
-    progress: 60,
-    tasksCompleted: 'Implemented product search with Postgres full-text search. Added category filters and price range slider component.',
-    blockers: undefined, nextSteps: 'Integrate Stripe checkout.',
-    fileUrls: [], freelancerId: 'f1',
-    freelancer: { id: 'f1', userId: 'u1', skills: ['React', 'TypeScript'], experience: 5, hourlyRate: 85, status: 'active', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '1', title: 'E-Commerce Platform Rebuild', description: '', budget: 14500, deadline: daysAgo(-42), status: 'in_progress', priority: 'high', clientId: 'c1', progress: 60, createdAt: '', updatedAt: '' },
-    createdAt: `${yesterday}T18:00:00Z`,
-  },
-  {
-    id: 'w7', projectId: '6', date: yesterday, hoursWorked: 4,
-    progress: 52,
-    tasksCompleted: 'Investigated Salesforce API rate limiting issue. Implemented exponential backoff retry logic in sync service.',
-    blockers: 'Salesforce sandbox environment is down for scheduled maintenance. Client needs to raise a ticket with SF support.',
-    nextSteps: 'Resume bi-directional sync once sandbox is back online.',
-    fileUrls: [], freelancerId: 'f1',
-    freelancer: { id: 'f1', userId: 'u1', skills: ['React', 'Node.js'], experience: 5, hourlyRate: 85, status: 'active', user: { id: 'u1', name: 'Alex Rivera', email: 'alex@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '6', title: 'CRM System Integration', description: '', budget: 9800, deadline: daysAgo(-15), status: 'blocked', priority: 'high', clientId: 'c1', progress: 52, createdAt: '', updatedAt: '' },
-    createdAt: `${yesterday}T16:00:00Z`,
-  },
-  {
-    id: 'w8', projectId: '3', date: daysAgo(2), hoursWorked: 7.5,
-    progress: 38,
-    tasksCompleted: 'Built customer app home and menu screens. Product cards with image lazy-loading. Cart state management with Riverpod.',
-    blockers: undefined, nextSteps: 'Google Maps for delivery tracking.',
-    fileUrls: ['app-screens.fig'], freelancerId: 'f3',
-    freelancer: { id: 'f3', userId: 'u3', skills: ['Flutter'], experience: 4, hourlyRate: 80, status: 'active', user: { id: 'u3', name: 'Marcus Chen', email: 'marcus@freelancepro.dev', role: 'freelancer', createdAt: '' } },
-    project: { id: '3', title: 'Mobile App — iOS & Android', description: '', budget: 18000, deadline: daysAgo(-90), status: 'in_progress', priority: 'critical', clientId: 'c1', progress: 38, createdAt: '', updatedAt: '' },
-    createdAt: `${daysAgo(2)}T17:00:00Z`,
-  },
-]
 
 type DateFilter = 'today' | 'week' | 'month' | 'all'
 
@@ -237,11 +146,11 @@ export default function AdminWorklogsPage() {
           projectsApi.getAll(),
           freelancersApi.getAll(),
         ])
-        setWorklogs(wRes.status === 'fulfilled' ? (wRes.value.data?.data ?? wRes.value.data) : MOCK_WORKLOGS)
+        setWorklogs(wRes.status === 'fulfilled' ? (wRes.value.data?.data ?? wRes.value.data) : [])
         setProjects(pRes.status === 'fulfilled' ? (pRes.value.data?.data ?? pRes.value.data) : [])
         setFreelancers(fRes.status === 'fulfilled' ? (fRes.value.data?.data ?? fRes.value.data) : [])
       } catch {
-        setWorklogs(MOCK_WORKLOGS)
+        setWorklogs([])
       } finally {
         setLoading(false)
       }
