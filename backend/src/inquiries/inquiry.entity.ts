@@ -11,8 +11,8 @@ export class Inquiry {
   @Column({ type: 'varchar' })
   name: string
 
-  @Column({ type: 'varchar' })
-  email: string
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null
 
   @Column({ type: 'varchar', nullable: true })
   phone: string
