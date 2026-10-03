@@ -173,8 +173,14 @@ export default function FreelancerWorklogsPage() {
   // ── Timer controls ─────────────────────────────────────────
   function startTimerForTask(taskId: string) {
     if (!selectedProject) return
+    // Switching tasks mid-session keeps the clock running for the same session
+    if (timerRunning) {
+      setActiveTaskId(taskId)
+      setWorkedTasks(prev => { const n = new Set(prev); n.add(taskId); return n })
+      localStorage.setItem(LS_TASK, taskId)
+      return
+    }
     const iso = new Date().toISOString()
-    // Stop previous interval if switching tasks
     if (timerRef.current) clearInterval(timerRef.current)
     setStartISO(iso)
     setEndISO(null)
