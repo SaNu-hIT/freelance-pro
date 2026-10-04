@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateIf } from 'class-validator';
+import { IsBoolean, IsDateString, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateIf } from 'class-validator';
 
 export class CreateTaskDto {
   @IsUUID()
@@ -19,6 +19,13 @@ export class CreateTaskDto {
   @IsOptional()
   @IsUUID()
   assignedFreelancerId?: string;
+}
+
+// startedAt is when the freelancer's timer session began, so a reload or task switch keeps the real start
+export class StartTaskDto {
+  @IsOptional()
+  @IsDateString()
+  startedAt?: string;
 }
 
 // null clears the sprint or assignee

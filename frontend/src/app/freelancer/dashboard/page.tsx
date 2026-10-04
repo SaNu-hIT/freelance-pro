@@ -14,6 +14,7 @@ import { localDate, apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { InProgressTasks } from '@/components/ui/InProgressTasks'
 import { HoursSummary } from '@/components/ui/HoursSummary'
+import { LiveSessions } from '@/components/ui/LiveSessions'
 import { InProgressChip } from '@/components/ui/TaskTimer'
 
 function isOverdue(deadline: string) {
@@ -359,6 +360,7 @@ export default function FreelancerDashboardPage() {
         {/* Recent Worklogs */}
         <div className="glass-card rounded-lg p-5">
           <h2 className="text-mono-label text-xs tracking-widest mb-4">RECENT WORKLOGS</h2>
+          <LiveSessions />
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (

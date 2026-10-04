@@ -76,3 +76,29 @@ describe('Task in-progress status', () => {
     });
   });
 });
+
+describe('Task start time', () => {
+  let task: any;
+  let service: TasksService;
+  beforeEach(() => {
+    task = { id: 't1', completed: false, inProgressAt: null, startedAt: null, startedById: null };
+    service = new TasksService({
+      findOne: jest.fn(() => Promise.resolve(task)),
+      save: jest.fn((t) => Promise.resolve(t)),
+      update: jest.fn(),
+      manager: { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }) },
+    } as any);
+  });
+
+  it('keeps the session start sent by the client', async () => {
+    const start = new Date(Date.now() - 90 * 60000).toISOString();
+    expect((await service.start('t1', 'u1', start)).startedAt!.toISOString()).toBe(start);
+  });
+
+  it('ignores a start in the future or older than 8 hours', async () => {
+    for (const bad of [new Date(Date.now() + 60000).toISOString(), new Date(Date.now() - 9 * 3600000).toISOString(), 'nonsense']) {
+      const at = (await service.start('t1', 'u1', bad)).startedAt!.getTime();
+      expect(Math.abs(at - Date.now())).toBeLessThan(5000);
+    }
+  });
+});

@@ -71,13 +71,16 @@ export class TasksService {
   }
 
   // Marks the task in progress for this freelancer; their previous task (if any) stops
-  async start(id: string, userId: string): Promise<ProjectTask> {
+  async start(id: string, userId: string, startedAt?: string): Promise<ProjectTask> {
     const task = await this.tasksRepo.findOne({ where: { id } });
     if (!task) throw new NotFoundException(`Task ${id} not found`);
     if (task.completed) throw new BadRequestException('This task is already done');
     const profile = await this.profileFor(userId);
     await this.tasksRepo.update({ startedById: profile.id }, { startedAt: null, startedById: null });
-    task.startedAt = new Date();
+    // Trust the client's session start only within the timer's 8 hour window
+    const now = Date.now();
+    const given = startedAt ? new Date(startedAt).getTime() : NaN;
+    task.startedAt = new Date(given <= now && given > now - RUNNING_MAX_MS ? given : now);
     task.startedById = profile.id;
     task.inProgressAt ??= task.startedAt;
     return this.tasksRepo.save(task);

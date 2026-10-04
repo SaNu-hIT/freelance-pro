@@ -19,7 +19,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { TasksService } from './tasks.service';
 import { ProjectsService } from '../projects/projects.service';
 
-import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
+import { CreateTaskDto, StartTaskDto, UpdateTaskDto } from './dto/task.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
@@ -60,9 +60,9 @@ export class TasksController {
   @Post(':id/start')
   @UseGuards(RolesGuard)
   @Roles('freelancer')
-  async start(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+  async start(@Param('id', ParseUUIDPipe) id: string, @Request() req: any, @Body() body: StartTaskDto = {}) {
     if (!(await this.tasksService.isProjectMember(id, req.user.id))) throw new ForbiddenException('You are not on this project');
-    return this.tasksService.start(id, req.user.id);
+    return this.tasksService.start(id, req.user.id, body?.startedAt);
   }
 
   @Post()

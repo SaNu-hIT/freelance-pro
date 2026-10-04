@@ -9,7 +9,7 @@ import {
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { projectsApi, worklogsApi, tasksApi, sprintsApi } from '@/lib/api'
 import { Project, Worklog, ProjectTask, ProjectSprint } from '@/lib/types'
-import { localDate, sessionRange } from '@/lib/utils'
+import { localDate, sessionRange, apiError } from '@/lib/utils'
 
 const LS_START   = 'worklog_start_time'
 const LS_PROJECT = 'worklog_project_id'
@@ -43,11 +43,14 @@ function secsToHours(s: number) {
   return Math.max(0.25, Math.round((s / 3600) * 4) / 4)
 }
 
-// Tell the server which task is being timed so admins and dashboards see it in progress.
-// The local timer is the source of truth, so a failed call only logs.
-function syncRunning(taskId: string | null) {
-  const call = taskId ? tasksApi.start(taskId) : tasksApi.stop()
-  call.catch(err => console.error('Could not update the running task:', err))
+// Tell the server which task is being timed (and since when) so admins and dashboards see it.
+// The local timer is the source of truth; a failed call is shown so the freelancer can retry.
+function syncRunning(taskId: string | null, startedAt?: string | null, onError?: (msg: string) => void) {
+  const call = taskId ? tasksApi.start(taskId, startedAt ?? undefined) : tasksApi.stop()
+  call.then(() => onError?.('')).catch(err => {
+    console.error('Could not update the running task:', err)
+    onError?.(apiError(err, 'Could not share your running timer. Admins will not see it until it syncs.'))
+  })
 }
 
 export default function FreelancerWorklogsPage() {
@@ -65,6 +68,7 @@ export default function FreelancerWorklogsPage() {
   const [endISO, setEndISO]             = useState<string | null>(null)
   const [autoPaused, setAutoPaused]     = useState(false)
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)  // which task is being timed
+  const [syncError, setSyncError]       = useState('')
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // ── Checklist ─────────────────────────────────────────────
@@ -136,6 +140,8 @@ export default function FreelancerWorklogsPage() {
         setTimerSecs(elapsed)
         setTimerRunning(true)
         startInterval(storedISO)
+        // Re-share on every load, in case the earlier call was lost
+        if (storedTask) syncRunning(storedTask, storedISO, setSyncError)
       }
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
@@ -187,7 +193,7 @@ export default function FreelancerWorklogsPage() {
       setActiveTaskId(taskId)
       setWorkedTasks(prev => { const n = new Set(prev); n.add(taskId); return n })
       localStorage.setItem(LS_TASK, taskId)
-      syncRunning(taskId)
+      syncRunning(taskId, startISO, setSyncError)
       return
     }
     const iso = new Date().toISOString()
@@ -204,7 +210,7 @@ export default function FreelancerWorklogsPage() {
     localStorage.setItem(LS_START, iso)
     localStorage.setItem(LS_PROJECT, selectedProject)
     localStorage.setItem(LS_TASK, taskId)
-    syncRunning(taskId)
+    syncRunning(taskId, iso, setSyncError)
     startInterval(iso)
   }
 
@@ -219,11 +225,11 @@ export default function FreelancerWorklogsPage() {
     localStorage.removeItem(LS_START)
     localStorage.removeItem(LS_PROJECT)
     localStorage.removeItem(LS_TASK)
-    syncRunning(null)
+    syncRunning(null, null, setSyncError)
   }
 
   function resetTimer() {
-    if (timerRunning) syncRunning(null)
+    if (timerRunning) syncRunning(null, null, setSyncError)
     clearInterval(timerRef.current!)
     setTimerRunning(false)
     setTimerSecs(0)
@@ -322,6 +328,15 @@ export default function FreelancerWorklogsPage() {
 
         {/* ── LEFT: Session + Tasks ── */}
         <div className="w-[44%] flex flex-col gap-4 overflow-y-auto">
+
+          {syncError && timerRunning && (
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs"
+              style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)' }}>
+              <span>{syncError}</span>
+              <button type="button" className="text-mono-label text-[10px] underline shrink-0"
+                onClick={() => activeTaskId && syncRunning(activeTaskId, startISO, setSyncError)}>RETRY</button>
+            </div>
+          )}
 
           {/* Auto-pause banner */}
           {autoPaused && (

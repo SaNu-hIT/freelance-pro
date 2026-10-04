@@ -11,6 +11,7 @@ import { useCurrencySymbol } from '@/lib/store'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { InProgressTasks } from '@/components/ui/InProgressTasks'
 import { HoursSummary } from '@/components/ui/HoursSummary'
+import { LiveSessions } from '@/components/ui/LiveSessions'
 
 interface MetricCardProps {
   label: string
@@ -189,6 +190,8 @@ export default function AdminDashboardPage() {
             <p className="text-mono-label mb-1">ACTIVITY FEED</p>
             <h2 className="text-primary-ui font-bold text-lg">Recent Worklogs</h2>
           </div>
+
+          <LiveSessions showWho />
 
           {loading ? (
             <div className="space-y-4">
