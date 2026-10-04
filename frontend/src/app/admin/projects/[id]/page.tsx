@@ -16,6 +16,7 @@ import { useCurrencySymbol } from '@/lib/store'
 import { apiError, formatBytes } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { SprintTaskBoard } from '@/components/admin/SprintTaskBoard'
+import { ProjectLinks } from '@/components/admin/ProjectLinks'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -491,6 +492,10 @@ export default function ProjectDetailPage() {
 
           <div style={card}>
             <SprintTaskBoard projectId={id} team={team} tasks={tasks} setTasks={setTasks} sprints={sprints} setSprints={setSprints} />
+          </div>
+
+          <div style={card}>
+            <ProjectLinks projectId={id} liveUrl={project.liveUrl ?? null} />
           </div>
 
           {/* Requests */}

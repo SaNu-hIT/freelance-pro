@@ -170,3 +170,29 @@ export interface ProjectDocument {
   description: string | null
   createdAt: string
 }
+
+export type PageSource = 'sitemap' | 'crawl' | 'manual'
+export type NoteVisibility = 'internal' | 'client'
+
+export interface PageNote {
+  id: string
+  pageId: string
+  authorId: string | null
+  author?: Pick<User, 'id' | 'name' | 'role'> | null
+  body: string
+  visibility: NoteVisibility
+  createdAt: string
+}
+
+export interface ProjectPage {
+  id: string
+  projectId: string
+  url: string
+  path: string
+  title: string | null
+  source: PageSource
+  archived: boolean
+  lastSeenAt: string | null
+  notes: PageNote[]
+  createdAt: string
+}
