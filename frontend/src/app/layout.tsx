@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { RevealOnScroll } from "@/components/brand/RevealOnScroll";
 
 export const metadata: Metadata = {
-  title: "FreelancePro — Manage Freelancers at Scale",
+  title: "BLACKORWHITE — Freelance Pro",
   description: "Centralized platform for managing freelancers, client projects, worklogs, timelines, and remuneration.",
   keywords: "freelancer management, project management, worklog, remuneration",
 };
@@ -20,6 +21,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full antialiased">
         {children}
+        <div className="grain" aria-hidden="true" />
+        <RevealOnScroll />
       </body>
     </html>
   );

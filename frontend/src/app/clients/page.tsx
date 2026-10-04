@@ -6,7 +6,7 @@ import {
   ArrowRight, Send, Phone, CheckCircle, Zap, Users, ShieldCheck,
   BarChart3, Clock, FolderKanban, Globe, X, ExternalLink, Sparkles,
 } from 'lucide-react'
-import { CrimsonCube } from '@/components/ui/CrimsonCube'
+import { SiteHeader, Wordmark } from '@/components/brand/SiteHeader'
 import { MorphBlob } from '@/components/ui/MorphBlob'
 import api from '@/lib/api'
 import { useCurrencySymbol } from '@/lib/store'
@@ -97,31 +97,12 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+    <div className="site-main min-h-screen" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
-      {/* Header */}
-      <header className="glass-card-dark border-b border-[var(--input-bg)] fixed top-0 left-0 right-0 z-50 px-4 md:px-12 py-5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <CrimsonCube size={24} />
-          <span className="hidden sm:inline text-display text-[var(--fg)] font-bold text-base tracking-widest uppercase" style={{ textShadow: '0 0 20px rgb(var(--fg-rgb) / 0.4)' }}>
-            FREELANCE_PRO
-          </span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">HOME</Link>
-          <Link href="/freelancers" className="text-mono-label hover:text-primary-ui transition-colors text-xs tracking-widest">FOR FREELANCERS</Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Link href="/login"
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all"
-            style={{ border: '1px solid rgb(var(--fg-rgb) / 0.35)', color: 'var(--fg)', background: 'rgb(var(--fg-rgb) / 0.06)' }}>
-            Login
-          </Link>
-          <a href="#get-started" className="btn-primary rounded flex items-center gap-2 text-sm">
-            Get Started <ArrowRight size={14} />
-          </a>
-        </div>
-      </header>
+      <SiteHeader
+        links={[{ label: 'Home', href: '/' }, { label: 'For freelancers', href: '/freelancers' }]}
+        cta={{ label: 'Get started', href: '#get-started' }}
+      />
 
       {/* Hero */}
       <section className="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
@@ -538,10 +519,7 @@ export default function ClientsPage() {
       {/* Footer */}
       <footer className="glass-card-dark border-t border-[var(--input-bg)]">
         <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity">
-            <CrimsonCube size={20} />
-            <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase">FREELANCE_PRO</span>
-          </Link>
+          <Link href="/" className="hover:opacity-75 transition-opacity"><Wordmark className="text-[var(--fg)]" /></Link>
           <div className="flex items-center gap-4" style={{ color: 'var(--text-muted)' }}>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><Globe size={18} /></a>
             <a href="#" className="hover:text-primary-ui transition-colors p-1.5"><X size={18} /></a>
@@ -549,7 +527,7 @@ export default function ClientsPage() {
           </div>
         </div>
         <div className="border-t border-[var(--input-bg)] px-4 md:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2025 FREELANCE_PRO. ALL RIGHTS RESERVED.</p>
+          <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2026 BLACKORWHITE. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
             <Link href="/" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>HOME</Link>
             <Link href="/freelancers" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>FOR FREELANCERS</Link>

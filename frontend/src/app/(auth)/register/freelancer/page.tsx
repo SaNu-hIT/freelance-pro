@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, KeyboardEvent } from 'react'
 import Link from 'next/link'
+import { Wordmark } from '@/components/brand/SiteHeader'
 import { useRouter } from 'next/navigation'
 import {
   Loader2, X, Plus, ArrowLeft, Code2, CheckCircle2,
@@ -136,8 +137,7 @@ export default function FreelancerRegisterPage() {
       {/* ── Global top bar ── */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0 relative z-10" style={{ background: 'var(--bg-sidebar)' }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-          <div className="w-5 h-5" style={{ background: 'var(--fg)', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
-          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'var(--font-mono)' }}>FREELANCE_PRO</span>
+          <Wordmark className="text-[var(--fg)]" />
         </Link>
         <div className="flex items-center gap-2">
           <button
