@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { Wordmark } from '@/components/brand/SiteHeader'
 import { ArrowRight, Code2, Building2, Sun, Moon, ArrowLeft } from 'lucide-react'
-import { CrimsonCube } from '@/components/ui/CrimsonCube'
 import { useTheme } from '@/lib/theme'
 
 export default function RegisterPage() {
@@ -14,8 +14,7 @@ export default function RegisterPage() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-theme shrink-0" style={{ background: 'var(--bg-sidebar)' }}>
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-          <CrimsonCube size={20} />
-          <span className="text-sm font-bold tracking-widest uppercase text-primary-ui" style={{ fontFamily: 'var(--font-mono)' }}>FREELANCE_PRO</span>
+          <Wordmark className="text-[var(--fg)]" />
         </Link>
         <div className="flex items-center gap-2">
           <button

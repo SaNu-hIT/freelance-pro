@@ -25,7 +25,7 @@ import { useEffect } from 'react'
 import { UserRole } from '@/lib/types'
 import { useAuthStore } from '@/lib/store'
 import { useChatStore } from '@/lib/chatStore'
-import { CrimsonCube } from '@/components/ui/CrimsonCube'
+import { Wordmark } from '@/components/brand/SiteHeader'
 
 interface NavItem {
   label: string
@@ -133,6 +133,23 @@ const navByRole: Record<UserRole, NavSection[]> = {
   client: clientNav,
 }
 
+function isNavActive(href: string, pathname: string) {
+  const isRootItem = href.split('/').length < 3
+  return (
+    pathname === href ||
+    (isRootItem && pathname === href + '/dashboard') ||
+    (!isRootItem && pathname.startsWith(href + '/'))
+  )
+}
+
+// Chapter number for the current page, counted in sidebar order ("03 / WORKLOGS").
+export function navChapter(role: UserRole, pathname: string): string | null {
+  const items = navByRole[role].flatMap(s => s.items)
+  const i = items.findIndex(item => isNavActive(item.href, pathname))
+  if (i < 0) return null
+  return `${String(i + 1).padStart(2, '0')} / ${items[i].label.toUpperCase()}`
+}
+
 interface SidebarProps {
   role: UserRole
   pathname: string
@@ -155,10 +172,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
       style={{ width: 240, minWidth: 240 }}
     >
       <Link href="/" className="flex items-center gap-3 px-5 py-6 border-b border-theme transition-opacity hover:opacity-80">
-        <CrimsonCube size={28} />
-        <span className="text-display text-[var(--fg)] text-sm font-bold tracking-widest uppercase leading-tight">
-          FREELANCE_PRO
-        </span>
+        <Wordmark className="text-[var(--fg)]" />
       </Link>
 
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
@@ -172,11 +186,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => {
-                const isRootItem = item.href.split('/').length < 3
-                const isActive =
-                  pathname === item.href ||
-                  (isRootItem && pathname === item.href + '/dashboard') ||
-                  (!isRootItem && pathname.startsWith(item.href + '/'))
+                const isActive = isNavActive(item.href, pathname)
                 return (
                   <Link
                     key={item.href}

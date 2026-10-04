@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Bell, Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 import { UserRole } from '@/lib/types'
-import { Sidebar } from './Sidebar'
+import { Sidebar, navChapter } from './Sidebar'
 import { MorphBlob } from '@/components/ui/MorphBlob'
 import { useTheme } from '@/lib/theme'
 
@@ -49,6 +49,7 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
 
   if (!isAuthenticated || !user) return null
 
+  const chapter = navChapter(user.role, pathname)
   const now = new Date()
   const dateStr = now.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -101,7 +102,8 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-8 py-6">
+        <main className="dash-main flex-1 overflow-y-auto px-8 py-6">
+          {chapter && <span key={pathname} className="chapter-no fade-in">{chapter}</span>}
           {children}
         </main>
       </div>
