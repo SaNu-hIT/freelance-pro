@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import Link from 'next/link'
 import { Wordmark } from '@/components/brand/SiteHeader'
 import { useRouter } from 'next/navigation'
@@ -36,13 +36,18 @@ const FEATURES = [
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuthStore()
+  const { login, user, isAuthenticated, _hasHydrated } = useAuthStore()
   const { theme, toggleTheme } = useTheme()
   const [email, setEmail]           = useState('')
   const [password, setPassword]     = useState('')
   const [loading, setLoading]       = useState(false)
   const [demoLoading, setDemoLoading] = useState<string | null>(null)
   const [error, setError]           = useState('')
+
+  // Already signed in: skip the form
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated && user) router.replace(roleRoutes[user.role] ?? '/admin')
+  }, [_hasHydrated, isAuthenticated, user, router])
 
   const doLogin = async (e: string, p: string) => {
     const res = await authApi.login(e, p)
