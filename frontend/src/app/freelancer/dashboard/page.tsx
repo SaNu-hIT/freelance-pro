@@ -12,6 +12,8 @@ import { useFreelancerStore } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
 import { localDate, apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import { RunningTasks } from '@/components/ui/RunningTasks'
+import { InProgressChip, isTaskRunning } from '@/components/ui/TaskTimer'
 
 function isOverdue(deadline: string) {
   return new Date(deadline) < new Date()
@@ -35,6 +37,7 @@ export default function FreelancerDashboardPage() {
   // null until the profile has loaded, so a failed load doesn't show a made-up status
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const [profileId, setProfileId] = useState<string | null>(null)
+  const [hourlyRate, setHourlyRate] = useState<number | null>(null)
 
   // Load availability when profileId is known
   useEffect(() => {
@@ -73,6 +76,8 @@ export default function FreelancerDashboardPage() {
         const fp = Array.isArray(list) ? list[0] : list
         if (fp) {
           setProfileId(fp.id ?? null)
+          // decimals arrive as strings
+          setHourlyRate(Number(fp.hourlyRate) || 0)
           const stage = fp.onboardingStage ?? fp.status
           if (stage === 'approved' || fp.status === 'active') setApprovalStatus('approved')
           else if (stage === 'rejected' || fp.status === 'inactive') setApprovalStatus('rejected')
@@ -163,7 +168,7 @@ export default function FreelancerDashboardPage() {
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 {approvalStatus === 'rejected'
                   ? 'Your application was not approved. Check your profile for details.'
-                  : 'Our team is reviewing your profile. You\'ll be notified within 2–3 business days.'}
+                  : 'Our team is reviewing your profile. Complete your bio, skills, experience and rate for faster approval.'}
               </p>
             </div>
             <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
@@ -198,9 +203,9 @@ export default function FreelancerDashboardPage() {
 
         {!error && (<>
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {loading
-            ? Array.from({ length: 4 }).map((_, i) => (
+            ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="glass-card metric-card rounded-lg animate-pulse h-24" />
               ))
             : stats.map((s) => (
@@ -212,7 +217,22 @@ export default function FreelancerDashboardPage() {
                   <p className="text-primary-ui text-2xl font-bold text-display">{s.value}</p>
                 </div>
               ))}
+          {/* Rate and weekly hours live on the profile, so the card opens it */}
+          {!loading && (
+            <Link href="/freelancer/profile" className="glass-card metric-card rounded-lg block transition-all hover:opacity-90">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-mono-label text-[10px]">Rate &amp; Hours</span>
+                <ChevronRight size={16} className="text-[var(--text-muted)]" />
+              </div>
+              <p className="text-primary-ui text-2xl font-bold text-display">
+                {hourlyRate ? `${curr}${hourlyRate}/hr` : 'Set rate'}
+              </p>
+              <p className="text-mono-label text-[10px] mt-1">{avail.hoursPerWeek}h/wk available</p>
+            </Link>
+          )}
         </div>
+
+        <RunningTasks linkFor={() => '/freelancer/worklogs'} emptyText="No timer running. Start one from Worklogs." />
 
         <div className="grid grid-cols-2 gap-6">
           {/* Today's Tasks */}
@@ -241,6 +261,7 @@ export default function FreelancerDashboardPage() {
                           <p className={`text-sm ${task.completed ? 'line-through text-[var(--text-muted)]' : 'text-primary-ui'}`}>
                             {task.title}
                           </p>
+                          {isTaskRunning(task) && <div className="mt-1"><InProgressChip task={task} /></div>}
                           {proj && (
                             <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                               {overdue && <AlertTriangle size={10} className="inline mr-1" />}

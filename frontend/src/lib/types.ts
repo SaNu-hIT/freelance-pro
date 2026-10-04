@@ -112,6 +112,11 @@ export interface ProjectTask {
   order: number
   completedAt: string | null
   createdAt: string
+  // Set while a freelancer's worklog timer runs on this task
+  startedAt?: string | null
+  startedById?: string | null
+  startedBy?: FreelancerProfile | null
+  project?: Project
 }
 
 export interface DashboardStats {

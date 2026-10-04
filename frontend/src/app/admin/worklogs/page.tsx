@@ -9,6 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { worklogsApi, projectsApi, freelancersApi } from '@/lib/api'
 import { Worklog, Project, FreelancerProfile } from '@/lib/types'
 import { localDate, sessionRange } from '@/lib/utils'
+import { RunningTasks } from '@/components/ui/RunningTasks'
 
 const today = localDate()
 
@@ -208,6 +209,11 @@ export default function AdminWorklogsPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Sessions still running (not yet logged) */}
+      <div className="mb-6">
+        <RunningTasks showWho linkFor={t => `/admin/projects/${t.projectId}`} emptyText="No sessions running right now." />
       </div>
 
       {/* Filters */}

@@ -43,6 +43,13 @@ function secsToHours(s: number) {
   return Math.max(0.25, Math.round((s / 3600) * 4) / 4)
 }
 
+// Tell the server which task is being timed so admins and dashboards see it in progress.
+// The local timer is the source of truth, so a failed call only logs.
+function syncRunning(taskId: string | null) {
+  const call = taskId ? tasksApi.start(taskId) : tasksApi.stop()
+  call.catch(err => console.error('Could not update the running task:', err))
+}
+
 export default function FreelancerWorklogsPage() {
   const [projects, setProjects]         = useState<Project[]>([])
   const [worklogs, setWorklogs]         = useState<Worklog[]>([])
@@ -92,6 +99,7 @@ export default function FreelancerWorklogsPage() {
       localStorage.removeItem(LS_START)
       localStorage.removeItem(LS_PROJECT)
       localStorage.removeItem(LS_TASK)
+      syncRunning(null)
     } else {
       setTimerSecs(elapsed)
     }
@@ -179,6 +187,7 @@ export default function FreelancerWorklogsPage() {
       setActiveTaskId(taskId)
       setWorkedTasks(prev => { const n = new Set(prev); n.add(taskId); return n })
       localStorage.setItem(LS_TASK, taskId)
+      syncRunning(taskId)
       return
     }
     const iso = new Date().toISOString()
@@ -195,6 +204,7 @@ export default function FreelancerWorklogsPage() {
     localStorage.setItem(LS_START, iso)
     localStorage.setItem(LS_PROJECT, selectedProject)
     localStorage.setItem(LS_TASK, taskId)
+    syncRunning(taskId)
     startInterval(iso)
   }
 
@@ -209,9 +219,11 @@ export default function FreelancerWorklogsPage() {
     localStorage.removeItem(LS_START)
     localStorage.removeItem(LS_PROJECT)
     localStorage.removeItem(LS_TASK)
+    syncRunning(null)
   }
 
   function resetTimer() {
+    if (timerRunning) syncRunning(null)
     clearInterval(timerRef.current!)
     setTimerRunning(false)
     setTimerSecs(0)
@@ -679,6 +691,29 @@ export default function FreelancerWorklogsPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
+              {/* The running session, pinned above saved logs until it is submitted */}
+              {timerRunning && startISO && (
+                <div className="px-5 py-3.5 flex items-center gap-4 border-b border-[var(--input-bg)]"
+                  style={{ background: 'rgb(var(--fg-rgb) / 0.05)' }}>
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-bold text-[11px] font-mono"
+                    style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
+                    {fmtMini(timerSecs)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-sm font-semibold text-primary-ui truncate">
+                        {projects.find(x => x.id === selectedProject)?.title ?? 'Project'}
+                      </p>
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0"
+                        style={{ background: 'rgb(var(--fg-rgb) / 0.12)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
+                        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--fg)' }} /> IN PROGRESS
+                      </span>
+                    </div>
+                    <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{activeTask?.title ?? 'Timer running'}</p>
+                  </div>
+                  <p className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Started {fmtTime(startISO)}</p>
+                </div>
+              )}
               {loading ? (
                 <div className="p-5 space-y-3">
                   {[...Array(5)].map((_, i) => (

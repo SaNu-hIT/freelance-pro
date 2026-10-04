@@ -51,4 +51,15 @@ export class ProjectTask {
 
   @Column({ type: 'timestamp', nullable: true })
   completedAt: Date | null;
+
+  // Set while a freelancer's worklog timer is running on this task
+  @Column({ type: 'timestamp', nullable: true })
+  startedAt: Date | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  startedById: string | null;
+
+  @ManyToOne(() => FreelancerProfile, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'startedById' })
+  startedBy: FreelancerProfile | null;
 }

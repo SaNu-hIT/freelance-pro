@@ -9,6 +9,7 @@ import { DashboardStats, Project, Worklog } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import { useCurrencySymbol } from '@/lib/store'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import { RunningTasks } from '@/components/ui/RunningTasks'
 
 interface MetricCardProps {
   label: string
@@ -102,6 +103,11 @@ export default function AdminDashboardPage() {
         <MetricCard label="PENDING APPROVAL" value={stats?.pendingApprovals ?? 0} loading={loading} />
         <MetricCard label="TOTAL FREELANCERS" value={stats?.totalFreelancers ?? 0} note={`+${stats?.newFreelancersLast30Days ?? 0} in last 30 days`} loading={loading} />
         <MetricCard label="ACTIVE FREELANCERS" value={stats?.activeFreelancers ?? 0} loading={loading} />
+      </div>
+
+      {/* Live worklog timers */}
+      <div className="mb-8">
+        <RunningTasks showWho linkFor={t => `/admin/projects/${t.projectId}`} emptyText="No one is timing a task right now." />
       </div>
 
       {/* Middle Row */}

@@ -83,6 +83,10 @@ export const tasksApi = {
   create: (data: { projectId: string; title: string; order?: number; sprintId?: string; assignedFreelancerId?: string }) => api.post('/tasks', data),
   update: (id: string, data: { title?: string; completed?: boolean; order?: number; sprintId?: string | null; assignedFreelancerId?: string | null }) => api.patch(`/tasks/${id}`, data),
   delete: (id: string) => api.delete(`/tasks/${id}`),
+  // Worklog timer: mark a task in progress, stop it, and list what is running now
+  start: (id: string) => api.post(`/tasks/${id}/start`),
+  stop: () => api.post('/tasks/stop'),
+  running: () => api.get('/tasks/running'),
 }
 
 export const dashboardApi = {

@@ -11,6 +11,7 @@ import {
   Request,
   BadRequestException,
   ForbiddenException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -32,6 +33,29 @@ export class TasksController {
     if (!projectId) throw new BadRequestException('projectId is required');
     await this.projectsService.assertAccess(req.user, projectId);
     return this.tasksService.findByProject(projectId);
+  }
+
+  @Get('running')
+  @UseGuards(RolesGuard)
+  @Roles('admin', 'freelancer')
+  running(@Request() req: any) {
+    return this.tasksService.running(req.user);
+  }
+
+  // Worklog timer: the freelancer on the project starts a task, and stops whatever they were timing
+  @Post('stop')
+  @UseGuards(RolesGuard)
+  @Roles('freelancer')
+  stop(@Request() req: any) {
+    return this.tasksService.stop(req.user.id);
+  }
+
+  @Post(':id/start')
+  @UseGuards(RolesGuard)
+  @Roles('freelancer')
+  async start(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+    if (!(await this.tasksService.isProjectMember(id, req.user.id))) throw new ForbiddenException('You are not on this project');
+    return this.tasksService.start(id, req.user.id);
   }
 
   @Post()

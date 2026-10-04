@@ -9,7 +9,7 @@ import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import {
   CheckCircle, X, Clock, Calendar, Globe, Zap,
-  Shield, AlertTriangle, CheckSquare, Lock,
+  Shield, AlertTriangle, CheckSquare, Square, Lock,
 } from 'lucide-react'
 
 const EMPTY_PROFILE = {
@@ -183,6 +183,13 @@ export default function FreelancerProfilePage() {
     return acc + hrs
   }, 0)
 
+  const setupSteps = [
+    { label: 'Write a bio', hint: 'At least 80 characters on what you build and for whom.', done: profile.bio.trim().length >= 80 },
+    { label: 'Add 3 or more skills', hint: 'Languages, frameworks and tools you use day to day.', done: profile.skills.length >= 3 },
+    { label: 'Set your experience', hint: 'Years of paid work in your main skill.', done: profile.experience > 0 },
+    { label: 'Set your hourly rate', hint: 'Used to match you with project budgets.', done: profile.hourlyRate > 0 },
+  ]
+
   /* ── approval badge ── */
   const approvalBg    = approvalStatus === 'approved'
     ? { bg: 'rgb(var(--fg-rgb) / 0.06)', border: 'rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)', icon: <CheckSquare size={18} /> }
@@ -235,6 +242,34 @@ export default function FreelancerProfilePage() {
             </div>
           )}
         </div>
+
+        {/* ── Setup checklist: what reviewers look for ── */}
+        {profileId && approvalStatus !== 'approved' && (
+          <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Get approved faster</p>
+            <p className="text-xs mt-0.5 mb-4" style={{ color: 'var(--text-muted)' }}>
+              Reviewers check these first. Fill them in below and press Save Profile.
+            </p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {setupSteps.map(step => (
+                <li key={step.label} className="flex items-start gap-2.5 rounded-xl p-3"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                  <span className="shrink-0 mt-0.5" style={{ color: step.done ? 'var(--fg)' : 'var(--text-muted)' }}>
+                    {step.done ? <CheckSquare size={15} /> : <Square size={15} />}
+                  </span>
+                  <div>
+                    <p className={`text-sm font-semibold ${step.done ? 'line-through' : ''}`}
+                      style={{ color: step.done ? 'var(--text-muted)' : 'var(--text-primary)' }}>{step.label}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{step.hint}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
+              {setupSteps.filter(s => s.done).length} of {setupSteps.length} done. You can set your availability once approved.
+            </p>
+          </div>
+        )}
 
         {/* ── Profile + Edit ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
