@@ -42,6 +42,13 @@ export class TasksController {
     return this.tasksService.running(req.user);
   }
 
+  @Get('in-progress')
+  @UseGuards(RolesGuard)
+  @Roles('admin', 'freelancer')
+  inProgress(@Request() req: any) {
+    return this.tasksService.inProgress(req.user);
+  }
+
   // Worklog timer: the freelancer on the project starts a task, and stops whatever they were timing
   @Post('stop')
   @UseGuards(RolesGuard)
@@ -75,10 +82,13 @@ export class TasksController {
     if (user.role === 'admin') {
       return this.tasksService.update(id, body);
     }
-    // Freelancers on the project may only tick tasks done/undone
+    // Freelancers on the project may only move tasks between to-do, in progress and done
     if (user.role === 'freelancer' && (await this.tasksService.isProjectMember(id, user.id))) {
-      if (typeof body.completed !== 'boolean') throw new BadRequestException('Only completed can be changed');
-      return this.tasksService.update(id, { completed: body.completed });
+      const { completed, inProgress } = body;
+      if (typeof completed !== 'boolean' && typeof inProgress !== 'boolean') {
+        throw new BadRequestException('Only completed or inProgress can be changed');
+      }
+      return this.tasksService.update(id, { completed, inProgress });
     }
     throw new ForbiddenException('Access denied');
   }

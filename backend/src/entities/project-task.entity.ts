@@ -52,6 +52,10 @@ export class ProjectTask {
   @Column({ type: 'timestamp', nullable: true })
   completedAt: Date | null;
 
+  // When the task was marked in progress; stays set until it is done or moved back to to-do
+  @Column({ type: 'timestamp', nullable: true })
+  inProgressAt: Date | null;
+
   // Set while a freelancer's worklog timer is running on this task
   @Column({ type: 'timestamp', nullable: true })
   startedAt: Date | null;

@@ -33,6 +33,10 @@ export class UpdateTaskDto {
   completed?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  inProgress?: boolean;
+
+  @IsOptional()
   @IsInt()
   order?: number;
 

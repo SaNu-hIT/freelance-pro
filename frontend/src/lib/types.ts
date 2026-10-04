@@ -112,6 +112,8 @@ export interface ProjectTask {
   order: number
   completedAt: string | null
   createdAt: string
+  // Set when marked in progress; stays until done or moved back to to-do
+  inProgressAt?: string | null
   // Set while a freelancer's worklog timer runs on this task
   startedAt?: string | null
   startedById?: string | null

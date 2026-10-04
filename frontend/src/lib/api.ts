@@ -48,6 +48,8 @@ export const projectsApi = {
 export const worklogsApi = {
   getAll: (params?: Record<string, unknown>) => api.get('/worklogs', { params }),
   create: (data: Record<string, unknown>) => api.post('/worklogs', data),
+  // Hours in total, since weekStart (YYYY-MM-DD) and per project; scoped to the freelancer for freelancers
+  summary: (weekStart: string) => api.get('/worklogs/summary', { params: { weekStart } }),
 }
 
 export const freelancersApi = {
@@ -81,12 +83,13 @@ export const sprintsApi = {
 export const tasksApi = {
   getByProject: (projectId: string) => api.get('/tasks', { params: { projectId } }),
   create: (data: { projectId: string; title: string; order?: number; sprintId?: string; assignedFreelancerId?: string }) => api.post('/tasks', data),
-  update: (id: string, data: { title?: string; completed?: boolean; order?: number; sprintId?: string | null; assignedFreelancerId?: string | null }) => api.patch(`/tasks/${id}`, data),
+  update: (id: string, data: { title?: string; completed?: boolean; inProgress?: boolean; order?: number; sprintId?: string | null; assignedFreelancerId?: string | null }) => api.patch(`/tasks/${id}`, data),
   delete: (id: string) => api.delete(`/tasks/${id}`),
   // Worklog timer: mark a task in progress, stop it, and list what is running now
   start: (id: string) => api.post(`/tasks/${id}/start`),
   stop: () => api.post('/tasks/stop'),
   running: () => api.get('/tasks/running'),
+  inProgress: () => api.get('/tasks/in-progress'),
 }
 
 export const dashboardApi = {

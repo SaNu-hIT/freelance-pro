@@ -9,7 +9,8 @@ import { DashboardStats, Project, Worklog } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import { useCurrencySymbol } from '@/lib/store'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { RunningTasks } from '@/components/ui/RunningTasks'
+import { InProgressTasks } from '@/components/ui/InProgressTasks'
+import { HoursSummary } from '@/components/ui/HoursSummary'
 
 interface MetricCardProps {
   label: string
@@ -105,9 +106,10 @@ export default function AdminDashboardPage() {
         <MetricCard label="ACTIVE FREELANCERS" value={stats?.activeFreelancers ?? 0} loading={loading} />
       </div>
 
-      {/* Live worklog timers */}
-      <div className="mb-8">
-        <RunningTasks showWho linkFor={t => `/admin/projects/${t.projectId}`} emptyText="No one is timing a task right now." />
+      {/* Work in progress and hours */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <InProgressTasks showWho linkFor={t => `/admin/projects/${t.projectId}`} emptyText="No tasks in progress." />
+        <HoursSummary showFreelancers linkFor={id => `/admin/projects/${id}`} />
       </div>
 
       {/* Middle Row */}

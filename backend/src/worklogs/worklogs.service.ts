@@ -16,6 +16,12 @@ export interface WorklogQuery {
   page?: number;
 }
 
+export interface HoursSummary {
+  totalHours: number;
+  weekHours: number;
+  byProject: { projectId: string; title: string; hours: number; weekHours: number; freelancers: number }[];
+}
+
 @Injectable()
 export class WorklogsService {
   constructor(
@@ -46,6 +52,38 @@ export class WorklogsService {
 
     const [data, total] = await qb.getManyAndCount();
     return { data, total };
+  }
+
+  // Logged hours in total, since weekStart, and per project; freelancerUserId limits it to one freelancer
+  async summary(weekStart: string, freelancerUserId?: string): Promise<HoursSummary> {
+    const qb = this.worklogsRepository
+      .createQueryBuilder('worklog')
+      .innerJoin('worklog.project', 'project')
+      .innerJoin('worklog.freelancer', 'freelancer')
+      .select('project.id', 'projectId')
+      .addSelect('project.title', 'title')
+      .addSelect('COALESCE(SUM(worklog.hoursWorked), 0)', 'hours')
+      .addSelect('COALESCE(SUM(CASE WHEN worklog.date >= :weekStart THEN worklog.hoursWorked ELSE 0 END), 0)', 'weekHours')
+      .addSelect('COUNT(DISTINCT worklog.freelancerId)', 'freelancers')
+      .setParameter('weekStart', weekStart)
+      .groupBy('project.id')
+      .addGroupBy('project.title')
+      .orderBy('hours', 'DESC');
+    if (freelancerUserId) qb.where('freelancer.userId = :freelancerUserId', { freelancerUserId });
+
+    const rows = await qb.getRawMany();
+    const byProject = rows.map((r) => ({
+      projectId: r.projectId as string,
+      title: r.title as string,
+      hours: parseFloat(r.hours),
+      weekHours: parseFloat(r.weekHours),
+      freelancers: parseInt(r.freelancers, 10),
+    }));
+    return {
+      totalHours: byProject.reduce((s, p) => s + p.hours, 0),
+      weekHours: byProject.reduce((s, p) => s + p.weekHours, 0),
+      byProject,
+    };
   }
 
   async findOne(id: string): Promise<Worklog> {

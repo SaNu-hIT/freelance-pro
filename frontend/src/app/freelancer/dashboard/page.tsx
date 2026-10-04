@@ -12,8 +12,9 @@ import { useFreelancerStore } from '@/lib/freelancerStore'
 import { freelancersApi } from '@/lib/api'
 import { localDate, apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { RunningTasks } from '@/components/ui/RunningTasks'
-import { InProgressChip, isTaskRunning } from '@/components/ui/TaskTimer'
+import { InProgressTasks } from '@/components/ui/InProgressTasks'
+import { HoursSummary } from '@/components/ui/HoursSummary'
+import { InProgressChip } from '@/components/ui/TaskTimer'
 
 function isOverdue(deadline: string) {
   return new Date(deadline) < new Date()
@@ -115,6 +116,22 @@ export default function FreelancerDashboardPage() {
   const pendingEarnings = payments
     .filter(p => p.status === 'pending' || p.status === 'partial')
     .reduce((s, p) => s + Number(p.netAmount), 0)
+
+  const [inProgressKey, setInProgressKey] = useState(0)
+  const [savingTask, setSavingTask] = useState<string | null>(null)
+
+  async function toggleInProgress(task: ProjectTask) {
+    setSavingTask(task.id)
+    try {
+      const res = await tasksApi.update(task.id, { inProgress: !task.inProgressAt })
+      setTasks(ts => ts.map(t => (t.id === task.id ? { ...t, ...res.data } : t)))
+      setInProgressKey(k => k + 1)
+    } catch (err) {
+      setError(apiError(err, 'Could not update the task.'))
+    } finally {
+      setSavingTask(null)
+    }
+  }
 
   // Open tasks first
   const myTasks = [...tasks].sort((a, b) => Number(a.completed) - Number(b.completed))
@@ -232,7 +249,10 @@ export default function FreelancerDashboardPage() {
           )}
         </div>
 
-        <RunningTasks linkFor={() => '/freelancer/worklogs'} emptyText="No timer running. Start one from Worklogs." />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <InProgressTasks key={inProgressKey} linkFor={() => '/freelancer/worklogs'} emptyText="Nothing in progress. Mark a task below or start a timer from Worklogs." />
+          <HoursSummary />
+        </div>
 
         <div className="grid grid-cols-2 gap-6">
           {/* Today's Tasks */}
@@ -261,7 +281,7 @@ export default function FreelancerDashboardPage() {
                           <p className={`text-sm ${task.completed ? 'line-through text-[var(--text-muted)]' : 'text-primary-ui'}`}>
                             {task.title}
                           </p>
-                          {isTaskRunning(task) && <div className="mt-1"><InProgressChip task={task} /></div>}
+                          <div className="mt-1 empty:hidden"><InProgressChip task={task} /></div>
                           {proj && (
                             <p className={`text-mono-label text-[10px] mt-0.5 ${overdue ? 'text-[var(--fg)]' : 'text-[var(--text-muted)]'}`}>
                               {overdue && <AlertTriangle size={10} className="inline mr-1" />}
@@ -269,6 +289,13 @@ export default function FreelancerDashboardPage() {
                             </p>
                           )}
                         </div>
+                        {!task.completed && (
+                          <button type="button" onClick={() => toggleInProgress(task)} disabled={savingTask === task.id}
+                            className="text-mono-label text-[10px] px-2 py-1 rounded shrink-0 border border-[var(--input-bg)] hover:border-[var(--fg)] transition-colors disabled:opacity-50"
+                            title={task.inProgressAt ? 'Move back to to-do' : 'Mark as in progress'}>
+                            {task.inProgressAt ? 'TO-DO' : 'START'}
+                          </button>
+                        )}
                       </li>
                     )
                   })}

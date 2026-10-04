@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -41,6 +42,15 @@ export class WorklogsController {
     }
 
     return this.worklogsService.findAll(filters);
+  }
+
+  // weekStart is the viewer's local week start (YYYY-MM-DD) so "this week" matches their calendar
+  @Get('summary')
+  @UseGuards(RolesGuard)
+  @Roles('admin', 'freelancer')
+  summary(@Request() req: any, @Query('weekStart') weekStart?: string) {
+    if (!weekStart || !/^\d{4}-\d{2}-\d{2}$/.test(weekStart)) throw new BadRequestException('weekStart must be YYYY-MM-DD');
+    return this.worklogsService.summary(weekStart, req.user.role === 'freelancer' ? req.user.id : undefined);
   }
 
   @Get(':id')

@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { IsNull, MoreThan, Not, Repository } from 'typeorm';
 import { ProjectTask } from '../entities/project-task.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
 
@@ -40,16 +40,24 @@ export class TasksService {
 
   async update(
     id: string,
-    data: Partial<{ title: string; completed: boolean; order: number; sprintId: string | null; assignedFreelancerId: string | null }>,
+    { inProgress, ...data }: Partial<{ title: string; completed: boolean; inProgress: boolean; order: number; sprintId: string | null; assignedFreelancerId: string | null }>,
   ): Promise<ProjectTask> {
     const task = await this.tasksRepo.findOne({ where: { id } });
     if (!task) throw new NotFoundException(`Task ${id} not found`);
     Object.assign(task, data);
+    if (inProgress === true) {
+      task.inProgressAt ??= new Date();
+      task.completed = false;
+      task.completedAt = null;
+    } else if (inProgress === false) {
+      task.inProgressAt = null;
+    }
     if (data.completed !== undefined) {
       task.completedAt = data.completed ? new Date() : null;
     }
     // A finished task is no longer being worked on
     if (data.completed) {
+      task.inProgressAt = null;
       task.startedAt = null;
       task.startedById = null;
     }
@@ -71,6 +79,7 @@ export class TasksService {
     await this.tasksRepo.update({ startedById: profile.id }, { startedAt: null, startedById: null });
     task.startedAt = new Date();
     task.startedById = profile.id;
+    task.inProgressAt ??= task.startedAt;
     return this.tasksRepo.save(task);
   }
 
@@ -88,6 +97,21 @@ export class TasksService {
       where,
       relations: { project: true, startedBy: { user: true } },
       order: { startedAt: 'DESC' },
+    });
+  }
+
+  // Open tasks marked in progress: all of them for admins; for a freelancer, ones assigned to or started by them
+  async inProgress(user: { id: string; role: string }): Promise<ProjectTask[]> {
+    const base = { inProgressAt: Not(IsNull()), completed: false };
+    let where: Record<string, unknown> | Record<string, unknown>[] = base;
+    if (user.role !== 'admin') {
+      const profileId = (await this.profileFor(user.id)).id;
+      where = [{ ...base, assignedFreelancerId: profileId }, { ...base, startedById: profileId }];
+    }
+    return this.tasksRepo.find({
+      where,
+      relations: { project: true, assignedFreelancer: { user: true }, startedBy: { user: true } },
+      order: { inProgressAt: 'DESC' },
     });
   }
 

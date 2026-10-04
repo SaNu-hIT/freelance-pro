@@ -8,7 +8,7 @@ import { sprintsApi, tasksApi } from '@/lib/api'
 import { ProjectSprint, ProjectTask } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
-import { InProgressChip, isTaskRunning } from '@/components/ui/TaskTimer'
+import { InProgressChip } from '@/components/ui/TaskTimer'
 
 type Member = { id: string; name: string }
 const BACKLOG = '__backlog'
@@ -395,7 +395,7 @@ function TaskItem({ task, team, sprints, onSave, onDelete }: {
         </button>
       )}
 
-      {isTaskRunning(task) && <InProgressChip task={task} />}
+      <InProgressChip task={task} />
 
       <select className="input-field py-1 text-xs w-32 shrink-0" aria-label={`Assignee for ${task.title}`}
         value={task.assignedFreelancerId ?? ''}
