@@ -11,6 +11,9 @@ import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { NewFreelancerForm } from '@/components/admin/FreelancerForms'
+import { useViewMode } from '@/lib/useViewMode'
+
+const VIEW_MODES = ['grid', 'list'] as const
 
 const STATUS_COLORS = {
   active: { bg: 'rgb(var(--fg-rgb) / 0.1)', border: 'rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' },
@@ -29,7 +32,7 @@ export default function AdminFreelancersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useViewMode('admin-freelancers-view', VIEW_MODES, 'grid')
   const [error, setError] = useState('')
   const [adding, setAdding] = useState(false)
 

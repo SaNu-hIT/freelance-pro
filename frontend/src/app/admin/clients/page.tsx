@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   Search, Building2, Mail, Phone, FolderKanban,
-  Eye, X, Calendar, MoreHorizontal, UserPlus, Pencil,
+  Eye, X, Calendar, MoreHorizontal, UserPlus, Pencil, LayoutGrid, List,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { usersApi } from '@/lib/api'
@@ -11,6 +11,7 @@ import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import NewClientForm from '@/components/admin/NewClientForm'
 import { DeleteUserButton, EditAccountForm, ResetPasswordForm } from '@/components/admin/EditAccountForm'
+import { useViewMode } from '@/lib/useViewMode'
 
 interface ClientUser {
   id: string
@@ -30,6 +31,8 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
+const VIEW_MODES = ['list', 'grid'] as const
+
 const AVATAR_COLORS = ['var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)', 'var(--fg)']
 
 export default function AdminClientsPage() {
@@ -40,6 +43,8 @@ export default function AdminClientsPage() {
   const [error, setError] = useState('')
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [viewMode, setViewMode] = useViewMode('admin-clients-view', VIEW_MODES, 'list')
+  const openDetail = (c: ClientUser) => { setDetail(c); setEditing(false) }
 
   useEffect(() => {
     const load = async () => {
@@ -95,9 +100,9 @@ export default function AdminClientsPage() {
 
         {error && <ErrorBanner title="Clients unavailable" message={error} onClose={() => setError('')} />}
 
-        {/* Search */}
-        <div className="glass-card rounded-xl p-4">
-          <div className="relative">
+        {/* Search + view toggle */}
+        <div className="glass-card rounded-xl p-4 flex items-center gap-3">
+          <div className="relative flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
             <input
               className="input-field pl-9 py-2 text-sm"
@@ -106,9 +111,55 @@ export default function AdminClientsPage() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
+          <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+            {([['list', List, 'List view'], ['grid', LayoutGrid, 'Grid view']] as const).map(([mode, Icon, title]) => (
+              <button key={mode} onClick={() => setViewMode(mode)} title={title} aria-label={title} aria-pressed={viewMode === mode}
+                className="p-1.5 rounded transition-all"
+                style={{ background: viewMode === mode ? 'rgb(var(--fg-rgb) / 0.15)' : 'transparent', color: viewMode === mode ? 'var(--fg)' : 'var(--text-muted)' }}>
+                <Icon size={14} />
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* Grid */}
+        {viewMode === 'grid' && !loading && filtered.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((c, i) => {
+              const color = AVATAR_COLORS[i % AVATAR_COLORS.length]
+              return (
+                <button key={c.id} type="button" onClick={() => openDetail(c)}
+                  className="glass-card rounded-xl p-5 flex flex-col gap-4 text-left transition-all hover:border-[var(--fg)]">
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                      style={{ background: `color-mix(in srgb, ${color} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 21%, transparent)`, color }}>
+                      {getInitials(c.name)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-primary-ui truncate">{c.name}</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{c.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <Building2 size={12} style={{ color: 'var(--text-muted)' }} /> {c.company || '—'}
+                  </div>
+                  <div className="flex items-center gap-4 pt-2 w-full text-xs border-t border-[var(--input-bg)]">
+                    <span className="flex items-center gap-1.5 font-semibold" style={{ color: 'var(--fg)' }}>
+                      <FolderKanban size={12} /> {c.projectCount ?? 0} projects
+                    </span>
+                    <span className="flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                      <Calendar size={11} /> {fmtDate(c.createdAt)}
+                    </span>
+                    <span className="ml-auto" style={{ color: 'var(--fg)' }}>View →</span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {/* Table */}
+        {(viewMode === 'list' || loading || filtered.length === 0) && (
         <div className="glass-card rounded-xl overflow-hidden flex-1 flex flex-col">
           <div className="grid text-xs font-semibold px-5 py-3 border-b border-[var(--input-bg)]"
             style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
@@ -138,8 +189,8 @@ export default function AdminClientsPage() {
             ) : filtered.map((c, i) => {
               const color = AVATAR_COLORS[i % AVATAR_COLORS.length]
               return (
-                <div key={c.id}
-                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group"
+                <div key={c.id} onClick={() => openDetail(c)}
+                  className="px-5 py-3.5 grid items-center gap-4 hover:bg-[var(--row-hover-bg)] transition-colors group cursor-pointer"
                   style={{ gridTemplateColumns: '2.5fr 2fr 1.5fr 1fr 1fr 40px' }}>
                   {/* Client */}
                   <div className="flex items-center gap-3">
@@ -173,8 +224,9 @@ export default function AdminClientsPage() {
                   </div>
                   {/* Actions */}
                   <button
-                    onClick={() => { setDetail(c); setEditing(false) }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+                    onClick={e => { e.stopPropagation(); openDetail(c) }}
+                    aria-label={`Open ${c.name}`}
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1.5 rounded-lg"
                     style={{ color: 'var(--text-muted)' }}>
                     <MoreHorizontal size={14} />
                   </button>
@@ -183,6 +235,7 @@ export default function AdminClientsPage() {
             })}
           </div>
         </div>
+        )}
       </div>
 
       {/* Add client */}
