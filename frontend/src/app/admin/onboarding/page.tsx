@@ -11,6 +11,8 @@ import {
   RotateCcw,
   ArrowRight,
   User,
+  X,
+  Check,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { freelancersApi } from '@/lib/api'
@@ -107,6 +109,13 @@ const PROFESSIONAL_CHECKS: VerifItem[] = [
 
 const PIPELINE_STAGES: OnboardingStage[] = ['applied', 'reviewing', 'assessment', 'approved']
 
+// What the admin should do at each open stage
+const NEXT_STEP: Partial<Record<OnboardingStage, string>> = {
+  applied: 'New application. Start the review when you are ready to look at it.',
+  reviewing: 'Check the profile and portfolio, then send a technical assessment or approve directly.',
+  assessment: 'Waiting on the assessment. Approve once it is passed.',
+}
+
 // ── Availability panel (read-only for admin) ──────────────────────────────────
 
 const DAY_LABELS: Record<string, string> = {
@@ -198,6 +207,7 @@ export default function OnboardingPipelinePage() {
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
+  const [notesSaved, setNotesSaved] = useState(false)
 
   // ── Data loading ──────────────────────────────────────────────────────────
 
@@ -225,6 +235,7 @@ export default function OnboardingPipelinePage() {
       setRejectReason('')
       setActionSuccess('')
       setActionError('')
+      setNotesSaved(false)
     }
   }, [selected?.id])
 
@@ -302,6 +313,8 @@ export default function OnboardingPipelinePage() {
     try {
       const res = await freelancersApi.update(selected.id, { adminNotes })
       applyUpdate(res.data)
+      setNotesSaved(true)
+      setTimeout(() => setNotesSaved(false), 2500)
     } catch (err) {
       // Keep the typed text in the box so it can be saved again
       setActionError(apiError(err, 'Admin notes were not saved'))
@@ -370,37 +383,6 @@ export default function OnboardingPipelinePage() {
           </p>
         </div>
 
-        {/* Stat chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 28 }}>
-          {([
-            { label: 'Total',              value: counts.all,        color: 'var(--text-muted)' },
-            { label: 'Applied (new)',       value: counts.applied,    color: 'var(--fg)' },
-            { label: 'Under Review',        value: counts.reviewing,  color: 'var(--fg)' },
-            { label: 'Assessment',          value: counts.assessment, color: 'var(--fg)' },
-            { label: 'Approved this month', value: counts.approved,   color: 'var(--fg)' },
-            { label: 'Rejected',            value: counts.rejected,   color: 'var(--fg)' },
-          ] as { label: string; value: number; color: string }[]).map(chip => (
-            <div
-              key={chip.label}
-              style={{
-                background: 'var(--input-bg)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                padding: '8px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <span style={{ fontSize: 20, fontWeight: 700, color: chip.color, fontFamily: 'var(--font-mono)' }}>
-                {chip.value}
-              </span>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                {chip.label}
-              </span>
-            </div>
-          ))}
-        </div>
 
         {/* Stage filter tabs */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
@@ -412,6 +394,7 @@ export default function OnboardingPipelinePage() {
               <button
                 key={tab}
                 onClick={() => setStageFilter(tab)}
+                title={tab === 'approved' ? 'Approved this month' : undefined}
                 style={{
                   background: active ? `color-mix(in srgb, ${col} 13%, transparent)` : 'var(--input-bg)',
                   border: `1px solid ${active ? `color-mix(in srgb, ${col} 53%, transparent)` : 'var(--input-bg)'}`,
@@ -459,24 +442,20 @@ export default function OnboardingPipelinePage() {
           </div>
         )}
 
-        {/* Two-panel layout */}
+        {/* Two-panel layout: the page scrolls, the detail panel stays in view */}
         {!loading && !loadError && (
-          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+          <div
+            className="onb-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: selected ? 'minmax(300px, 2fr) 3fr' : '1fr',
+              gap: 16,
+              alignItems: 'start',
+            }}
+          >
 
             {/* LEFT: Applicant list */}
-            <div
-              style={{
-                width: selected ? '40%' : '100%',
-                flexShrink: 0,
-                transition: 'width 0.2s',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
-                maxHeight: 'calc(100vh - 260px)',
-                overflowY: 'auto',
-                paddingRight: 4,
-              }}
-            >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
               {filtered.length === 0 && (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '48px 0', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
                   No applicants in this stage
@@ -569,201 +548,95 @@ export default function OnboardingPipelinePage() {
                 )
               })}
             </div>
-
-            {/* RIGHT: Detail drawer */}
-            {selected && (
+            {/* RIGHT: Detail panel */}
+            {selected && (() => {
+              const stage = selected.onboardingStage ?? 'applied'
+              const checks = PROFESSIONAL_CHECKS.filter(item => item.tracks.includes(selected.track ?? 'professional'))
+              const doneCount = checks.filter(item => (selected.verifications ?? {})[item.key]).length
+              const sectionTitle: React.CSSProperties = { fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 12px' }
+              const fieldLabel: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }
+              return (
               <div
+                className="onb-panel"
                 style={{
-                  flex: 1,
-                  background: 'var(--row-hover-bg)',
+                  position: 'sticky',
+                  top: 0,
+                  maxHeight: 'calc(100vh - 120px)',
+                  overflowY: 'auto',
+                  background: 'var(--bg-base)',
                   border: '1px solid var(--border)',
                   borderRadius: 12,
-                  padding: '24px',
-                  maxHeight: 'calc(100vh - 260px)',
-                  overflowY: 'auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 24,
+                  minWidth: 0,
                 }}
               >
-                {/* Close */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {/* Header: who this is, pinned while the panel scrolls */}
+                <div style={{
+                  position: 'sticky', top: 0, zIndex: 1,
+                  background: 'var(--bg-base)', borderBottom: '1px solid var(--border)',
+                  padding: '16px 20px', display: 'flex', gap: 14, alignItems: 'center',
+                }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%',
+                    background: avatarColor(selected.id),
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, fontWeight: 700, color: 'var(--bg)', flexShrink: 0,
+                  }}>
+                    {getInitials(selected.user.name)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.user.name}</span>
+                      <TrackBadge track={selected.track} />
+                      <StageBadge stage={stage} />
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {selected.user.email}
+                    </div>
+                  </div>
                   <button
                     onClick={() => setSelected(null)}
+                    aria-label="Close"
+                    title="Close"
                     style={{
                       background: 'none', border: '1px solid var(--border)',
-                      borderRadius: 6, padding: '4px 10px', cursor: 'pointer',
-                      color: 'var(--text-muted)', fontSize: 11,
-                      fontFamily: 'var(--font-mono)',
+                      borderRadius: 6, width: 32, height: 32, cursor: 'pointer',
+                      color: 'var(--text-secondary)', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
                   >
-                    ✕ CLOSE
+                    <X size={16} />
                   </button>
                 </div>
+
+                <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
                 {actionError && (
                   <ErrorBanner message={actionError} onClose={() => setActionError('')} />
                 )}
 
-                {/* ── Section 1: Identity ── */}
+                {/* ── Section 1: Stage and next step ── */}
                 <div>
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
-                    <div style={{
-                      width: 56, height: 56, borderRadius: '50%',
-                      background: avatarColor(selected.id),
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 20, fontWeight: 700, color: 'var(--bg)', flexShrink: 0,
-                    }}>
-                      {getInitials(selected.user.name)}
-                    </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                        <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.user.name}</span>
-                        <TrackBadge track={selected.track} />
-                        <StageBadge stage={selected.onboardingStage ?? 'applied'} />
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {selected.user.email}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Portfolio */}
-                  <div style={{ marginBottom: 10 }}>
-                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                      Portfolio
-                    </span>
-                    <div style={{ marginTop: 4 }}>
-                      {selected.portfolioUrl ? (
-                        <a
-                          href={selected.portfolioUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: 'var(--fg)', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
-                        >
-                          {selected.portfolioUrl}
-                          <ExternalLink size={12} />
-                        </a>
-                      ) : (
-                        <span style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>Not provided</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bio */}
-                  {selected.bio && (
-                    <div style={{ marginBottom: 10 }}>
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                        Bio
-                      </span>
-                      <p style={{ marginTop: 4, fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                        {selected.bio}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Experience + Rate + Skills */}
-                  <div style={{ display: 'flex', gap: 20, marginBottom: 10, flexWrap: 'wrap' }}>
-                    <div>
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Experience</span>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.experience}y</span>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block' }}>Rate</span>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{curr}{selected.hourlyRate}/hr</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {selected.skills.map(skill => (
-                      <span key={skill} style={{
-                        background: 'var(--input-bg)',
-                        border: '1px solid var(--border)',
-                        borderRadius: 5, padding: '3px 9px',
-                        fontSize: 11, color: 'var(--text-muted)',
-                        fontFamily: 'var(--font-mono)',
-                      }}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div style={{ borderTop: '1px solid var(--border)' }} />
-
-                {/* ── Section 2: Verification Checklist ── */}
-                <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
-                    Verification Checklist
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {PROFESSIONAL_CHECKS
-                      .filter(item => item.tracks.includes(selected.track ?? 'professional'))
-                      .map(item => {
-                        const checked = !!(selected.verifications ?? {})[item.key]
-                        const label = item.label
-                        return (
-                          <button
-                            key={item.key}
-                            onClick={() => handleToggleVerification(selected.id, item.key, checked)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 10,
-                              padding: '6px 0',
-                              textAlign: 'left',
-                            }}
-                          >
-                            {checked ? (
-                              <CheckCircle size={18} style={{ color: 'var(--fg)', flexShrink: 0 }} />
-                            ) : (
-                              <Circle size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                            )}
-                            <span style={{
-                              fontSize: 13,
-                              color: checked ? 'var(--text-muted)' : 'var(--track-bg)',
-                              fontFamily: 'var(--font-mono)',
-                              transition: 'color 0.15s',
-                            }}>
-                              {label}
-                            </span>
-                          </button>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div style={{ borderTop: '1px solid var(--border)' }} />
-
-                {/* ── Section 3: Pipeline Stage Actions ── */}
-                <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px' }}>
-                    Pipeline Stage
-                  </h3>
+                  <h3 style={sectionTitle}>Stage</h3>
 
                   {/* Stage progress strip */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 20, overflowX: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 14, overflowX: 'auto' }}>
                     {PIPELINE_STAGES.map((s, idx) => {
-                      const current = selected.onboardingStage ?? 'applied'
-                      const isCurrentStage = s === current
-                      const isPast = PIPELINE_STAGES.indexOf(current) > idx
-                      const col = stageColor(s)
+                      const isCurrentStage = s === stage
+                      const isPast = PIPELINE_STAGES.indexOf(stage) > idx
                       return (
                         <div key={s} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                           <div style={{
                             padding: '5px 12px',
                             borderRadius: 6,
-                            background: isCurrentStage ? `color-mix(in srgb, ${col} 13%, transparent)` : isPast ? 'var(--row-hover-bg)' : 'transparent',
-                            border: `1px solid ${isCurrentStage ? `color-mix(in srgb, ${col} 40%, transparent)` : 'var(--input-bg)'}`,
-                            color: isCurrentStage ? col : isPast ? 'var(--text-muted)' : 'var(--track-bg)',
+                            background: isCurrentStage ? 'var(--fg)' : 'transparent',
+                            border: `1px solid ${isCurrentStage ? 'var(--fg)' : 'var(--border)'}`,
+                            color: isCurrentStage ? 'var(--bg)' : isPast ? 'var(--text-secondary)' : 'var(--text-muted)',
                             fontSize: 11,
                             fontFamily: 'var(--font-mono)',
                             fontWeight: isCurrentStage ? 700 : 400,
+                            display: 'flex', alignItems: 'center', gap: 5,
                           }}>
+                            {isPast && <Check size={11} />}
                             {stageLabel(s)}
                           </div>
                           {idx < PIPELINE_STAGES.length - 1 && (
@@ -774,6 +647,11 @@ export default function OnboardingPipelinePage() {
                     })}
                   </div>
 
+                  {NEXT_STEP[stage] && (
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 12px', lineHeight: 1.5 }}>
+                      {NEXT_STEP[stage]}
+                    </p>
+                  )}
                   {/* Action success banner */}
                   {actionSuccess && (
                     <div style={{
@@ -964,23 +842,132 @@ export default function OnboardingPipelinePage() {
                 {/* Divider */}
                 <div style={{ borderTop: '1px solid var(--border)' }} />
 
-                {/* ── Section 3b: Availability ── */}
+                {/* ── Section 2: Verification Checklist ── */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                    <h3 style={sectionTitle}>Verification Checklist</h3>
+                    <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                      {doneCount} of {checks.length} done
+                    </span>
+                  </div>
+                  <div style={{ height: 4, background: 'var(--border)', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${checks.length ? (doneCount / checks.length) * 100 : 0}%`, background: 'var(--fg)', transition: 'width 0.2s' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {checks.map(item => {
+                      const checked = !!(selected.verifications ?? {})[item.key]
+                      return (
+                        <button
+                          key={item.key}
+                          onClick={() => handleToggleVerification(selected.id, item.key, checked)}
+                          aria-pressed={checked}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '7px 0',
+                            textAlign: 'left',
+                          }}
+                        >
+                          {checked ? (
+                            <CheckCircle size={18} style={{ color: 'var(--fg)', flexShrink: 0 }} />
+                          ) : (
+                            <Circle size={18} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                          )}
+                          <span style={{
+                            fontSize: 13,
+                            color: checked ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            fontFamily: 'var(--font-mono)',
+                            transition: 'color 0.15s',
+                          }}>
+                            {item.label}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div style={{ borderTop: '1px solid var(--border)' }} />
+
+                {/* ── Section 3: Profile ── */}
+                <div>
+                  <h3 style={sectionTitle}>Profile</h3>
+                  <div style={{ display: 'flex', gap: 24, marginBottom: 14, flexWrap: 'wrap' }}>
+                    <div>
+                      <span style={fieldLabel}>Experience</span>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.experience}y</span>
+                    </div>
+                    <div>
+                      <span style={fieldLabel}>Rate</span>
+                      <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{curr}{selected.hourlyRate}/hr</span>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={fieldLabel}>Portfolio</span>
+                      {selected.portfolioUrl ? (
+                        <a
+                          href={selected.portfolioUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--fg)', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'underline', wordBreak: 'break-all' }}
+                        >
+                          {selected.portfolioUrl}
+                          <ExternalLink size={12} style={{ flexShrink: 0 }} />
+                        </a>
+                      ) : (
+                        <span style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>Not provided</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {selected.bio && (
+                    <div style={{ marginBottom: 14 }}>
+                      <span style={fieldLabel}>Bio</span>
+                      <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        {selected.bio}
+                      </p>
+                    </div>
+                  )}
+
+                  {selected.skills.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {selected.skills.map(skill => (
+                        <span key={skill} style={{
+                          background: 'var(--input-bg)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 5, padding: '3px 9px',
+                          fontSize: 11, color: 'var(--text-secondary)',
+                          fontFamily: 'var(--font-mono)',
+                        }}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div style={{ borderTop: '1px solid var(--border)' }} />
+
+                {/* ── Section 4: Availability ── */}
                 <AvailabilityPanel key={selected.id} profileId={selected.id} />
 
                 {/* Divider */}
                 <div style={{ borderTop: '1px solid var(--border)' }} />
 
-                {/* ── Section 4: Admin Notes ── */}
+                {/* ── Section 5: Admin Notes ── */}
                 <div>
-                  <h3 style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 10px' }}>
-                    Admin Notes
-                  </h3>
+                  <h3 style={{ ...sectionTitle, margin: '0 0 10px' }}>Admin Notes</h3>
                   <textarea
                     value={adminNotes}
                     onChange={e => setAdminNotes(e.target.value)}
                     onBlur={handleAdminNotesBlur}
                     rows={4}
-                    placeholder="Internal notes about this applicant (auto-saved on focus loss)..."
+                    placeholder="Internal notes about this applicant. Only admins see these."
                     style={{
                       width: '100%',
                       background: 'var(--row-hover-bg)',
@@ -996,21 +983,27 @@ export default function OnboardingPipelinePage() {
                       lineHeight: 1.6,
                     }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'rgb(var(--fg-rgb) / 0.35)' }}
-                    onBlurCapture={e => { e.currentTarget.style.borderColor = 'var(--input-bg)' }}
+                    onBlurCapture={e => { e.currentTarget.style.borderColor = 'var(--border)' }}
                   />
-                  <p style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 6 }}>
-                    AUTO-SAVES ON BLUR
+                  <p style={{ fontSize: 11, color: notesSaved ? 'var(--fg)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 6 }}>
+                    {notesSaved ? '✓ Saved' : 'Saves when you click outside the box'}
                   </p>
                 </div>
 
+                </div>
               </div>
-            )}
+              )
+            })()}
           </div>
         )}
       </div>
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        @media (max-width: 900px) {
+          .onb-grid { grid-template-columns: 1fr !important; }
+          .onb-panel { position: static !important; max-height: none !important; order: -1; }
+        }
       `}</style>
     </DashboardLayout>
   )
