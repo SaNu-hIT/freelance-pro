@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Bell, Sun, Moon } from 'lucide-react'
+import { Bell, Sun, Moon, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 import { UserRole } from '@/lib/types'
 import { Sidebar, navChapter } from './Sidebar'
 import { MorphBlob } from '@/components/ui/MorphBlob'
 import { useTheme } from '@/lib/theme'
+
+const SIDEBAR_KEY = 'fp-sidebar'
 
 const roleRedirects: Record<UserRole, string> = {
   admin: '/admin',
@@ -25,6 +27,22 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
   const pathname = usePathname()
   const { user, isAuthenticated, _hasHydrated } = useAuthStore()
   const { theme, toggleTheme } = useTheme()
+  const [collapsed, setCollapsed] = useState(false)
+
+  // Saved choice wins; otherwise start as an icon rail on tablet widths.
+  useEffect(() => {
+    let saved: string | null = null
+    try { saved = localStorage.getItem(SIDEBAR_KEY) } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCollapsed(saved ? saved === 'collapsed' : window.innerWidth < 1024)
+  }, [])
+
+  const toggleSidebar = () => {
+    setCollapsed(c => {
+      try { localStorage.setItem(SIDEBAR_KEY, c ? 'expanded' : 'collapsed') } catch {}
+      return !c
+    })
+  }
 
   useEffect(() => {
     if (!_hasHydrated) return
@@ -64,11 +82,19 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
       <MorphBlob color="var(--fg)" size={500} top="-100px" left="-100px" />
       <MorphBlob color="var(--surface)" size={400} bottom="-80px" right="-80px" delay="3s" />
 
-      <Sidebar role={user.role} pathname={pathname} />
+      <Sidebar role={user.role} pathname={pathname} collapsed={collapsed} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <header className="glass-card-dark border-b border-theme px-8 py-4 flex items-center justify-between shrink-0">
-          <div />
+          <button
+            onClick={toggleSidebar}
+            className="p-2 transition-colors text-secondary-ui hover:text-primary-ui"
+            title={collapsed ? 'Show menu' : 'Hide menu'}
+            aria-label={collapsed ? 'Show menu' : 'Hide menu'}
+            aria-expanded={!collapsed}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
           <div className="flex items-center gap-4">
             <span className="text-mono-label text-xs tracking-widest text-muted-ui">{dateStr}</span>
 

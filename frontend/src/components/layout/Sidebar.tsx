@@ -153,9 +153,11 @@ export function navChapter(role: UserRole, pathname: string): string | null {
 interface SidebarProps {
   role: UserRole
   pathname: string
+  // icon-only rail
+  collapsed?: boolean
 }
 
-export function Sidebar({ role, pathname }: SidebarProps) {
+export function Sidebar({ role, pathname, collapsed = false }: SidebarProps) {
   const { user, logout } = useAuthStore()
   const unreadForAdmin = useChatStore(s => s.unreadForAdmin)
   const fetchMessages = useChatStore(s => s.fetchMessages)
@@ -169,16 +171,19 @@ export function Sidebar({ role, pathname }: SidebarProps) {
   return (
     <aside
       className="glass-card-dark flex flex-col border-r border-theme h-screen sticky top-0"
-      style={{ width: 240, minWidth: 240 }}
+      style={{ width: collapsed ? 64 : 240, minWidth: collapsed ? 64 : 240, transition: 'width var(--t-hover) var(--ease), min-width var(--t-hover) var(--ease)' }}
     >
-      <Link href="/" className="flex items-center gap-3 px-5 py-6 border-b border-theme transition-opacity hover:opacity-80">
-        <Wordmark className="text-[var(--fg)]" />
+      <Link href="/" aria-label="Blackorwhite home" className={`flex items-center border-b border-theme transition-opacity hover:opacity-80 ${collapsed ? 'justify-center py-6' : 'gap-3 px-5 py-6'}`}>
+        {collapsed
+          ? <span className="text-[var(--fg)] font-extrabold text-sm tracking-tight">B/W</span>
+          : <Wordmark className="text-[var(--fg)]" />}
       </Link>
 
-      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+      <nav className={`flex-1 py-4 overflow-y-auto overflow-x-hidden ${collapsed ? 'px-2' : 'px-3'}`}>
         {navSections.map((group, gi) => (
           <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
-            {group.section && (
+            {collapsed && gi > 0 && <div className="mx-2 mb-3 h-px" style={{ background: 'var(--hair)' }} />}
+            {!collapsed && group.section && (
               <p className="px-3 mb-1 text-[9px] font-bold tracking-[0.2em] uppercase select-none"
                 style={{ color: 'rgb(var(--fg-rgb) / 0.45)', fontFamily: 'var(--font-mono)' }}>
                 {group.section}
@@ -191,9 +196,16 @@ export function Sidebar({ role, pathname }: SidebarProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`nav-item flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all group ${isActive ? 'active' : ''}`}
+                    title={collapsed ? item.label : undefined}
+                    aria-label={collapsed ? item.label : undefined}
+                    className={`nav-item relative flex items-center rounded text-sm transition-all group ${collapsed ? 'justify-center px-0 py-3' : 'gap-3 px-3 py-2.5'} ${isActive ? 'active' : ''}`}
                   >
                     <span className="shrink-0">{item.icon}</span>
+                    {collapsed ? (
+                      item.href === '/admin/chat' && adminChatUnread > 0 && (
+                        <span className="absolute top-1.5 right-2 w-2 h-2 animate-pulse" style={{ background: 'var(--fg)', outline: '2px solid var(--bg)' }} />
+                      )
+                    ) : <>
                     <span className="flex-1 text-xs tracking-wide uppercase" style={{ fontFamily: 'var(--font-mono)' }}>{item.label}</span>
                     {item.href === '/admin/chat' && adminChatUnread > 0 ? (
                       <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse"
@@ -203,6 +215,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
                     ) : isActive ? (
                       <ChevronRight size={12} className="text-[var(--fg)] opacity-70" />
                     ) : null}
+                    </>}
                   </Link>
                 )
               })}
@@ -211,9 +224,9 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="px-4 py-4 border-t border-theme">
+      <div className={`py-4 border-t border-theme ${collapsed ? 'px-2' : 'px-4'}`}>
         {user && (
-          <div className="mb-3 flex items-center gap-3">
+          <div className={`mb-3 flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`} title={collapsed ? user.name : undefined}>
             <div className="w-8 h-8 rounded-full bg-[var(--fg)] flex items-center justify-center text-[var(--bg)] text-xs font-bold uppercase shrink-0">
               {user.profileImage ? (
                 <img src={user.profileImage} alt={user.name} className="w-full h-full rounded-full object-cover" />
@@ -221,20 +234,22 @@ export function Sidebar({ role, pathname }: SidebarProps) {
                 user.name.charAt(0)
               )}
             </div>
-            <div className="overflow-hidden">
+            {!collapsed && <div className="overflow-hidden">
               <p className="text-primary-ui text-xs font-semibold truncate">{user.name}</p>
               <p className="text-xs uppercase tracking-widest truncate" style={{ color: 'rgb(var(--fg-rgb) / 0.65)', fontFamily: 'var(--font-mono)' }}>
                 {user.role}
               </p>
-            </div>
+            </div>}
           </div>
         )}
         <button
           onClick={logout}
-          className="btn-ghost w-full flex items-center justify-center gap-2 text-xs py-2"
+          title={collapsed ? 'Logout' : undefined}
+          aria-label="Logout"
+          className={`btn-ghost w-full flex items-center justify-center gap-2 text-xs py-2 ${collapsed ? 'px-0' : ''}`}
         >
           <LogOut size={14} />
-          <span className="text-mono-label tracking-wider">LOGOUT</span>
+          {!collapsed && <span className="text-mono-label tracking-wider">LOGOUT</span>}
         </button>
       </div>
     </aside>
