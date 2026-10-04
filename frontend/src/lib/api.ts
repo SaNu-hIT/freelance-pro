@@ -173,4 +173,16 @@ export const documentsApi = {
   delete: (id: string) => api.delete(`/documents/${id}`),
 }
 
+export const pagesApi = {
+  list: (projectId: string) => api.get('/pages', { params: { projectId } }),
+  // url is a full address or a path like /about, resolved against the project's live URL
+  create: (data: { projectId: string; url: string; title?: string }) => api.post('/pages', data),
+  update: (id: string, data: { title?: string; archived?: boolean }) => api.patch(`/pages/${id}`, data),
+  delete: (id: string) => api.delete(`/pages/${id}`),
+  // Reads the live site's sitemap and links; can take up to ~40s
+  discover: (projectId: string) => api.post('/pages/discover', { projectId }, { timeout: 60000 }),
+  addNote: (id: string, data: { body: string; visibility?: 'internal' | 'client' }) => api.post(`/pages/${id}/notes`, data),
+  deleteNote: (noteId: string) => api.delete(`/pages/notes/${noteId}`),
+}
+
 export default api
