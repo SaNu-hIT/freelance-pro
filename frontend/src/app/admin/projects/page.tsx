@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState, KeyboardEvent, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Plus, Pencil, Trash2, X, Search, ChevronDown, Eye,
-  CheckSquare, Square, Clock, User, DollarSign,
-  Calendar, ListChecks, Globe, FileSpreadsheet,
-  ExternalLink, Timer, Layers, ChevronRight, ChevronDown as ChevDown, Code2, Users,
+  CheckSquare, Clock, User, DollarSign,
+  Calendar, Globe, FileSpreadsheet,
+  ExternalLink, Timer, Code2, Users,
   Activity, TrendingUp, Mail, Zap, LayoutGrid, List, UserPlus,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -18,6 +18,10 @@ import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import NewClientForm, { FieldError, FieldErrors, invalidStyle } from '@/components/admin/NewClientForm'
+import { useViewMode } from '@/lib/useViewMode'
+import { SprintTaskBoard } from '@/components/admin/SprintTaskBoard'
+
+const VIEW_MODES = ['table', 'grid'] as const
 
 const ALL_STATUSES: ProjectStatus[] = ['new', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed']
 const ALL_PRIORITIES: ProjectPriority[] = ['low', 'medium', 'high', 'critical']
@@ -117,21 +121,12 @@ function AdminProjectsPageInner() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [viewMode, setViewMode] = useViewMode('admin-projects-view', VIEW_MODES, 'table')
 
   // Sprints + Tasks state
   const [sprints, setSprints] = useState<ProjectSprint[]>([])
   const [tasks, setTasks] = useState<ProjectTask[]>([])
   const [tasksLoading, setTasksLoading] = useState(false)
-  const [collapsedSprints, setCollapsedSprints] = useState<Set<string>>(new Set())
-  const [newTaskTitle, setNewTaskTitle] = useState('')
-  const [newTaskSprint, setNewTaskSprint] = useState<string>('')
-  const [newTaskAssignee, setNewTaskAssignee] = useState<string>('')
-  const [addingTask, setAddingTask] = useState(false)
-  const [newSprintName, setNewSprintName] = useState('')
-  const [newSprintStart, setNewSprintStart] = useState('')
-  const [newSprintEnd, setNewSprintEnd] = useState('')
-  const [addingSprint, setAddingSprint] = useState(false)
 
   // Errors: page load, create/edit modal, delete dialog, view drawer (sprints & tasks)
   const [loadError, setLoadError] = useState('')
@@ -192,9 +187,6 @@ function AdminProjectsPageInner() {
   const openView = (p: Project) => {
     setSelectedProject(p)
     setPanelMode('view')
-    setNewTaskTitle('')
-    setNewSprintName('')
-    setNewTaskAssignee('')
     loadProjectData(p.id)
   }
 
@@ -303,92 +295,6 @@ function AdminProjectsPageInner() {
     setDeleteId(null)
   }
 
-  // Task handlers
-  const handleToggleTask = async (task: ProjectTask) => {
-    setDrawerError('')
-    try {
-      const res = await tasksApi.update(task.id, { completed: !task.completed })
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...res.data } : t))
-    } catch (err) {
-      setDrawerError(apiError(err, 'Could not update the task.'))
-    }
-  }
-
-  const handleAddTask = async () => {
-    if (!newTaskTitle.trim() || !selectedProject) return
-    setAddingTask(true)
-    setDrawerError('')
-    try {
-      const res = await tasksApi.create({
-        projectId: selectedProject.id, title: newTaskTitle.trim(), order: tasks.length,
-        sprintId: newTaskSprint || undefined,
-        assignedFreelancerId: newTaskAssignee || undefined,
-      })
-      setTasks(prev => [...prev, res.data])
-      setNewTaskTitle('')
-    } catch (err) {
-      setDrawerError(apiError(err, 'Could not add the task.'))
-    }
-    setAddingTask(false)
-  }
-
-  const handleDeleteTask = async (taskId: string) => {
-    setDrawerError('')
-    try {
-      await tasksApi.delete(taskId)
-      setTasks(prev => prev.filter(t => t.id !== taskId))
-    } catch (err) {
-      setDrawerError(apiError(err, 'Could not delete the task.'))
-    }
-  }
-
-  const handleAddSprint = async () => {
-    if (!newSprintName.trim() || !selectedProject) return
-    setAddingSprint(true)
-    const payload = {
-      projectId: selectedProject.id,
-      name: newSprintName.trim(),
-      order: sprints.length,
-      ...(newSprintStart && { startDate: newSprintStart }),
-      ...(newSprintEnd   && { endDate:   newSprintEnd }),
-    }
-    setDrawerError('')
-    try {
-      const res = await sprintsApi.create(payload)
-      setSprints(prev => [...prev, res.data])
-      setNewSprintName(''); setNewSprintStart(''); setNewSprintEnd('')
-    } catch (err) {
-      setDrawerError(apiError(err, 'Could not add the sprint.'))
-    }
-    setAddingSprint(false)
-  }
-
-  const handleDeleteSprint = async (sprintId: string) => {
-    if (!selectedProject) return
-    setDrawerError('')
-    try {
-      await sprintsApi.delete(sprintId)
-    } catch (err) {
-      setDrawerError(apiError(err, 'Could not delete the sprint.'))
-      return
-    }
-    setSprints(prev => prev.filter(s => s.id !== sprintId))
-    // Reload tasks so the list shows what the server did with the sprint's tasks
-    try {
-      setTasks((await tasksApi.getByProject(selectedProject.id)).data)
-    } catch (err) {
-      setDrawerError(apiError(err, 'Sprint deleted, but the task list could not be reloaded.'))
-    }
-  }
-
-  const toggleSprintCollapse = (sprintId: string) => {
-    setCollapsedSprints(prev => {
-      const next = new Set(prev)
-      if (next.has(sprintId)) next.delete(sprintId); else next.add(sprintId)
-      return next
-    })
-  }
-
   const filtered = projects.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.client?.name?.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'all' || p.status === statusFilter
@@ -396,13 +302,10 @@ function AdminProjectsPageInner() {
     return matchSearch && matchStatus && matchPriority
   })
 
-  // Group tasks by sprint for the view drawer
-  const tasksBySprint = (sprintId: string | null) => tasks.filter(t => t.sprintId === sprintId)
-  const unassignedTasks = tasks.filter(t => !t.sprintId)
-  const completedCount = tasks.filter(t => t.completed).length
-
   // Team members for current view project
   const viewTeam = selectedProject?.teamMembers ?? []
+  const completedCount = tasks.filter(t => t.completed).length
+  const boardTeam = viewTeam.map(m => ({ id: m.id, name: m.user?.name ?? 'Unnamed' }))
 
   return (
     <DashboardLayout allowedRoles={['admin']}>
@@ -460,7 +363,8 @@ function AdminProjectsPageInner() {
               </thead>
               <tbody>
                 {filtered.map(p => (
-                  <tr key={p.id}>
+                  <tr key={p.id} className="cursor-pointer hover:bg-[var(--row-hover-bg)] transition-colors"
+                    onClick={() => router.push(`/admin/projects/${p.id}`)}>
                     <td>
                       <Link href={`/admin/projects/${p.id}`} className="font-semibold text-primary-ui text-sm max-w-[200px] truncate block hover:text-[var(--fg)] transition-colors">{p.title}</Link>
                     </td>
@@ -500,7 +404,7 @@ function AdminProjectsPageInner() {
                         <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>—</span>
                       )}
                     </td>
-                    <td>
+                    <td onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => openView(p)} className="p-1.5 rounded glass-card-dark hover:border-[var(--fg)] transition-colors" title="View details"><Eye size={13} style={{ color: 'var(--fg)' }} /></button>
                         <button onClick={() => openEdit(p)} className="p-1.5 rounded glass-card-dark hover:border-[var(--fg)] transition-colors" title="Edit"><Pencil size={13} style={{ color: 'var(--fg)' }} /></button>
@@ -521,7 +425,7 @@ function AdminProjectsPageInner() {
               key={p.id}
               className="rounded-xl overflow-hidden cursor-pointer group transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--fg)]"
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
-              onClick={() => openView(p)}
+              onClick={() => router.push(`/admin/projects/${p.id}`)}
             >
               <div className="h-0.5" style={{ background: `linear-gradient(to right, ${PRIORITY_COLORS[p.priority]}, transparent)` }} />
               <div className="p-5">
@@ -831,163 +735,15 @@ function AdminProjectsPageInner() {
               {/* RIGHT COLUMN — sprints & tasks */}
               <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-4">
 
-                {/* Header */}
-                <div className="flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2">
-                    <ListChecks size={15} style={{ color: 'var(--fg)' }} />
-                    <span className="text-mono-label font-bold" style={{ fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.15em' }}>SPRINTS & TASKS</span>
-                  </div>
-                  {tasks.length > 0 && (
-                    <span className="text-mono-label px-2.5 py-1 rounded-lg text-xs"
-                      style={{ background: 'rgb(var(--fg-rgb) / 0.08)', border: '1px solid rgb(var(--fg-rgb) / 0.2)', color: 'var(--fg)' }}>
-                      {completedCount} / {tasks.length} done
-                    </span>
-                  )}
-                </div>
-
                 {drawerError && <ErrorBanner message={drawerError} onClose={() => setDrawerError('')} />}
-
-                {/* Sprint list */}
                 {tasksLoading ? (
                   <div className="space-y-3">{[...Array(3)].map((_, i) => (
                     <div key={i} className="animate-pulse h-12 rounded-xl" style={{ background: 'var(--input-bg)' }} />
                   ))}</div>
-                ) : (
-                  <div className="space-y-3">
-                    {sprints.map(sprint => {
-                      const sprintTasks = tasksBySprint(sprint.id)
-                      const sprintDone  = sprintTasks.filter(t => t.completed).length
-                      const isCollapsed = collapsedSprints.has(sprint.id)
-                      const pct = sprintTasks.length ? Math.round((sprintDone / sprintTasks.length) * 100) : 0
-                      return (
-                        <div key={sprint.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                          <div className="flex items-center gap-2 px-4 py-3 cursor-pointer select-none"
-                            style={{ background: 'var(--bg-elevated)' }}
-                            onClick={() => toggleSprintCollapse(sprint.id)}>
-                            <button className="shrink-0 transition-transform duration-150"
-                              style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
-                              <ChevDown size={13} style={{ color: 'var(--text-muted)' }} />
-                            </button>
-                            <Layers size={12} style={{ color: 'var(--fg)' }} />
-                            <span className="flex-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{sprint.name}</span>
-                            {/* mini progress */}
-                            <div className="hidden sm:flex items-center gap-2">
-                              <div className="w-16 rounded-full overflow-hidden" style={{ height: 3, background: 'var(--track-bg)' }}>
-                                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'var(--fg)' }} />
-                              </div>
-                              <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{sprintDone}/{sprintTasks.length}</span>
-                            </div>
-                            {sprint.endDate && (
-                              <span className="text-mono-label ml-3" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                                ends {new Date(sprint.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </span>
-                            )}
-                            <button onClick={e => { e.stopPropagation(); handleDeleteSprint(sprint.id) }}
-                              className="ml-2 p-0.5 rounded transition-colors hover:text-[var(--fg)]"
-                              style={{ color: 'var(--text-muted)' }}>
-                              <X size={11} />
-                            </button>
-                          </div>
-                          {!isCollapsed && (
-                            <div className="px-3 pb-3 pt-1 space-y-1">
-                              {sprintTasks.map(task => (
-                                <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />
-                              ))}
-                              {sprintTasks.length === 0 && (
-                                <p className="text-center py-3 text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>No tasks — add one below</p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-
-                    {/* Backlog */}
-                    {unassignedTasks.length > 0 && (
-                      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                        <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'var(--bg-elevated)' }}>
-                          <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
-                          <span className="flex-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Backlog / Unassigned</span>
-                          <span className="text-mono-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                            {unassignedTasks.filter(t => t.completed).length}/{unassignedTasks.length}
-                          </span>
-                        </div>
-                        <div className="px-3 pb-3 pt-1 space-y-1">
-                          {unassignedTasks.map(task => <TaskRow key={task.id} task={task} teamMembers={viewTeam} onToggle={handleToggleTask} onDelete={handleDeleteTask} />)}
-                        </div>
-                      </div>
-                    )}
-
-                    {tasks.length === 0 && sprints.length === 0 && (
-                      <div className="text-center py-10 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
-                        <ListChecks size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-                        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No sprints yet — create one below</p>
-                      </div>
-                    )}
-                  </div>
+                ) : selectedProject && (
+                  <SprintTaskBoard projectId={selectedProject.id} team={boardTeam}
+                    tasks={tasks} setTasks={setTasks} sprints={sprints} setSprints={setSprints} />
                 )}
-
-                {/* Add task row */}
-                <div className="shrink-0 space-y-2 pt-2 border-t border-theme">
-                  <div className="flex items-center gap-2">
-                    <select value={newTaskSprint} onChange={e => setNewTaskSprint(e.target.value)}
-                      className="input-field py-2 text-xs appearance-none shrink-0" style={{ width: 140 }}>
-                      <option value="">Backlog</option>
-                      {sprints.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                    <select value={newTaskAssignee} onChange={e => setNewTaskAssignee(e.target.value)}
-                      className="input-field py-2 text-xs appearance-none shrink-0" style={{ width: 130 }}>
-                      <option value="">No assignee</option>
-                      {viewTeam.map(m => <option key={m.id} value={m.id}>{m.user?.name?.split(' ')[0]}</option>)}
-                    </select>
-                    <input className="input-field flex-1 py-2 text-sm"
-                      placeholder="Add a task… (Enter)"
-                      value={newTaskTitle}
-                      onChange={e => setNewTaskTitle(e.target.value)}
-                      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddTask() }}
-                      disabled={addingTask} />
-                    <button onClick={handleAddTask} disabled={!newTaskTitle.trim() || addingTask}
-                      className="p-2 rounded transition-colors disabled:opacity-40 shrink-0"
-                      style={{ background: 'rgb(var(--fg-rgb) / 0.15)', border: '1px solid rgb(var(--fg-rgb) / 0.3)', color: 'var(--fg)' }}>
-                      <Plus size={15} />
-                    </button>
-                  </div>
-                  {/* Sprint creation — name + dates */}
-                  <div className="rounded-xl p-3 space-y-2" style={{ background: 'var(--bg-elevated)', border: '1px solid rgb(var(--fg-rgb) / 0.18)' }}>
-                    <p className="text-mono-label" style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>NEW SPRINT</p>
-                    <input className="input-field w-full py-2 text-sm"
-                      placeholder="Sprint name… (e.g. Sprint 4 — Payments)"
-                      value={newSprintName}
-                      onChange={e => setNewSprintName(e.target.value)}
-                      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleAddSprint() }}
-                      disabled={addingSprint}
-                      style={{ borderColor: 'rgb(var(--fg-rgb) / 0.2)' }} />
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <label className="text-mono-label block mb-1" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>START DATE</label>
-                        <input type="date" className="input-field w-full py-1.5 text-xs"
-                          value={newSprintStart}
-                          onChange={e => setNewSprintStart(e.target.value)}
-                          disabled={addingSprint} />
-                      </div>
-                      <div className="flex-1">
-                        <label className="text-mono-label block mb-1" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>END DATE</label>
-                        <input type="date" className="input-field w-full py-1.5 text-xs"
-                          value={newSprintEnd}
-                          min={newSprintStart || undefined}
-                          onChange={e => setNewSprintEnd(e.target.value)}
-                          disabled={addingSprint} />
-                      </div>
-                      <div className="self-end">
-                        <button onClick={handleAddSprint} disabled={!newSprintName.trim() || addingSprint}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-colors disabled:opacity-40"
-                          style={{ background: 'rgb(var(--fg-rgb) / 0.1)', border: '1px solid rgb(var(--fg-rgb) / 0.25)', color: 'var(--fg)' }}>
-                          <Layers size={12} /> Add Sprint
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1281,41 +1037,5 @@ function AdminProjectsPageInner() {
         </div>
       )}
     </DashboardLayout>
-  )
-}
-
-function TaskRow({ task, teamMembers, onToggle, onDelete }: {
-  task: ProjectTask
-  teamMembers: FreelancerProfile[]
-  onToggle: (t: ProjectTask) => void
-  onDelete: (id: string) => void
-}) {
-  const assignee = task.assignedFreelancerId
-    ? (task.assignedFreelancer ?? teamMembers.find(m => m.id === task.assignedFreelancerId))
-    : null
-
-  return (
-    <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg group transition-all"
-      style={{ background: task.completed ? 'rgb(var(--fg-rgb) / 0.03)' : 'transparent', border: `1px solid ${task.completed ? 'rgb(var(--fg-rgb) / 0.12)' : 'transparent'}` }}>
-      <button onClick={() => onToggle(task)} className="shrink-0">
-        {task.completed ? <CheckSquare size={15} style={{ color: 'var(--fg)' }} /> : <Square size={15} style={{ color: 'var(--text-muted)' }} />}
-      </button>
-      <span className="flex-1 text-sm" style={{ color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none' }}>
-        {task.title}
-      </span>
-      {task.completed && task.completedAt && (
-        <span style={{ fontSize: 10, color: 'rgb(var(--fg-rgb) / 0.4)', fontFamily: 'var(--font-mono)' }}>
-          {new Date(task.completedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-          {' '}
-          {new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </span>
-      )}
-      {assignee && (
-        <MemberAvatar name={assignee.user?.name ?? '?'} size={18} />
-      )}
-      <button onClick={() => onDelete(task.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded" style={{ color: 'var(--text-muted)' }}>
-        <X size={11} />
-      </button>
-    </div>
   )
 }
