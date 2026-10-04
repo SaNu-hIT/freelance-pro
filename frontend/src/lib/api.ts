@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { CorrectionPriority, CorrectionStatus, CorrectionViewport } from './types'
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
@@ -169,6 +170,8 @@ export const documentsApi = {
     a.click()
     URL.revokeObjectURL(url)
   },
+  // The file's bytes, for showing an image inline
+  blob: (id: string) => api.get(`/documents/${id}/download`, { responseType: 'blob' }).then(r => r.data as Blob),
   update: (id: string, data: { type?: string; status?: string; description?: string }) => api.patch(`/documents/${id}`, data),
   delete: (id: string) => api.delete(`/documents/${id}`),
 }
@@ -183,6 +186,24 @@ export const pagesApi = {
   discover: (projectId: string) => api.post('/pages/discover', { projectId }, { timeout: 60000 }),
   addNote: (id: string, data: { body: string; visibility?: 'internal' | 'client' }) => api.post(`/pages/${id}/notes`, data),
   deleteNote: (noteId: string) => api.delete(`/pages/notes/${noteId}`),
+}
+
+export const correctionsApi = {
+  list: (projectId: string) => api.get('/corrections', { params: { projectId } }),
+  create: (data: { projectId: string; pageId?: string; title: string; body: string; priority?: CorrectionPriority; viewport?: CorrectionViewport }) =>
+    api.post('/corrections', data),
+  update: (id: string, data: { pageId?: string | null; title?: string; body?: string; priority?: CorrectionPriority; viewport?: CorrectionViewport | null; status?: CorrectionStatus }) =>
+    api.patch(`/corrections/${id}`, data),
+  delete: (id: string) => api.delete(`/corrections/${id}`),
+  // kind 'question' asks the client and waits on their answer
+  comment: (id: string, data: { body: string; kind?: 'comment' | 'question'; visibility?: 'internal' | 'client' }) =>
+    api.post(`/corrections/${id}/comments`, data),
+  deleteComment: (commentId: string) => api.delete(`/corrections/comments/${commentId}`),
+  addScreenshot: (id: string, file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post(`/corrections/${id}/screenshots`, form, { headers: { 'Content-Type': undefined } })
+  },
 }
 
 export default api

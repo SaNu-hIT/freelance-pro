@@ -33,6 +33,9 @@ import { DocumentsModule } from './documents/documents.module';
 import { ProjectPage } from './entities/project-page.entity';
 import { PageNote } from './entities/page-note.entity';
 import { PagesModule } from './pages/pages.module';
+import { Correction } from './entities/correction.entity';
+import { CorrectionComment } from './entities/correction-comment.entity';
+import { CorrectionsModule } from './corrections/corrections.module';
 
 @Module({
   imports: [
@@ -47,7 +50,7 @@ import { PagesModule } from './pages/pages.module';
         username: configService.get<string>('DATABASE_USER', 'postgres'),
         password: configService.get<string>('DATABASE_PASSWORD', 'postgres'),
         database: configService.get<string>('DATABASE_NAME', 'freelance_pro'),
-        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage, ProjectRequest, ProjectDocument, ProjectPage, PageNote],
+        entities: [User, FreelancerProfile, Project, Worklog, Payment, Inquiry, ProjectTask, ProjectSprint, SkillGroup, PlatformSettings, ChatMessage, ProjectRequest, ProjectDocument, ProjectPage, PageNote, Correction, CorrectionComment],
         synchronize: true,
         logging: false,
       }),
@@ -59,6 +62,7 @@ import { PagesModule } from './pages/pages.module';
     ProjectRequestsModule,
     DocumentsModule,
     PagesModule,
+    CorrectionsModule,
     WorklogsModule,
     FreelancersModule,
     PaymentsModule,

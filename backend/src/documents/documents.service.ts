@@ -23,6 +23,7 @@ export class DocumentsService {
       .addSelect(['project.id', 'project.title'])
       .leftJoin('doc.uploadedBy', 'uploadedBy')
       .addSelect(['uploadedBy.id', 'uploadedBy.name', 'uploadedBy.role'])
+      .where('doc.correctionId IS NULL')
       .orderBy('doc.createdAt', 'DESC');
     this.projectsService.scopeToUser(qb, 'project', user);
     if (projectId) qb.andWhere('doc.projectId = :projectId', { projectId });

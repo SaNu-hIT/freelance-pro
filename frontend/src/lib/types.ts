@@ -196,3 +196,39 @@ export interface ProjectPage {
   notes: PageNote[]
   createdAt: string
 }
+
+export type CorrectionStatus = 'open' | 'triaged' | 'needs_info' | 'in_progress' | 'fixed' | 'confirmed' | 'reopened' | 'wontfix'
+export type CorrectionPriority = 'low' | 'normal' | 'high'
+export type CorrectionViewport = 'desktop' | 'mobile' | 'both'
+
+export interface CorrectionComment {
+  id: string
+  correctionId: string
+  authorId: string | null
+  author?: Pick<User, 'id' | 'name' | 'role'> | null
+  kind: 'comment' | 'question' | 'answer' | 'status'
+  body: string
+  visibility: NoteVisibility
+  createdAt: string
+}
+
+export interface Correction {
+  id: string
+  projectId: string
+  number: number
+  pageId: string | null
+  page?: Pick<ProjectPage, 'id' | 'path' | 'url' | 'title'> | null
+  pageUrl: string | null
+  createdById: string | null
+  createdBy?: Pick<User, 'id' | 'name' | 'role'> | null
+  title: string
+  body: string
+  priority: CorrectionPriority
+  viewport: CorrectionViewport | null
+  status: CorrectionStatus
+  reopenCount: number
+  comments: CorrectionComment[]
+  screenshots: Pick<ProjectDocument, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt'>[]
+  createdAt: string
+  updatedAt: string
+}

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, KeyboardEvent } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import ErrorBanner from '@/components/ui/ErrorBanner'
+import { CorrectionsPanel } from '@/components/corrections/CorrectionsPanel'
 import { projectsApi, sprintsApi, tasksApi, projectRequestsApi, documentsApi } from '@/lib/api'
 import { Project, ProjectSprint, ProjectTask, ProjectRequest } from '@/lib/types'
 import { apiError } from '@/lib/utils'
@@ -14,7 +15,7 @@ import {
   Globe, Code2, FileSpreadsheet, ExternalLink, ChevronDown as ChevDown,
   MessageSquare, Send, AlertOctagon, Users, TrendingUp,
   CheckSquare, Square, Layers, ChevronRight, Bell, Plus,
-  ArrowUpRight, Shield, LayoutGrid, List,
+  ArrowUpRight, Shield, LayoutGrid, List, ClipboardList,
 } from 'lucide-react'
 
 /* ── Helpers ────────────────────────────────────────────── */
@@ -31,7 +32,7 @@ const STATUS_LABEL: Record<string, string> = {
   blocked: 'Blocked', pending_approval: 'Pending Approval', completed: 'Completed', delayed: 'Delayed',
 }
 
-type Tab = 'overview' | 'tasks' | 'requests' | 'chat' | 'escalate'
+type Tab = 'overview' | 'tasks' | 'corrections' | 'requests' | 'chat' | 'escalate'
 
 
 // Questions from the team are what wait on the client
@@ -511,6 +512,7 @@ export default function ClientProjectsPage() {
               {([
                 { key: 'overview',  label: 'Overview',     icon: <TrendingUp size={13} /> },
                 { key: 'tasks',     label: 'Sprints & Tasks', icon: <CheckSquare size={13} /> },
+                { key: 'corrections', label: 'Corrections', icon: <ClipboardList size={13} /> },
                 { key: 'requests',  label: `Requests${openRequests > 0 ? ` (${openRequests})` : ''}`, icon: <Bell size={13} /> },
                 { key: 'chat',      label: `Chat${chatUnread > 0 ? ` (${chatUnread})` : ''}`, icon: <MessageSquare size={13} /> },
                 { key: 'escalate',  label: 'Escalate',     icon: <AlertOctagon size={13} /> },
@@ -714,6 +716,15 @@ export default function ClientProjectsPage() {
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* ── CORRECTIONS ── */}
+              {tab === 'corrections' && (
+                <div className="h-full overflow-y-auto px-8 py-7">
+                  <div className="max-w-4xl">
+                    <CorrectionsPanel projectId={modal.id} />
+                  </div>
                 </div>
               )}
 

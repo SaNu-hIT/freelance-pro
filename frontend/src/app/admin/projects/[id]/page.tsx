@@ -17,6 +17,7 @@ import { apiError, formatBytes } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { SprintTaskBoard } from '@/components/admin/SprintTaskBoard'
 import { ProjectLinks } from '@/components/admin/ProjectLinks'
+import { CorrectionsPanel } from '@/components/corrections/CorrectionsPanel'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -496,6 +497,10 @@ export default function ProjectDetailPage() {
 
           <div style={card}>
             <ProjectLinks projectId={id} liveUrl={project.liveUrl ?? null} />
+          </div>
+
+          <div style={card}>
+            <CorrectionsPanel projectId={id} />
           </div>
 
           {/* Requests */}
