@@ -203,6 +203,76 @@ describe('CorrectionsService', () => {
     );
   });
 
+  it('turns a correction into a board task once, for admins only', async () => {
+    m.count = jest.fn().mockResolvedValue(3);
+    m.findOne = jest.fn().mockResolvedValue({ id: 's1' });
+    repo.manager.findOne = m.findOne;
+    await expect(service.createTask(dev, 'k1', {})).rejects.toThrow(
+      ForbiddenException,
+    );
+    stored.number = 7;
+    stored.title = 'Logo';
+    await service.createTask(admin, 'k1', {
+      sprintId: 's1',
+      assignedFreelancerId: 'fp1',
+    });
+    expect(saved[0]).toMatchObject({
+      projectId: 'p1',
+      title: 'C-7 Logo',
+      sprintId: 's1',
+      assignedFreelancerId: 'fp1',
+      order: 3,
+    });
+    expect(stored).toMatchObject({ taskId: 'new', status: 'triaged' });
+    expect(statusLogs()).toEqual(['Open → Triaged']);
+    await expect(service.createTask(admin, 'k1', {})).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('puts the task back on the list when the client reopens', async () => {
+    m.update = jest.fn();
+    stored.status = 'fixed';
+    stored.taskId = 't1';
+    await service.update(client, 'k1', { status: 'reopened' });
+    expect(m.update).toHaveBeenCalledWith(expect.anything(), 't1', {
+      completed: false,
+      completedAt: null,
+    });
+  });
+
+  it('sums corrections per project for admins only', async () => {
+    const qb: any = {
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([
+        {
+          projectId: 'p1',
+          total: '5',
+          withTeam: '2',
+          withClient: '1',
+          closed: '2',
+          reopened: '1',
+          reopens: '3',
+        },
+      ]),
+    };
+    repo.createQueryBuilder = jest.fn(() => qb);
+    await expect(service.summary(dev)).rejects.toThrow(ForbiddenException);
+    await expect(service.summary(admin)).resolves.toEqual([
+      {
+        projectId: 'p1',
+        total: 5,
+        withTeam: 2,
+        withClient: 1,
+        closed: 2,
+        reopened: 1,
+        reopens: 3,
+      },
+    ]);
+  });
+
   it('only lets admins delete corrections', async () => {
     await expect(service.remove(dev, 'k1')).rejects.toThrow(ForbiddenException);
     await expect(service.remove(admin, 'k1')).resolves.toEqual({

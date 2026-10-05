@@ -39,6 +39,15 @@ export function normalizePageUrl(raw: string, base?: string | URL): URL | null {
   return url;
 }
 
+// What a person types: a full URL, an address without https:// (site.com/about), or a path (/about or about).
+// Returns a full URL string, or a path starting with / for the caller to resolve against the live URL.
+export function typedAddress(raw: string): string {
+  const s = raw.trim();
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(s) || s.startsWith('/')) return s;
+  // A dot before the first slash means a host name; anything else is a page on the site
+  return /^[^/]+\.[^/]+/.test(s) ? `https://${s}` : `/${s}`;
+}
+
 const bareHost = (host: string) => host.toLowerCase().replace(/^www\./, '');
 export const sameSite = (a: URL, b: URL) =>
   bareHost(a.hostname) === bareHost(b.hostname);
@@ -204,6 +213,9 @@ export class DiscoveryService {
         found.size >= MAX_PAGES
       )
         return null;
+      // http/https and www variants of a page are one page: list it under the site's own address
+      url.protocol = site.protocol;
+      url.host = site.host;
       const key = url.toString();
       if (!found.has(key))
         found.set(key, { url: key, path: url.pathname, title: null, source });

@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, ClipboardEvent, DragEvent } from 'react'
 import {
   ClipboardList, Plus, ChevronDown, MessageSquare, Image as ImageIcon, RotateCcw, Lock, HelpCircle,
-  CheckCircle2, Trash2, X, Send, Monitor, Smartphone,
+  CheckCircle2, Trash2, X, Send, Monitor, Smartphone, ListTodo,
 } from 'lucide-react'
 import { correctionsApi, documentsApi, pagesApi } from '@/lib/api'
-import { Correction, CorrectionPriority, CorrectionStatus, CorrectionViewport, ProjectPage } from '@/lib/types'
+import { Correction, CorrectionPriority, CorrectionStatus, CorrectionViewport, ProjectPage, ProjectSprint, ProjectTask } from '@/lib/types'
 import { useAuthStore } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
@@ -26,11 +26,24 @@ const FILTERS: { key: string; label: string; statuses: CorrectionStatus[] | null
 ]
 
 const MAX_SHOTS = 5
+// The site's root page reads better as Home than as a bare slash
+const pageName = (path: string | null) => (path === null ? 'Whole site' : path === '/' ? 'Home' : path)
+// The page a correction is on, kept from its URL when the page itself was deleted
+const pathOf = (c: Correction) => c.page?.path ?? (c.pageUrl ? new URL(c.pageUrl).pathname : null)
+
+// The project's task board, passed in on the admin project page so corrections can become tasks
+export type CorrectionBoard = {
+  team: { id: string; name: string }[]
+  sprints: ProjectSprint[]
+  tasks: ProjectTask[]
+  // Reload the board's tasks after a correction creates or reopens one
+  onTasksChanged: () => void
+}
 const fmtWhen = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 
 // Corrections the client asks for on the delivered website, with screenshots and a thread per correction.
 // The same panel serves the team (triage, status, questions) and the client (report, answer, confirm).
-export function CorrectionsPanel({ projectId }: { projectId: string }) {
+export function CorrectionsPanel({ projectId, board }: { projectId: string; board?: CorrectionBoard }) {
   const user = useAuthStore(s => s.user)
   const isClient = user?.role === 'client'
   const [items, setItems] = useState<Correction[]>([])
@@ -48,6 +61,15 @@ export function CorrectionsPanel({ projectId }: { projectId: string }) {
       .catch(err => setError(apiError(err, 'Could not load corrections.')))
       .finally(() => setLoading(false))
   }, [projectId])
+
+  // A task moved on the board moves its correction, so reload when any task's progress changes
+  const taskProgress = board?.tasks.map(t => `${t.id}:${t.completed}:${!!t.inProgressAt}`).join() ?? ''
+  const lastProgress = useRef(taskProgress)
+  useEffect(() => {
+    if (lastProgress.current === taskProgress) return
+    lastProgress.current = taskProgress
+    correctionsApi.list(projectId).then(res => setItems(res.data)).catch(() => {})
+  }, [projectId, taskProgress])
 
   const replace = (c: Correction) => setItems(prev => prev.map(x => (x.id === c.id ? c : x)))
 
@@ -80,6 +102,8 @@ export function CorrectionsPanel({ projectId }: { projectId: string }) {
 
       {error && <ErrorBanner message={error} onClose={() => setError('')} />}
 
+      {items.length > 0 && <CorrectionStats items={items} isClient={isClient} />}
+
       {composing && (
         <NewCorrection projectId={projectId} pages={pages} onCancel={() => setComposing(false)} onError={setError}
           onCreated={c => { setItems(prev => [c, ...prev]); setComposing(false); setOpen(c.id) }} />
@@ -106,7 +130,7 @@ export function CorrectionsPanel({ projectId }: { projectId: string }) {
               value={pageFilter} onChange={e => setPageFilter(e.target.value)}>
               <option value="">All pages</option>
               <option value="site">Whole site</option>
-              {pages.map(p => <option key={p.id} value={p.id}>{p.path}</option>)}
+              {pages.map(p => <option key={p.id} value={p.id}>{pageName(p.path)}</option>)}
             </select>
           )}
         </div>
@@ -127,10 +151,78 @@ export function CorrectionsPanel({ projectId }: { projectId: string }) {
       ) : (
         <div className="space-y-2">
           {visible.map(c => (
-            <CorrectionCard key={c.id} c={c} expanded={open === c.id} highlight={waitingOnMe(c)}
+            <CorrectionCard key={c.id} c={c} board={board} expanded={open === c.id} highlight={waitingOnMe(c)}
               onToggle={() => setOpen(o => (o === c.id ? null : c.id))}
               onChange={replace} onDeleted={() => setItems(prev => prev.filter(x => x.id !== c.id))} onError={setError} />
           ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// The project's corrections at a glance: who they wait on, how often fixes came back, and where
+function CorrectionStats({ items, isClient }: { items: Correction[]; isClient: boolean }) {
+  const count = (statuses: CorrectionStatus[]) => items.filter(c => statuses.includes(c.status)).length
+  const withTeam = count(['open', 'triaged', 'in_progress', 'reopened'])
+  const withClient = count(['needs_info', 'fixed'])
+  const closed = count(['confirmed', 'wontfix'])
+  const confirmed = items.filter(c => c.status === 'confirmed')
+  const firstTime = confirmed.filter(c => c.reopenCount === 0).length
+  const reopens = items.reduce((n, c) => n + c.reopenCount, 0)
+  const sentBack = items.filter(c => c.reopenCount > 0).length
+
+  // Biggest first: corrections per page, and how often each page's fixes were sent back
+  const tally = (key: (c: Correction) => string | null) => {
+    const m = new Map<string, { n: number; reopens: number }>()
+    items.forEach(c => {
+      const k = key(c)
+      if (k === null) return
+      const t = m.get(k) ?? { n: 0, reopens: 0 }
+      m.set(k, { n: t.n + 1, reopens: t.reopens + c.reopenCount })
+    })
+    return [...m.entries()].sort((a, b) => b[1].reopens - a[1].reopens || b[1].n - a[1].n).slice(0, 3)
+  }
+  const byPage = tally(c => pageName(pathOf(c)))
+  // Who fixed what: only the team sees tasks and assignees
+  const byDev = isClient ? [] : tally(c => (c.task ? c.task.assignedFreelancer?.user?.name ?? 'Unassigned' : null))
+
+  const tile = (label: string, value: string, hint?: string) => (
+    <div className="rounded-lg px-3 py-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+      <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="text-lg font-bold tabular-nums text-primary-ui">{value}</p>
+      {hint && <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{hint}</p>}
+    </div>
+  )
+  const list = (title: string, rows: [string, { n: number; reopens: number }][]) => rows.length > 0 && (
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>{title}</p>
+      {rows.map(([name, t]) => (
+        <div key={name} className="flex items-center gap-2 text-xs py-0.5">
+          <span className="truncate flex-1 min-w-0 font-mono text-primary-ui">{name}</span>
+          <span className="tabular-nums shrink-0" style={{ color: 'var(--text-muted)' }}>{t.n}</span>
+          {t.reopens > 0 && (
+            <span className="flex items-center gap-0.5 shrink-0" title={`Sent back ${t.reopens} time${t.reopens === 1 ? '' : 's'}`}
+              style={{ color: 'var(--fg)' }}><RotateCcw size={10} />{t.reopens}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="rounded-xl p-3 space-y-3" style={{ border: '1px solid var(--border)' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {tile(isClient ? 'Team working on' : 'With the team', String(withTeam))}
+        {tile(isClient ? 'Waiting on you' : 'With the client', String(withClient), 'questions and fixes to check')}
+        {tile('Closed', `${closed}/${items.length}`)}
+        {tile('Fixed first time', confirmed.length ? `${Math.round((firstTime / confirmed.length) * 100)}%` : '—',
+          reopens > 0 ? `${sentBack} sent back, ${reopens} time${reopens === 1 ? '' : 's'} in all` : 'none sent back')}
+      </div>
+      {(byPage.length > 0 || byDev.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {list('Pages with most corrections', byPage)}
+          {list('By developer', byDev)}
         </div>
       )}
     </div>
@@ -215,7 +307,7 @@ function NewCorrection({ projectId, pages, onCancel, onCreated, onError }: {
           <label htmlFor="corr-page" className="label-field">Page</label>
           <select id="corr-page" className="input-field" value={form.pageId} onChange={e => setForm({ ...form, pageId: e.target.value })}>
             <option value="">Whole site / not page specific</option>
-            {pages.map(p => <option key={p.id} value={p.id}>{p.path}{p.title ? ` · ${p.title}` : ''}</option>)}
+            {pages.map(p => <option key={p.id} value={p.id}>{pageName(p.path)}{p.title ? ` · ${p.title}` : ''}</option>)}
           </select>
         </div>
         <div>
@@ -281,8 +373,9 @@ function NewCorrection({ projectId, pages, onCancel, onCreated, onError }: {
   )
 }
 
-function CorrectionCard({ c, expanded, highlight, onToggle, onChange, onDeleted, onError }: {
+function CorrectionCard({ c, board, expanded, highlight, onToggle, onChange, onDeleted, onError }: {
   c: Correction
+  board?: CorrectionBoard
   expanded: boolean
   highlight: boolean
   onToggle: () => void
@@ -302,8 +395,14 @@ function CorrectionCard({ c, expanded, highlight, onToggle, onChange, onDeleted,
         <span className="text-xs font-mono shrink-0" style={{ color: 'var(--text-muted)' }}>C-{c.number}</span>
         <span className="text-sm font-medium truncate flex-1 min-w-0 text-primary-ui">{c.title}</span>
         <span className="hidden sm:block text-xs font-mono truncate max-w-[160px]" style={{ color: 'var(--text-muted)' }}>
-          {c.page?.path ?? (c.pageUrl ? new URL(c.pageUrl).pathname : 'Whole site')}
+          {pageName(pathOf(c))}
         </span>
+        {c.task && (
+          <span className="hidden sm:flex items-center gap-1 text-[11px] shrink-0 max-w-[120px]" title="Task on the board"
+            style={{ color: 'var(--text-muted)' }}>
+            <ListTodo size={11} className="shrink-0" /><span className="truncate">{c.task.assignedFreelancer?.user?.name ?? 'Unassigned'}</span>
+          </span>
+        )}
         {c.priority === 'high' && <span className="text-[10px] font-bold shrink-0" style={{ color: 'var(--fg)' }}>HIGH</span>}
         {c.reopenCount > 0 && (
           <span className="flex items-center gap-0.5 text-[11px] shrink-0" title={`Sent back ${c.reopenCount} time${c.reopenCount === 1 ? '' : 's'}`}
@@ -313,13 +412,14 @@ function CorrectionCard({ c, expanded, highlight, onToggle, onChange, onDeleted,
         {talk > 0 && <span className="flex items-center gap-0.5 text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}><MessageSquare size={11} />{talk}</span>}
         <StatusBadge status={c.status} />
       </button>
-      {expanded && <CorrectionDetail c={c} onChange={onChange} onDeleted={onDeleted} onError={onError} />}
+      {expanded && <CorrectionDetail c={c} board={board} onChange={onChange} onDeleted={onDeleted} onError={onError} />}
     </div>
   )
 }
 
-function CorrectionDetail({ c, onChange, onDeleted, onError }: {
+function CorrectionDetail({ c, board, onChange, onDeleted, onError }: {
   c: Correction
+  board?: CorrectionBoard
   onChange: (c: Correction) => void
   onDeleted: () => void
   onError: (msg: string) => void
@@ -336,7 +436,10 @@ function CorrectionDetail({ c, onChange, onDeleted, onError }: {
     setBusy(true)
     onError('')
     try {
-      onChange((await fn()).data)
+      const next = (await fn()).data
+      onChange(next)
+      // Creating a task, or reopening a correction that has one, changes the board
+      if (next.taskId && (next.taskId !== c.taskId || next.status !== c.status)) board?.onTasksChanged()
       return true
     } catch (err) {
       onError(apiError(err, fallback))
@@ -395,6 +498,11 @@ function CorrectionDetail({ c, onChange, onDeleted, onError }: {
         <div className="flex gap-2 flex-wrap">
           {c.screenshots.map(s => <Screenshot key={s.id} id={s.id} name={s.name} />)}
         </div>
+      )}
+
+      {!isClient && (c.task || (role === 'admin' && board)) && (
+        <TaskLink c={c} board={board} busy={busy}
+          onCreate={data => run(() => correctionsApi.createTask(c.id, data), 'Could not create the task.')} />
       )}
 
       {c.comments.length > 0 && (
@@ -472,6 +580,71 @@ function CorrectionDetail({ c, onChange, onDeleted, onError }: {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// The correction's task on the board, or a form to create one with an assignee and sprint
+function TaskLink({ c, board, busy, onCreate }: {
+  c: Correction
+  board?: CorrectionBoard
+  busy: boolean
+  onCreate: (data: { sprintId?: string; assignedFreelancerId?: string }) => Promise<boolean>
+}) {
+  const [creating, setCreating] = useState(false)
+  const [assignee, setAssignee] = useState('')
+  const [sprint, setSprint] = useState('')
+
+  if (c.task) {
+    const t = c.task
+    const state = t.completed ? 'Done' : t.inProgressAt ? 'In progress' : 'To do'
+    const sprintName = board?.sprints.find(s => s.id === t.sprintId)?.name ?? (t.sprintId ? 'Sprint' : 'Backlog')
+    return (
+      <div className="flex items-center gap-2 flex-wrap rounded-lg px-3 py-2 text-xs" style={{ border: '1px solid var(--border)' }}>
+        <ListTodo size={13} style={{ color: 'var(--fg)' }} />
+        <span className="font-medium text-primary-ui truncate min-w-0">{t.title}</span>
+        <span style={{ color: 'var(--text-muted)' }}>
+          {t.assignedFreelancer?.user?.name ?? 'Unassigned'} · {sprintName}
+        </span>
+        <span className="ml-auto font-bold" style={{ color: t.completed ? 'var(--text-muted)' : 'var(--fg)' }}>{state}</span>
+      </div>
+    )
+  }
+
+  if (!creating) {
+    return (
+      <button type="button" onClick={() => setCreating(true)} disabled={busy}
+        title="Adds a task to the board. When the task is done this correction is marked Fixed."
+        className="btn-ghost flex items-center gap-1.5 px-3 py-1.5 rounded text-xs disabled:opacity-50">
+        <ListTodo size={12} /> Create task
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-end gap-2 flex-wrap rounded-lg px-3 py-2.5" style={{ border: '1px solid rgb(var(--fg-rgb) / 0.3)' }}>
+      <div>
+        <label htmlFor={`task-dev-${c.id}`} className="label-field">Assign to</label>
+        <select id={`task-dev-${c.id}`} className="input-field py-1.5 text-xs" value={assignee} onChange={e => setAssignee(e.target.value)}>
+          <option value="">Unassigned</option>
+          {board?.team.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
+      </div>
+      <div>
+        <label htmlFor={`task-sprint-${c.id}`} className="label-field">Sprint</label>
+        <select id={`task-sprint-${c.id}`} className="input-field py-1.5 text-xs" value={sprint} onChange={e => setSprint(e.target.value)}>
+          <option value="">Backlog</option>
+          {board?.sprints.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+      <button type="button" disabled={busy}
+        onClick={async () => {
+          if (await onCreate({ ...(assignee && { assignedFreelancerId: assignee }), ...(sprint && { sprintId: sprint }) })) setCreating(false)
+        }}
+        className="btn-primary flex items-center gap-1.5 px-3 py-1.5 rounded text-xs disabled:opacity-50">
+        <ListTodo size={12} /> {busy ? 'Creating…' : `Create task C-${c.number}`}
+      </button>
+      <button type="button" onClick={() => setCreating(false)} disabled={busy} className="btn-ghost px-3 py-1.5 rounded text-xs">Cancel</button>
     </div>
   )
 }

@@ -10,29 +10,33 @@ import { Correction, CorrectionStatus } from '../entities/correction.entity';
 import { CorrectionComment } from '../entities/correction-comment.entity';
 import { ProjectDocument } from '../entities/project-document.entity';
 import { ProjectPage } from '../entities/project-page.entity';
+import { ProjectSprint } from '../entities/project-sprint.entity';
+import { ProjectTask } from '../entities/project-task.entity';
+import { FreelancerProfile } from '../entities/freelancer-profile.entity';
 import { ProjectsService } from '../projects/projects.service';
 import {
   CreateCorrectionCommentDto,
   CreateCorrectionDto,
+  CreateCorrectionTaskDto,
   ListCorrectionsQuery,
   UpdateCorrectionDto,
 } from './correction.dto';
+import { logCorrectionStatus, STATUS_LABEL } from './correction-sync';
 
 type Actor = { id: string; role: string };
+export type CorrectionSummary = {
+  projectId: string;
+  total: number;
+  withTeam: number;
+  withClient: number;
+  closed: number;
+  // Corrections sent back at least once, and the number of times fixes were sent back
+  reopened: number;
+  reopens: number;
+};
 export const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
 export const MAX_SCREENSHOTS = 5;
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-
-export const STATUS_LABEL: Record<CorrectionStatus, string> = {
-  open: 'Open',
-  triaged: 'Triaged',
-  needs_info: 'Needs info',
-  in_progress: 'In progress',
-  fixed: 'Fixed',
-  confirmed: 'Confirmed',
-  reopened: 'Reopened',
-  wontfix: "Won't fix",
-};
 
 // What a client may do: confirm a fix, or send it back
 const CLIENT_MOVES: Partial<Record<CorrectionStatus, CorrectionStatus[]>> = {
@@ -64,6 +68,41 @@ export class CorrectionsService {
     if (query.status)
       qb.andWhere('c.status = :status', { status: query.status });
     return qb.getMany();
+  }
+
+  // Per project: how many corrections wait on the team, wait on the client, are closed, and how often fixes were sent back
+  async summary(user: Actor): Promise<CorrectionSummary[]> {
+    if (user.role !== 'admin')
+      throw new ForbiddenException('Only admins can see the summary');
+    const rows = await this.repo
+      .createQueryBuilder('c')
+      .select('c.projectId', 'projectId')
+      .addSelect('COUNT(*)', 'total')
+      .addSelect(
+        `COUNT(*) FILTER (WHERE c.status IN ('open', 'triaged', 'in_progress', 'reopened'))`,
+        'withTeam',
+      )
+      .addSelect(
+        `COUNT(*) FILTER (WHERE c.status IN ('needs_info', 'fixed'))`,
+        'withClient',
+      )
+      .addSelect(
+        `COUNT(*) FILTER (WHERE c.status IN ('confirmed', 'wontfix'))`,
+        'closed',
+      )
+      .addSelect('COUNT(*) FILTER (WHERE c."reopenCount" > 0)', 'reopened')
+      .addSelect('COALESCE(SUM(c."reopenCount"), 0)', 'reopens')
+      .groupBy('c.projectId')
+      .getRawMany<Record<string, string>>();
+    return rows.map((r) => ({
+      projectId: r.projectId,
+      total: Number(r.total),
+      withTeam: Number(r.withTeam),
+      withClient: Number(r.withClient),
+      closed: Number(r.closed),
+      reopened: Number(r.reopened),
+      reopens: Number(r.reopens),
+    }));
   }
 
   async findOne(user: Actor, id: string): Promise<Correction> {
@@ -144,7 +183,64 @@ export class CorrectionsService {
     await this.repo.manager.transaction(async (m) => {
       await m.save(c);
       if (status && status !== from)
-        await this.logStatus(m, c.id, user.id, from, status);
+        await logCorrectionStatus(m, c.id, user.id, from, status);
+      // Sent back by the client: the developer's task goes back on their list
+      if (status === 'reopened' && from !== 'reopened' && c.taskId)
+        await m.update(ProjectTask, c.taskId, {
+          completed: false,
+          completedAt: null,
+        });
+    });
+    return this.findOne(user, c.id);
+  }
+
+  // Puts the correction on the project's task board, optionally in a sprint and assigned to a developer
+  async createTask(
+    user: Actor,
+    id: string,
+    dto: CreateCorrectionTaskDto,
+  ): Promise<Correction> {
+    if (user.role !== 'admin')
+      throw new ForbiddenException('Only admins can create tasks');
+    const c = await this.load(user, id);
+    if (c.taskId)
+      throw new BadRequestException('This correction already has a task');
+    const m = this.repo.manager;
+    if (
+      dto.sprintId &&
+      !(await m.findOne(ProjectSprint, {
+        where: { id: dto.sprintId, projectId: c.projectId },
+      }))
+    )
+      throw new BadRequestException('That sprint is not part of this project');
+    if (
+      dto.assignedFreelancerId &&
+      !(await m.findOne(FreelancerProfile, {
+        where: { id: dto.assignedFreelancerId },
+      }))
+    )
+      throw new BadRequestException('That freelancer was not found');
+
+    await m.transaction(async (tx) => {
+      const order = await tx.count(ProjectTask, {
+        where: { projectId: c.projectId },
+      });
+      const task = await tx.save(
+        tx.create(ProjectTask, {
+          projectId: c.projectId,
+          title: dto.title?.trim() || `C-${c.number} ${c.title}`,
+          sprintId: dto.sprintId ?? null,
+          assignedFreelancerId: dto.assignedFreelancerId ?? null,
+          order,
+        }),
+      );
+      c.taskId = task.id;
+      const from = c.status;
+      // A new correction is now picked up
+      if (from === 'open') c.status = 'triaged';
+      await tx.save(c);
+      if (c.status !== from)
+        await logCorrectionStatus(tx, c.id, user.id, from, c.status);
     });
     return this.findOne(user, c.id);
   }
@@ -187,7 +283,7 @@ export class CorrectionsService {
         const from = c.status;
         c.status = next;
         await m.save(c);
-        await this.logStatus(m, c.id, user.id, from, next);
+        await logCorrectionStatus(m, c.id, user.id, from, next);
       }
     });
     return this.findOne(user, c.id);
@@ -282,24 +378,6 @@ export class CorrectionsService {
     c.status = to;
   }
 
-  private logStatus(
-    m: EntityManager,
-    correctionId: string,
-    authorId: string,
-    from: CorrectionStatus,
-    to: CorrectionStatus,
-  ) {
-    return m.save(
-      m.create(CorrectionComment, {
-        correctionId,
-        authorId,
-        kind: 'status',
-        body: `${STATUS_LABEL[from]} → ${STATUS_LABEL[to]}`,
-        visibility: 'client',
-      }),
-    );
-  }
-
   private async maxNumber(
     m: EntityManager,
     projectId: string,
@@ -314,8 +392,23 @@ export class CorrectionsService {
 
   private query(user: Actor) {
     const isClient = user.role === 'client';
-    return this.repo
-      .createQueryBuilder('c')
+    const qb = this.repo.createQueryBuilder('c');
+    // Who works on it is the team's business; clients see the correction's status only
+    if (!isClient)
+      qb.leftJoin('c.task', 'task')
+        .addSelect([
+          'task.id',
+          'task.title',
+          'task.completed',
+          'task.inProgressAt',
+          'task.sprintId',
+          'task.assignedFreelancerId',
+        ])
+        .leftJoin('task.assignedFreelancer', 'assignee')
+        .addSelect(['assignee.id'])
+        .leftJoin('assignee.user', 'assigneeUser')
+        .addSelect(['assigneeUser.id', 'assigneeUser.name']);
+    return qb
       .leftJoin('c.page', 'page')
       .addSelect(['page.id', 'page.path', 'page.url', 'page.title'])
       .leftJoin('c.createdBy', 'createdBy')

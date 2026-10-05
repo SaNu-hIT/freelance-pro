@@ -14,6 +14,7 @@ import { ProjectPage } from './project-page.entity';
 import { User } from './user.entity';
 import { CorrectionComment } from './correction-comment.entity';
 import { ProjectDocument } from './project-document.entity';
+import { ProjectTask } from './project-task.entity';
 
 // open: waiting for the team. needs_info: waiting for the client. fixed: waiting for the client to confirm.
 export const CORRECTION_STATUSES = [
@@ -81,6 +82,14 @@ export class Correction {
 
   @Column({ type: 'varchar', length: 16, default: 'open' })
   status: CorrectionStatus;
+
+  // The board task a developer works this correction on; its progress moves the correction's status
+  @Column('uuid', { nullable: true })
+  taskId: string | null;
+
+  @ManyToOne(() => ProjectTask, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'taskId' })
+  task: ProjectTask | null;
 
   // How many times the client sent it back after it was marked fixed
   @Column('int', { default: 0 })

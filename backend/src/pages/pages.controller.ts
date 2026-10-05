@@ -39,7 +39,7 @@ export class PagesController {
 
   @Post('discover')
   discover(@Request() req: any, @Body() dto: DiscoverPagesDto) {
-    return this.pagesService.discover(req.user, dto.projectId);
+    return this.pagesService.discover(req.user, dto.projectId, dto.url);
   }
 
   @Delete('notes/:noteId')

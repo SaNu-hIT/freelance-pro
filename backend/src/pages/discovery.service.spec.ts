@@ -6,7 +6,18 @@ import {
   extractTitle,
   isPrivateAddress,
   normalizePageUrl,
+  typedAddress,
 } from './discovery.service';
+
+describe('typedAddress', () => {
+  it('reads full URLs, bare host names and paths', () => {
+    expect(typedAddress(' https://a.test/x ')).toBe('https://a.test/x');
+    expect(typedAddress('site.com/about')).toBe('https://site.com/about');
+    expect(typedAddress('www.site.co.in')).toBe('https://www.site.co.in');
+    expect(typedAddress('/about')).toBe('/about');
+    expect(typedAddress('about-us')).toBe('/about-us');
+  });
+});
 
 describe('normalizePageUrl', () => {
   it('drops query, hash, credentials and trailing slash', () => {
@@ -85,7 +96,7 @@ describe('DiscoveryService.discover', () => {
       type: 'text/plain',
     },
     'https://shop.test/sitemap.xml': {
-      body: '<urlset><url><loc>https://shop.test/pricing</loc></url><url><loc>https://other.test/x</loc></url></urlset>',
+      body: '<urlset><url><loc>https://shop.test/pricing</loc></url><url><loc>http://shop.test/about</loc></url><url><loc>https://other.test/x</loc></url></urlset>',
       type: 'application/xml',
     },
     'https://shop.test/extra.xml': {
@@ -130,9 +141,11 @@ describe('DiscoveryService.discover', () => {
       source: 'sitemap',
       url: 'https://shop.test/pricing',
     });
-    expect(byPath['/blog'].url).toBe('https://www.shop.test/blog');
+    // http and www variants are listed once, under the site's own address
+    expect(pages).toHaveLength(6);
+    expect(byPath['/blog'].url).toBe('https://shop.test/blog');
     expect(byPath['/about']).toMatchObject({
-      source: 'crawl',
+      url: 'https://shop.test/about',
       title: 'About us',
     });
     expect(byPath['/'].title).toBe('Home');

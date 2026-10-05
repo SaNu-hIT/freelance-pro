@@ -106,3 +106,20 @@ export class CreateCorrectionCommentDto {
   @IsIn(['internal', 'client'])
   visibility?: 'internal' | 'client';
 }
+
+// Turns a correction into a board task; the title defaults to "C-<number> <correction title>"
+export class CreateCorrectionTaskDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  title?: string;
+
+  @IsOptional()
+  @IsUUID()
+  sprintId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  assignedFreelancerId?: string;
+}

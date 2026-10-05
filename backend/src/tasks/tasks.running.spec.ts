@@ -12,7 +12,7 @@ describe('Task timer (in progress)', () => {
 
   beforeEach(() => {
     task = { id: 't1', completed: false, startedAt: null, startedById: null };
-    manager = { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }) };
+    manager = { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }), find: jest.fn().mockResolvedValue([]) };
     repo = {
       findOne: jest.fn(() => Promise.resolve(task)),
       save: jest.fn((t) => Promise.resolve(t)),

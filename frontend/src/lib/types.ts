@@ -214,6 +214,18 @@ export interface CorrectionComment {
   createdAt: string
 }
 
+// Admin project list: one project's corrections at a glance
+export interface CorrectionSummary {
+  projectId: string
+  total: number
+  withTeam: number
+  withClient: number
+  closed: number
+  // Corrections sent back at least once, and how many times fixes were sent back in all
+  reopened: number
+  reopens: number
+}
+
 export interface Correction {
   id: string
   projectId: string
@@ -229,6 +241,11 @@ export interface Correction {
   viewport: CorrectionViewport | null
   status: CorrectionStatus
   reopenCount: number
+  // The board task it is worked on; the task itself is returned to the team only
+  taskId: string | null
+  task?: (Pick<ProjectTask, 'id' | 'title' | 'completed' | 'inProgressAt' | 'sprintId' | 'assignedFreelancerId'> & {
+    assignedFreelancer?: { id: string; user?: { id: string; name: string } } | null
+  }) | null
   comments: CorrectionComment[]
   screenshots: Pick<ProjectDocument, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt'>[]
   createdAt: string

@@ -183,14 +183,16 @@ export const pagesApi = {
   create: (data: { projectId: string; url: string; title?: string }) => api.post('/pages', data),
   update: (id: string, data: { title?: string; archived?: boolean }) => api.patch(`/pages/${id}`, data),
   delete: (id: string) => api.delete(`/pages/${id}`),
-  // Reads the live site's sitemap and links; can take up to ~40s
-  discover: (projectId: string) => api.post('/pages/discover', { projectId }, { timeout: 60000 }),
+  // Reads a site's sitemap and links (url, else the project's live URL); can take up to ~40s
+  discover: (projectId: string, url?: string) => api.post('/pages/discover', { projectId, ...(url && { url }) }, { timeout: 60000 }),
   addNote: (id: string, data: { body: string; visibility?: 'internal' | 'client' }) => api.post(`/pages/${id}/notes`, data),
   deleteNote: (noteId: string) => api.delete(`/pages/notes/${noteId}`),
 }
 
 export const correctionsApi = {
   list: (projectId: string) => api.get('/corrections', { params: { projectId } }),
+  // Admin: counts per project
+  summary: () => api.get('/corrections/summary'),
   create: (data: { projectId: string; pageId?: string; title: string; body: string; priority?: CorrectionPriority; viewport?: CorrectionViewport }) =>
     api.post('/corrections', data),
   update: (id: string, data: { pageId?: string | null; title?: string; body?: string; priority?: CorrectionPriority; viewport?: CorrectionViewport | null; status?: CorrectionStatus }) =>
@@ -205,6 +207,9 @@ export const correctionsApi = {
     form.append('file', file)
     return api.post(`/corrections/${id}/screenshots`, form, { headers: { 'Content-Type': undefined } })
   },
+  // Admin: put the correction on the task board; its task's progress then moves the correction's status
+  createTask: (id: string, data: { title?: string; sprintId?: string; assignedFreelancerId?: string }) =>
+    api.post(`/corrections/${id}/task`, data),
 }
 
 export default api

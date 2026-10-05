@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, MoreThan, Not, Repository } from 'typeorm';
 import { ProjectTask } from '../entities/project-task.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
+import { syncCorrectionsFromTask } from '../corrections/correction-sync';
 
 // The worklog timer auto-pauses at 8 hours, so an older start is a timer that was never stopped
 export const RUNNING_MAX_MS = 8 * 3600 * 1000;
@@ -41,6 +42,7 @@ export class TasksService {
   async update(
     id: string,
     { inProgress, ...data }: Partial<{ title: string; completed: boolean; inProgress: boolean; order: number; sprintId: string | null; assignedFreelancerId: string | null }>,
+    actorId: string | null = null,
   ): Promise<ProjectTask> {
     const task = await this.tasksRepo.findOne({ where: { id } });
     if (!task) throw new NotFoundException(`Task ${id} not found`);
@@ -61,7 +63,11 @@ export class TasksService {
       task.startedAt = null;
       task.startedById = null;
     }
-    return this.tasksRepo.save(task);
+    const saved = await this.tasksRepo.save(task);
+    if (data.completed !== undefined || inProgress !== undefined) {
+      await syncCorrectionsFromTask(this.tasksRepo.manager, saved, actorId);
+    }
+    return saved;
   }
 
   private async profileFor(userId: string): Promise<FreelancerProfile> {
@@ -83,7 +89,9 @@ export class TasksService {
     task.startedAt = new Date(given <= now && given > now - RUNNING_MAX_MS ? given : now);
     task.startedById = profile.id;
     task.inProgressAt ??= task.startedAt;
-    return this.tasksRepo.save(task);
+    const saved = await this.tasksRepo.save(task);
+    await syncCorrectionsFromTask(this.tasksRepo.manager, saved, userId);
+    return saved;
   }
 
   async stop(userId: string): Promise<{ stopped: boolean }> {

@@ -8,12 +8,12 @@ import {
   CheckSquare, Clock, User, DollarSign,
   Calendar, Globe, FileSpreadsheet,
   ExternalLink, Timer, Code2, Users,
-  Activity, TrendingUp, Mail, Zap, LayoutGrid, List, UserPlus,
+  Activity, TrendingUp, Mail, Zap, LayoutGrid, List, UserPlus, RotateCcw,
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { projectsApi, freelancersApi, tasksApi, sprintsApi, usersApi } from '@/lib/api'
-import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask, ProjectSprint, User as AppUser } from '@/lib/types'
+import { projectsApi, freelancersApi, tasksApi, sprintsApi, usersApi, correctionsApi } from '@/lib/api'
+import { Project, ProjectStatus, ProjectPriority, FreelancerProfile, ProjectTask, ProjectSprint, User as AppUser, CorrectionSummary } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
@@ -48,6 +48,28 @@ function DaysChip({ deadline }: { deadline: string }) {
       <Timer size={11} style={{ color }} />
       <span className="font-bold text-xs" style={{ color }}>
         {overdue ? `${Math.abs(days)}d overdue` : days === 0 ? 'Due today' : `${days}d left`}
+      </span>
+    </div>
+  )
+}
+
+// Client corrections on a project: who they wait on, how many are closed, how often fixes were sent back
+function CorrectionsCell({ s }: { s?: CorrectionSummary }) {
+  if (!s) return <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>—</span>
+  return (
+    <div className="flex flex-col gap-0.5 text-xs whitespace-nowrap">
+      <span className="text-primary-ui">
+        <span className="font-semibold tabular-nums">{s.closed}/{s.total}</span> closed
+      </span>
+      <span className="flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
+        {s.withTeam > 0 && <span style={{ color: 'var(--fg)' }}>{s.withTeam} with team</span>}
+        {s.withTeam > 0 && s.withClient > 0 && '·'}
+        {s.withClient > 0 && <span>{s.withClient} with client</span>}
+        {s.reopens > 0 && (
+          <span className="flex items-center gap-0.5" title={`${s.reopened} correction${s.reopened === 1 ? '' : 's'} sent back ${s.reopens} time${s.reopens === 1 ? '' : 's'} in all`}>
+            {(s.withTeam > 0 || s.withClient > 0) && '·'} <RotateCcw size={10} />{s.reopens}
+          </span>
+        )}
       </span>
     </div>
   )
@@ -137,6 +159,7 @@ function AdminProjectsPageInner() {
   const [showNewClient, setShowNewClient] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [drawerError, setDrawerError] = useState('')
+  const [corrections, setCorrections] = useState<Record<string, CorrectionSummary>>({})
 
   useEffect(() => {
     const load = async () => {
@@ -152,6 +175,10 @@ function AdminProjectsPageInner() {
       setLoading(false)
     }
     load()
+    // Extra detail for the list; the page works without it
+    correctionsApi.summary()
+      .then(res => setCorrections(Object.fromEntries((res.data as CorrectionSummary[]).map(c => [c.projectId, c]))))
+      .catch(() => {})
   }, [])
 
   const loadProjectData = async (projectId: string) => {
@@ -359,7 +386,7 @@ function AdminProjectsPageInner() {
           <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
-                <tr><th>Title</th><th>Client</th><th>Budget</th><th>Deadline</th><th>Progress</th><th>Priority</th><th>Status</th><th>Team</th><th>Actions</th></tr>
+                <tr><th>Title</th><th>Client</th><th>Budget</th><th>Deadline</th><th>Progress</th><th>Corrections</th><th>Priority</th><th>Status</th><th>Team</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {filtered.map(p => (
@@ -382,6 +409,7 @@ function AdminProjectsPageInner() {
                         <span className="text-crimson text-xs">{p.progress ?? 0}%</span>
                       </div>
                     </td>
+                    <td><CorrectionsCell s={corrections[p.id]} /></td>
                     <td>
                       <span className="text-mono-label px-2 py-1 rounded" style={{ fontSize: '10px', color: PRIORITY_COLORS[p.priority], background: `color-mix(in srgb, ${PRIORITY_COLORS[p.priority]} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${PRIORITY_COLORS[p.priority]} 25%, transparent)` }}>
                         {p.priority.toUpperCase()}
@@ -457,6 +485,12 @@ function AdminProjectsPageInner() {
                     <DaysChip deadline={p.deadline} />
                   </div>
                 </div>
+                {corrections[p.id] && (
+                  <div className="rounded-lg px-2.5 py-2 mb-3" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                    <p className="text-mono-label text-[9px] mb-0.5" style={{ color: 'var(--text-muted)' }}>CORRECTIONS</p>
+                    <CorrectionsCell s={corrections[p.id]} />
+                  </div>
+                )}
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid var(--border)' }}>
                   {p.teamMembers && p.teamMembers.length > 0 ? (

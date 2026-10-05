@@ -80,7 +80,7 @@ export class TasksController {
   ) {
     const user = req.user;
     if (user.role === 'admin') {
-      return this.tasksService.update(id, body);
+      return this.tasksService.update(id, body, user.id);
     }
     // Freelancers on the project may only move tasks between to-do, in progress and done
     if (user.role === 'freelancer' && (await this.tasksService.isProjectMember(id, user.id))) {
@@ -88,7 +88,7 @@ export class TasksController {
       if (typeof completed !== 'boolean' && typeof inProgress !== 'boolean') {
         throw new BadRequestException('Only completed or inProgress can be changed');
       }
-      return this.tasksService.update(id, { completed, inProgress });
+      return this.tasksService.update(id, { completed, inProgress }, user.id);
     }
     throw new ForbiddenException('Access denied');
   }

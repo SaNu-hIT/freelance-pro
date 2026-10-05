@@ -90,7 +90,11 @@ describe('PagesService', () => {
         source: 'sitemap',
       },
     ]);
-    expect(await service.discover(admin, 'p1')).toEqual({ found: 2, added: 1 });
+    expect(await service.discover(admin, 'p1')).toEqual({
+      found: 2,
+      added: 1,
+      site: 'https://site.test',
+    });
     const saved = pagesRepo.save.mock.calls[0][0];
     expect(saved[0]).toMatchObject({
       title: 'Kept',
@@ -100,6 +104,25 @@ describe('PagesService', () => {
       projectId: 'p1',
       path: '/pricing',
       source: 'sitemap',
+    });
+  });
+
+  it('discovers a typed address and keeps it as the live URL of a project without one', async () => {
+    projects.assertAccess.mockResolvedValue({ id: 'p1', liveUrl: null });
+    projects.update = jest.fn();
+    pagesRepo.find.mockResolvedValue([]);
+    discovery.discover.mockResolvedValue([]);
+    await expect(service.discover(admin, 'p1')).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(
+      await service.discover(admin, 'p1', 'shop.test/products/'),
+    ).toMatchObject({ site: 'https://shop.test' });
+    expect(discovery.discover).toHaveBeenCalledWith(
+      'https://shop.test/products',
+    );
+    expect(projects.update).toHaveBeenCalledWith('p1', {
+      liveUrl: 'https://shop.test',
     });
   });
 

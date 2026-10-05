@@ -11,10 +11,15 @@ import ErrorBanner from '@/components/ui/ErrorBanner'
 
 const SOURCE_LABEL: Record<ProjectPage['source'], string> = { sitemap: 'Sitemap', crawl: 'Found', manual: 'Added' }
 
+// A web address (full, or a host like site.com/about) rather than a page path like /about
+const isAddress = (s: string) => /^[a-z][a-z\d+.-]*:\/\//i.test(s.trim()) || /^[^/]+\.[^/]+/.test(s.trim())
+
 const fmtWhen = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
 // Every page of the project's website, each with its own notes
 export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUrl: string | null }) {
+  // The site Discover reads; a project without a live URL takes the first site discovered
+  const [site, setSite] = useState(liveUrl)
   const [pages, setPages] = useState<ProjectPage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -35,15 +40,24 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
 
   const reload = async () => setPages((await pagesApi.list(projectId)).data)
 
+  // A website address typed in the box is read instead of the live URL
+  const typedSite = isAddress(newUrl) ? newUrl.trim() : ''
+  const discoverFrom = typedSite || site
+
   const discover = async () => {
+    if (!discoverFrom) return
     setDiscovering(true)
     setError('')
     setInfo('')
     try {
-      const res = await pagesApi.discover(projectId)
+      const res = await pagesApi.discover(projectId, typedSite || undefined)
       await reload()
-      const { found, added } = res.data as { found: number; added: number }
-      setInfo(found === 0 ? 'No pages found on the live site.' : `Found ${found} page${found === 1 ? '' : 's'}, ${added} new.`)
+      const { found, added, site: read } = res.data as { found: number; added: number; site: string }
+      setSite(read)
+      if (typedSite) setNewUrl('')
+      setInfo(found === 0
+        ? 'No pages found. The site may build its menu with JavaScript; add pages one by one below.'
+        : `Found ${found} page${found === 1 ? '' : 's'}, ${added} new.`)
     } catch (err) {
       setError(apiError(err, 'Could not read the live site.'))
     } finally {
@@ -103,8 +117,8 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
           {pages.length - archivedCount} page{pages.length - archivedCount === 1 ? '' : 's'}
         </span>
-        <button type="button" onClick={discover} disabled={!liveUrl || discovering}
-          title={liveUrl ? `Read the sitemap and links of ${liveUrl}` : 'Add the live URL to the project first'}
+        <button type="button" onClick={discover} disabled={!discoverFrom || discovering}
+          title={discoverFrom ? `Find every page of ${discoverFrom}` : 'Type the website address first'}
           className="btn-primary ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded text-xs disabled:opacity-50">
           <Radar size={13} /> {discovering ? 'Reading site…' : 'Discover links'}
         </button>
@@ -115,7 +129,7 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
 
       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         <input className="input-field flex-1 min-w-[180px] py-2 text-sm" aria-label="Add a link" value={newUrl} disabled={adding}
-          placeholder={liveUrl ? 'Add a page: /about or a full URL' : 'Add a page: full URL'}
+          placeholder={site ? 'Add a page like /about, or another site to discover' : 'Website address, e.g. example.com'}
           onChange={e => setNewUrl(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') add() }} />
         <button type="button" onClick={add} disabled={!newUrl.trim() || adding}
           className="btn-ghost flex items-center gap-1.5 px-3 py-2 rounded text-xs disabled:opacity-40">
@@ -143,9 +157,9 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Loading…</p>
       ) : pages.length === 0 ? (
         <p className="text-sm rounded-xl px-4 py-3" style={{ color: 'var(--text-muted)', border: '1px dashed var(--border)' }}>
-          {liveUrl
-            ? <>Use <strong>Discover links</strong> to list every page of the live site, or add pages one by one.</>
-            : 'Add the live URL to the project to discover its pages, or add full page URLs above.'}
+          {site
+            ? <>Use <strong>Discover links</strong> to list every page of {site}. The client can then report corrections page by page.</>
+            : <>Type the website address above and click <strong>Discover links</strong> to list all its pages. The client can then report corrections page by page.</>}
         </p>
       ) : visible.length === 0 ? (
         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No links match.</p>
@@ -181,7 +195,7 @@ function PageRow({ page, expanded, onToggle, onArchive, onDelete, onNotes, onErr
         <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex items-center gap-2 min-w-0 flex-1 text-left">
           <ChevronDown size={13} className="shrink-0 transition-transform"
             style={{ color: 'var(--text-muted)', transform: expanded ? 'none' : 'rotate(-90deg)' }} />
-          <span className="text-sm font-mono truncate text-primary-ui">{page.path}</span>
+          <span className="text-sm font-mono truncate text-primary-ui">{page.path === '/' ? 'Home' : page.path}</span>
           {page.title && <span className="hidden md:block text-xs truncate" style={{ color: 'var(--text-muted)' }}>{page.title}</span>}
         </button>
         {page.archived && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>Archived</span>}

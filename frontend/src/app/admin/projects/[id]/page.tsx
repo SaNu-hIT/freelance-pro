@@ -500,7 +500,14 @@ export default function ProjectDetailPage() {
           </div>
 
           <div style={card}>
-            <CorrectionsPanel projectId={id} />
+            <CorrectionsPanel projectId={id} board={{
+              team, sprints, tasks,
+              onTasksChanged: () => {
+                tasksApi.getByProject(id)
+                  .then(res => setTasks(Array.isArray(res.data) ? res.data : res.data?.data ?? []))
+                  .catch(() => {}) // the 30s refresh retries
+              },
+            }} />
           </div>
 
           {/* Requests */}

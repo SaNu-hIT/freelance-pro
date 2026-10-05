@@ -43,6 +43,12 @@ export class UpdatePageDto {
 export class DiscoverPagesDto {
   @IsUUID()
   projectId: string;
+
+  // The website to read; defaults to the project's live URL
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  url?: string;
 }
 
 export class CreatePageNoteDto {

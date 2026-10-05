@@ -27,13 +27,13 @@ describe('TasksController', () => {
 
   it('lets admin update any field', async () => {
     await controller.update('t1', { title: 'New' }, req('admin'));
-    expect(service.update).toHaveBeenCalledWith('t1', { title: 'New' });
+    expect(service.update).toHaveBeenCalledWith('t1', { title: 'New' }, 'u1');
   });
 
   it('lets a project freelancer toggle completed only', async () => {
     service.isProjectMember.mockResolvedValue(true);
     await controller.update('t1', { completed: true, title: 'ignored' }, req('freelancer'));
-    expect(service.update).toHaveBeenCalledWith('t1', { completed: true });
+    expect(service.update).toHaveBeenCalledWith('t1', { completed: true }, 'u1');
   });
 
   it('rejects a project freelancer changing other fields', async () => {

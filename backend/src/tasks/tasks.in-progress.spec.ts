@@ -16,7 +16,7 @@ describe('Task in-progress status', () => {
       save: jest.fn((t) => Promise.resolve(t)),
       update: jest.fn(),
       find: jest.fn().mockResolvedValue([]),
-      manager: { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }) },
+      manager: { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }), find: jest.fn().mockResolvedValue([]) },
     };
     service = new TasksService(repo);
   });
@@ -67,7 +67,7 @@ describe('Task in-progress status', () => {
 
     it('lets a project freelancer change only completed or inProgress', async () => {
       await controller.update('t1', { inProgress: true, title: 'renamed' }, freelancer);
-      expect(svc.update).toHaveBeenCalledWith('t1', { completed: undefined, inProgress: true });
+      expect(svc.update).toHaveBeenCalledWith('t1', { completed: undefined, inProgress: true }, 'u1');
       await expect(controller.update('t1', { title: 'renamed' }, freelancer)).rejects.toThrow(BadRequestException);
     });
 
@@ -86,7 +86,7 @@ describe('Task start time', () => {
       findOne: jest.fn(() => Promise.resolve(task)),
       save: jest.fn((t) => Promise.resolve(t)),
       update: jest.fn(),
-      manager: { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }) },
+      manager: { findOne: jest.fn().mockResolvedValue({ id: 'fp1' }), find: jest.fn().mockResolvedValue([]) },
     } as any);
   });
 

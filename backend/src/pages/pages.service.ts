@@ -11,7 +11,11 @@ import { ProjectPage } from '../entities/project-page.entity';
 import { PageNote } from '../entities/page-note.entity';
 import { User } from '../entities/user.entity';
 import { ProjectsService } from '../projects/projects.service';
-import { DiscoveryService, normalizePageUrl } from './discovery.service';
+import {
+  DiscoveryService,
+  normalizePageUrl,
+  typedAddress,
+} from './discovery.service';
 import { CreatePageDto, CreatePageNoteDto, UpdatePageDto } from './page.dto';
 
 type Actor = { id: string; role: string };
@@ -52,12 +56,13 @@ export class PagesService {
       user,
       dto.projectId,
     );
-    const isPath = dto.url.trim().startsWith('/');
+    const typed = typedAddress(dto.url);
+    const isPath = typed.startsWith('/');
     if (isPath && !project.liveUrl)
       throw new BadRequestException(
-        'Add the live URL to the project before adding pages by path.',
+        'Enter the full website address first, like https://example.com',
       );
-    const url = normalizePageUrl(dto.url, isPath ? project.liveUrl : undefined);
+    const url = normalizePageUrl(typed, isPath ? project.liveUrl : undefined);
     if (!url)
       throw new BadRequestException(
         'Enter a web address like https://example.com/about or a path like /about.',
@@ -99,17 +104,31 @@ export class PagesService {
     return { deleted: true };
   }
 
-  // Reads the live site and adds pages not yet listed; pages already listed are marked as seen
+  // Reads the site (the given address, else the live URL) and adds pages not yet listed; pages already listed are marked as seen.
+  // A project without a live URL takes the discovered site's address as its live URL.
   async discover(
     user: Actor,
     projectId: string,
-  ): Promise<{ found: number; added: number }> {
+    address?: string,
+  ): Promise<{ found: number; added: number; site: string }> {
     if (user.role !== 'admin')
       throw new ForbiddenException('Only admins can discover pages');
     const project = await this.projectsService.assertAccess(user, projectId);
+    const typed = address?.trim() ? typedAddress(address) : null;
+    const start = typed
+      ? normalizePageUrl(
+          typed,
+          typed.startsWith('/') ? (project.liveUrl ?? undefined) : undefined,
+        )
+      : project.liveUrl;
+    if (!start)
+      throw new BadRequestException(
+        'Enter the website address to read, like https://example.com',
+      );
+    const found = await this.discovery.discover(start.toString());
+    const site = new URL(start.toString()).origin;
     if (!project.liveUrl)
-      throw new BadRequestException('Add the live URL to the project first.');
-    const found = await this.discovery.discover(project.liveUrl);
+      await this.projectsService.update(projectId, { liveUrl: site });
     const existing = new Map(
       (await this.pagesRepo.find({ where: { projectId } })).map((p) => [
         p.url,
@@ -140,7 +159,7 @@ export class PagesService {
       }
     }
     await this.pagesRepo.save(toSave);
-    return { found: found.length, added };
+    return { found: found.length, added, site: project.liveUrl ?? site };
   }
 
   // The team writes either kind of note; a client's note is always visible to the client

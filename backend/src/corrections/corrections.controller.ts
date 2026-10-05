@@ -22,6 +22,7 @@ import {
 import {
   CreateCorrectionCommentDto,
   CreateCorrectionDto,
+  CreateCorrectionTaskDto,
   ListCorrectionsQuery,
   UpdateCorrectionDto,
 } from './correction.dto';
@@ -35,6 +36,12 @@ export class CorrectionsController {
   @Get()
   list(@Request() req: any, @Query() query: ListCorrectionsQuery) {
     return this.corrections.list(req.user, query);
+  }
+
+  // Admin: correction counts per project, for the project list
+  @Get('summary')
+  summary(@Request() req: any) {
+    return this.corrections.summary(req.user);
   }
 
   @Post()
@@ -76,6 +83,15 @@ export class CorrectionsController {
     @Body() dto: CreateCorrectionCommentDto,
   ) {
     return this.corrections.addComment(req.user, id, dto);
+  }
+
+  @Post(':id/task')
+  createTask(
+    @Request() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateCorrectionTaskDto,
+  ) {
+    return this.corrections.createTask(req.user, id, dto);
   }
 
   @Post(':id/screenshots')
