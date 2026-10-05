@@ -67,6 +67,7 @@ interface User {
   role: UserRole
   profileImage?: string
   createdAt?: string
+  mustChangePassword?: boolean
 }
 
 interface AuthState {

@@ -148,7 +148,7 @@ function AvailabilityPanel({ profileId }: { profileId: string }) {
         {heading}
         {error
           ? <ErrorBanner title="Availability unavailable" message={error} />
-          : <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{loading ? 'Loading…' : 'Not set by the freelancer yet'}</span>}
+          : <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{loading ? 'Loading…' : 'Not set by the team member yet'}</span>}
       </div>
     )
   }
@@ -286,7 +286,7 @@ export default function OnboardingPipelinePage() {
     runAction(() => freelancersApi.updateStage(id, stage), `Moved to ${stageLabel(stage)}`, 'Could not change the stage')
 
   const handleApprove = (id: string) =>
-    runAction(() => freelancersApi.approve(id), 'Freelancer approved — now active on platform', 'Could not approve the freelancer')
+    runAction(() => freelancersApi.approve(id), 'Team member approved — now active on platform', 'Could not approve the team member')
 
   const handleReject = async (id: string) => {
     if (!rejectReason.trim()) return
@@ -379,7 +379,7 @@ export default function OnboardingPipelinePage() {
             Onboarding Pipeline
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '6px 0 0', fontFamily: 'var(--font-mono)' }}>
-            Review, verify and approve incoming freelancer applications
+            Review, verify and approve incoming team member applications
           </p>
         </div>
 

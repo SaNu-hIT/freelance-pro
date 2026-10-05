@@ -103,8 +103,8 @@ export default function AdminDashboardPage() {
         <MetricCard label="ACTIVE" value={stats?.activeProjects ?? 0} loading={loading} />
         <MetricCard label="DELAYED" value={stats?.delayedProjects ?? 0} loading={loading} highlight />
         <MetricCard label="PENDING APPROVAL" value={stats?.pendingApprovals ?? 0} loading={loading} />
-        <MetricCard label="TOTAL FREELANCERS" value={stats?.totalFreelancers ?? 0} note={`+${stats?.newFreelancersLast30Days ?? 0} in last 30 days`} loading={loading} />
-        <MetricCard label="ACTIVE FREELANCERS" value={stats?.activeFreelancers ?? 0} loading={loading} />
+        <MetricCard label="TOTAL TEAM MEMBERS" value={stats?.totalFreelancers ?? 0} note={`+${stats?.newFreelancersLast30Days ?? 0} in last 30 days`} loading={loading} />
+        <MetricCard label="ACTIVE TEAM MEMBERS" value={stats?.activeFreelancers ?? 0} loading={loading} />
       </div>
 
       {/* Work in progress and hours */}

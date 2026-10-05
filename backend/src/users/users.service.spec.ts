@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from './users.service';
+import { UsersService, generateTemporaryPassword } from './users.service';
 
 describe('UsersService', () => {
   let users: any;
@@ -54,6 +54,7 @@ describe('UsersService', () => {
     await service.changePassword('u1', 'oldpass12', 'newpass12');
     const saved = users.update.mock.calls[0][1].password;
     expect(await bcrypt.compare('newpass12', saved)).toBe(true);
+    expect(users.update.mock.calls[0][1].mustChangePassword).toBe(false);
   });
 
   it('refuses an email another user has', async () => {
@@ -100,6 +101,20 @@ describe('UsersService', () => {
     users.findOne.mockResolvedValue({ id: 'c1' });
     await service.resetPassword('c1', 'newpass12');
     expect(await bcrypt.compare('newpass12', users.update.mock.calls[0][1].password)).toBe(true);
+  });
+
+  it('generates a temporary password when none is given and makes the user change it', async () => {
+    users.findOne.mockResolvedValue({ id: 'c1' });
+    const { temporaryPassword } = await service.resetPassword('c1');
+    expect(temporaryPassword).toMatch(/^[A-HJ-NP-Za-km-np-z2-9]{12}$/);
+    const saved = users.update.mock.calls[0][1];
+    expect(saved.mustChangePassword).toBe(true);
+    expect(await bcrypt.compare(temporaryPassword, saved.password)).toBe(true);
+  });
+
+  it('generated passwords differ each time', () => {
+    const seen = new Set(Array.from({ length: 50 }, () => generateTemporaryPassword()));
+    expect(seen.size).toBe(50);
   });
 
   it('404s an admin edit of a missing user', async () => {

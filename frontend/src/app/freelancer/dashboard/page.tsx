@@ -156,7 +156,7 @@ export default function FreelancerDashboardPage() {
           <div>
             <p className="text-mono-label text-xs tracking-widest mb-1">{greeting}</p>
             <h1 className="text-display text-4xl text-gradient leading-none">
-              {user?.name?.toUpperCase() ?? 'FREELANCER'}
+              {user?.name?.toUpperCase() ?? 'TEAM MEMBER'}
             </h1>
           </div>
           <span className="text-mono-label text-xs text-[var(--text-muted)]">{today}</span>
@@ -201,7 +201,7 @@ export default function FreelancerDashboardPage() {
               <Shield size={18} />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-sm" style={{ color: 'var(--fg)' }}>Active — Approved Freelancer</p>
+              <p className="font-bold text-sm" style={{ color: 'var(--fg)' }}>Active — Approved Team Member</p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 Your profile is live. You can be assigned to projects.
               </p>

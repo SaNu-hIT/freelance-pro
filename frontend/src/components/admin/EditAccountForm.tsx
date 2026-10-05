@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Clock, KeyRound, Trash2 } from 'lucide-react'
+import { Check, Clock, Copy, KeyRound, Trash2 } from 'lucide-react'
 import { usersApi } from '@/lib/api'
 import { apiError } from '@/lib/utils'
 import { User } from '@/lib/types'
@@ -94,22 +94,23 @@ export function EditAccountForm({ user, showCompany, onSaved }: {
   )
 }
 
-// Admin sets a new password for a user who is locked out
+// Admin resets a password: the server generates a temporary one, shown here once to hand over.
+// The user must choose their own at next login.
 export function ResetPasswordForm({ userId }: { userId: string }) {
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [temporary, setTemporary] = useState('')
+  const [confirming, setConfirming] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [done, setDone] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const handleReset = async () => {
     setSaveError('')
-    if (password.length < 8) { setError('New password must be at least 8 characters.'); return }
     setSaving(true)
     try {
-      await usersApi.resetPassword(userId, password)
-      setPassword('')
-      setDone(true)
+      const { data } = await usersApi.resetPassword(userId)
+      setTemporary(data.temporaryPassword)
+      setConfirming(false)
+      setCopied(false)
     } catch (err) {
       setSaveError(apiError(err, 'Could not reset the password.'))
     } finally {
@@ -117,23 +118,49 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
     }
   }
 
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(temporary); setCopied(true) } catch {}
+  }
+
   return (
     <div className="space-y-3">
       {saveError && <ErrorBanner title="Password not reset" message={saveError} onClose={() => setSaveError('')} />}
-      <div>
-        <label htmlFor="reset-password" className="label-field">New password</label>
-        <input id="reset-password" type="text" autoComplete="off" className="input-field" placeholder="At least 8 characters"
-          aria-invalid={!!error} aria-describedby="reset-password-error reset-password-hint" style={invalidStyle(error)}
-          value={password} onChange={e => { setPassword(e.target.value); setError(''); setDone(false) }} />
-        <FieldError id="reset-password-error" message={error} />
-        <p id="reset-password-hint" className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
-          {done ? 'Password reset. Share the new one with them.' : 'Their old password stops working right away.'}
-        </p>
-      </div>
-      <button type="button" onClick={handleReset} disabled={saving}
-        className="btn-ghost flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
-        {saving ? <><Clock size={13} className="animate-spin" /> Resetting…</> : <><KeyRound size={13} /> Reset password</>}
-      </button>
+      {temporary ? (
+        <div className="rounded-lg p-4 space-y-2" style={{ border: '1px solid rgb(var(--fg-rgb) / 0.35)', background: 'rgb(var(--fg-rgb) / 0.05)' }}>
+          <p className="text-mono-label text-[10px]">TEMPORARY PASSWORD · SHOWN ONCE</p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 font-mono text-lg tracking-wider select-all" style={{ color: 'var(--fg)' }}>{temporary}</code>
+            <button type="button" onClick={copy} className="btn-ghost flex items-center gap-1.5 px-3 py-1.5 rounded text-xs">
+              {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
+            </button>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Give this to them. They will be asked to choose their own password when they sign in. It will not be shown again.
+          </p>
+          <button type="button" onClick={() => setTemporary('')} className="text-mono-label text-[10px] underline" style={{ color: 'var(--text-muted)' }}>
+            DONE, HIDE IT
+          </button>
+        </div>
+      ) : confirming ? (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Their current password stops working right away.</span>
+          <button type="button" onClick={handleReset} disabled={saving}
+            className="btn-primary flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
+            {saving ? <><Clock size={13} className="animate-spin" /> Resetting…</> : 'Yes, reset it'}
+          </button>
+          <button type="button" onClick={() => setConfirming(false)} className="btn-ghost px-4 py-2 rounded text-sm">Cancel</button>
+        </div>
+      ) : (
+        <>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Passwords are stored encrypted, so nobody can see them. Reset to get a temporary one to hand over.
+          </p>
+          <button type="button" onClick={() => setConfirming(true)}
+            className="btn-ghost flex items-center gap-2 px-4 py-2 rounded text-sm">
+            <KeyRound size={13} /> Reset password
+          </button>
+        </>
+      )}
     </div>
   )
 }

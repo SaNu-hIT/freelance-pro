@@ -145,7 +145,7 @@ function AdminProjectsPageInner() {
       if (pRes.status === 'fulfilled') setProjects(pRes.value.data?.data ?? pRes.value.data)
       else errors.push(apiError(pRes.reason, 'Could not load projects.'))
       if (fRes.status === 'fulfilled') setFreelancers(fRes.value.data?.data ?? fRes.value.data)
-      else errors.push(apiError(fRes.reason, 'Could not load freelancers.'))
+      else errors.push(apiError(fRes.reason, 'Could not load team members.'))
       if (cRes.status === 'fulfilled') setClients(cRes.value.data ?? [])
       else errors.push(apiError(cRes.reason, 'Could not load clients.'))
       setLoadError(errors.join(' '))
@@ -929,7 +929,7 @@ function AdminProjectsPageInner() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <p className="text-mono-label mb-0.5" style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>ASSIGN EMPLOYEES</p>
-                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Select freelancers to add to this project</p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Select team members to add to this project</p>
                   </div>
                   {form.teamMemberIds.length > 0 && (
                     <span className="text-mono-label px-2.5 py-1 rounded-full text-[10px] font-bold"
@@ -942,7 +942,7 @@ function AdminProjectsPageInner() {
                 {freelancers.length === 0 ? (
                   <div className="rounded-xl px-4 py-10 text-center" style={{ background: 'var(--input-bg)', border: '1px dashed var(--border)' }}>
                     <Users size={24} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No freelancers available yet</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No team members available yet</p>
                   </div>
                 ) : (
                   <div className="space-y-2.5">

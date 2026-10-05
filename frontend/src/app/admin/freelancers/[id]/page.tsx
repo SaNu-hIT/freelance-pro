@@ -176,7 +176,7 @@ export default function FreelancerDetailPage() {
     <DashboardLayout allowedRoles={['admin']}>
       {error && <ErrorBanner title="Team member unavailable" message={error} />}
       <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-        Freelancer not found.
+        Team member not found.
       </div>
     </DashboardLayout>
   )

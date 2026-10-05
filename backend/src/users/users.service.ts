@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -17,6 +18,12 @@ import { ProjectTask } from '../entities/project-task.entity';
 import { ProjectRequest } from '../entities/project-request.entity';
 import { ProjectDocument } from '../entities/project-document.entity';
 import { AdminUpdateUserDto, CreateClientDto, CreateFreelancerDto, UpdateMeDto } from './dto/user.dto';
+
+// 12 characters from an alphabet without look-alikes (0/O, 1/l/I), easy to read out or type
+const PASSWORD_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+export function generateTemporaryPassword(length = 12): string {
+  return Array.from({ length }, () => PASSWORD_ALPHABET[randomInt(PASSWORD_ALPHABET.length)]).join('');
+}
 
 @Injectable()
 export class UsersService {
@@ -133,9 +140,12 @@ export class UsersService {
     });
   }
 
-  async resetPassword(id: string, newPassword: string): Promise<void> {
+  // Admin reset: the old password stops working and the user must pick their own at next login
+  async resetPassword(id: string, newPassword?: string): Promise<{ temporaryPassword: string }> {
     if (!(await this.usersRepository.findOne({ where: { id } }))) throw new NotFoundException('User not found');
-    await this.usersRepository.update(id, { password: await bcrypt.hash(newPassword, 10) });
+    const temporaryPassword = newPassword ?? generateTemporaryPassword();
+    await this.usersRepository.update(id, { password: await bcrypt.hash(temporaryPassword, 10), mustChangePassword: true });
+    return { temporaryPassword };
   }
 
   // Users of a role with how many projects they own as client
@@ -165,7 +175,7 @@ export class UsersService {
 
   async changePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
     await this.verifyPassword(id, currentPassword);
-    await this.usersRepository.update(id, { password: await bcrypt.hash(newPassword, 10) });
+    await this.usersRepository.update(id, { password: await bcrypt.hash(newPassword, 10), mustChangePassword: false });
   }
 
   async deleteAccount(id: string, password: string): Promise<void> {

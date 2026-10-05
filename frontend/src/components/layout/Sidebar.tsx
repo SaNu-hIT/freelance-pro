@@ -237,7 +237,7 @@ export function Sidebar({ role, pathname, collapsed = false }: SidebarProps) {
             {!collapsed && <div className="overflow-hidden">
               <p className="text-primary-ui text-xs font-semibold truncate">{user.name}</p>
               <p className="text-xs uppercase tracking-widest truncate" style={{ color: 'rgb(var(--fg-rgb) / 0.65)', fontFamily: 'var(--font-mono)' }}>
-                {user.role}
+                {user.role === 'freelancer' ? 'Team member' : user.role}
               </p>
             </div>}
           </div>

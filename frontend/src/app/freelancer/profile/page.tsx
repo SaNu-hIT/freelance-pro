@@ -72,7 +72,7 @@ export default function FreelancerProfilePage() {
         const res = await freelancersApi.getAll()
         const list = res.data?.data ?? res.data ?? []
         const fp = Array.isArray(list) ? list[0] : list
-        if (!fp) { setLoadError('No freelancer profile was found for your account.'); return }
+        if (!fp) { setLoadError('No team member profile was found for your account.'); return }
         setProfileId(fp.id ?? null)
         setProfile({
           bio: fp.bio ?? '',
@@ -203,7 +203,7 @@ export default function FreelancerProfilePage() {
 
         {/* ── Page header ── */}
         <div>
-          <p className="text-mono-label mb-1" style={{ color: 'var(--text-muted)' }}>FREELANCER</p>
+          <p className="text-mono-label mb-1" style={{ color: 'var(--text-muted)' }}>TEAM MEMBER</p>
           <h1 className="text-display text-4xl text-primary-ui">MY PROFILE</h1>
         </div>
 

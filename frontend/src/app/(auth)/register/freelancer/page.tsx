@@ -218,7 +218,7 @@ export default function FreelancerRegisterPage() {
         {/* Bottom trust row */}
         <div className="flex items-center gap-5 mt-auto pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
           {[
-            { icon: Users, val: '100+', label: 'ACTIVE FREELANCERS' },
+            { icon: Users, val: '100+', label: 'ACTIVE TEAM MEMBERS' },
             { icon: Star, val: '4.9', label: 'AVG RATING' },
             { icon: Clock, val: '48h', label: 'AVG REVIEW TIME' },
           ].map(({ icon: Icon, val, label }) => (
@@ -242,7 +242,7 @@ export default function FreelancerRegisterPage() {
             {/* Header */}
             <div className="mb-7">
               <h1 className="text-primary-ui text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
-                {isIntern ? 'Intern Application' : 'Freelancer Registration'}
+                {isIntern ? 'Intern Application' : 'Team Member Registration'}
               </h1>
               <p className="text-mono-label" style={{ color: 'var(--text-muted)', fontSize: 10 }}>
                 {isIntern ? 'START YOUR 6-MONTH PROGRAMME' : 'JOIN THE PROFESSIONAL NETWORK'}
@@ -513,7 +513,7 @@ export default function FreelancerRegisterPage() {
                       ? <><Loader2 size={15} className="animate-spin" /> Creating Account...</>
                       : isIntern
                         ? <><GraduationCap size={15} /> Apply for Internship <ArrowRight size={14} /></>
-                        : <><BadgeCheck size={15} /> Create Freelancer Account <ArrowRight size={14} /></>
+                        : <><BadgeCheck size={15} /> Create Team Member Account <ArrowRight size={14} /></>
                     }
                   </button>
                 </div>

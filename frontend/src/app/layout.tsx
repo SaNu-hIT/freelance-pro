@@ -4,8 +4,8 @@ import { RevealOnScroll } from "@/components/brand/RevealOnScroll";
 
 export const metadata: Metadata = {
   title: "BLACKORWHITE — Freelance Pro",
-  description: "Centralized platform for managing freelancers, client projects, worklogs, timelines, and remuneration.",
-  keywords: "freelancer management, project management, worklog, remuneration",
+  description: "Centralized platform for managing team members, client projects, worklogs, timelines, and remuneration.",
+  keywords: "team member management, project management, worklog, remuneration",
 };
 
 export default function RootLayout({

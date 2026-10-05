@@ -50,6 +50,10 @@ export function DashboardLayout({ children, allowedRoles }: DashboardLayoutProps
       router.replace('/login')
       return
     }
+    if (user.mustChangePassword) {
+      router.replace('/change-password')
+      return
+    }
     if (!allowedRoles.includes(user.role)) {
       router.replace(roleRedirects[user.role])
     }

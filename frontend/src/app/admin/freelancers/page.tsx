@@ -44,7 +44,7 @@ export default function AdminFreelancersPage() {
         // The team is every approved member, active or deactivated; applicants live on the onboarding page
         setFreelancers(Array.isArray(data) ? data.filter((f: FreelancerProfile) => f.onboardingStage === 'approved') : [])
       } catch (err) {
-        setError(apiError(err, 'Could not load freelancers'))
+        setError(apiError(err, 'Could not load team members'))
       } finally {
         setLoading(false)
       }
@@ -75,10 +75,10 @@ export default function AdminFreelancersPage() {
         <div>
           <p className="text-mono-label mb-1">TALENT POOL</p>
           <h1 className="text-display text-4xl text-primary-ui">OUR TEAM</h1>
-          <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved freelancers on the platform</p>
+          <p className="text-mono-label mt-1" style={{ color: 'var(--text-muted)' }}>Approved team members on the platform</p>
         </div>
         <button onClick={() => setAdding(true)} className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded text-sm">
-          <UserPlus size={14} /> Add Freelancer
+          <UserPlus size={14} /> Add Team Member
         </button>
       </div>
 
@@ -170,7 +170,7 @@ export default function AdminFreelancersPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
           <User size={32} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
-          <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO FREELANCERS FOUND</p>
+          <p className="text-mono-label text-lg" style={{ color: 'var(--text-muted)' }}>NO TEAM MEMBERS FOUND</p>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -304,7 +304,7 @@ export default function AdminFreelancersPage() {
           <div role="dialog" aria-modal="true" aria-labelledby="add-freelancer-title"
             className="glass-card rounded-xl p-7 w-full max-w-lg space-y-5 max-h-full overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 id="add-freelancer-title" className="text-primary-ui font-bold text-base">Add Freelancer</h3>
+              <h3 id="add-freelancer-title" className="text-primary-ui font-bold text-base">Add Team Member</h3>
               <button onClick={() => setAdding(false)} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
             </div>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>

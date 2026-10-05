@@ -26,6 +26,10 @@ export class User {
   @Column({ type: 'enum', enum: ['admin', 'freelancer', 'client'] })
   role: string;
 
+  // Set when an admin resets the password; the user must choose their own at next login
+  @Column({ default: false })
+  mustChangePassword: boolean;
+
   @Column({ nullable: true })
   profileImage: string;
 

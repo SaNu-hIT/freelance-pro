@@ -132,7 +132,8 @@ export const usersApi = {
   }) => api.post('/users/freelancers', data),
   update: (id: string, data: { name?: string; email?: string; phone?: string; company?: string }) =>
     api.patch(`/users/${id}`, data),
-  resetPassword: (id: string, newPassword: string) => api.patch(`/users/${id}/password`, { newPassword }),
+  // Without newPassword the server generates one; the response's temporaryPassword is shown to the admin once
+  resetPassword: (id: string, newPassword?: string) => api.patch(`/users/${id}/password`, newPassword ? { newPassword } : {}),
   remove: (id: string) => api.delete(`/users/${id}`),
   me:() => api.get('/users/me'),
   updateMe: (data: { name?: string; email?: string; phone?: string; company?: string; notificationPrefs?: Record<string, boolean> }) =>

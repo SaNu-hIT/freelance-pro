@@ -23,13 +23,13 @@ const roleRoutes: Record<UserRole, string> = {
 // Seed accounts for local development only. Never ship these credentials in a production bundle.
 const DEMO_ACCOUNTS = process.env.NODE_ENV === 'development' ? [
   { label: 'Admin',      email: 'admin@freelancepro.com',  password: 'Admin@123', role: 'admin'      as UserRole, icon: ShieldCheck, desc: 'Full platform control',  color: 'var(--fg)' },
-  { label: 'Freelancer', email: 'alex@freelancepro.dev',   password: 'Test@123',  role: 'freelancer' as UserRole, icon: Code2,       desc: 'Projects & worklogs',   color: 'var(--fg)' },
+  { label: 'Team member', email: 'alex@freelancepro.dev',   password: 'Test@123',  role: 'freelancer' as UserRole, icon: Code2,       desc: 'Projects & worklogs',   color: 'var(--fg)' },
   { label: 'Client',     email: 'acme@corp.com',           password: 'Test@123',  role: 'client'     as UserRole, icon: Building2,   desc: 'Track your projects',   color: 'var(--fg)' },
 ] : []
 
 const FEATURES = [
   { icon: BarChart3,    text: 'Live dashboards with real-time progress tracking' },
-  { icon: Users,        text: 'Managed freelancer teams vetted by project managers' },
+  { icon: Users,        text: 'Managed teams vetted by project managers' },
   { icon: CheckCircle2, text: 'QA-reviewed deliverables before every handoff' },
   { icon: Clock,        text: 'Detailed worklogs and time tracking per task' },
 ]
@@ -46,14 +46,14 @@ export default function LoginPage() {
 
   // Already signed in: skip the form
   useEffect(() => {
-    if (_hasHydrated && isAuthenticated && user) router.replace(roleRoutes[user.role] ?? '/admin')
+    if (_hasHydrated && isAuthenticated && user) router.replace(user.mustChangePassword ? '/change-password' : roleRoutes[user.role] ?? '/admin')
   }, [_hasHydrated, isAuthenticated, user, router])
 
   const doLogin = async (e: string, p: string) => {
     const res = await authApi.login(e, p)
     const { user, token } = res.data
     login(user, token)
-    router.push(roleRoutes[user.role as UserRole] ?? '/admin')
+    router.push(user.mustChangePassword ? '/change-password' : roleRoutes[user.role as UserRole] ?? '/admin')
   }
 
   const handleSubmit = async (ev: FormEvent) => {
@@ -110,7 +110,7 @@ export default function LoginPage() {
 
           {/* Main copy */}
           <div>
-            <p className="text-mono-label text-[var(--fg)] mb-3 text-[10px] tracking-[0.2em]">FREELANCER MANAGEMENT PLATFORM</p>
+            <p className="text-mono-label text-[var(--fg)] mb-3 text-[10px] tracking-[0.2em]">TEAM MEMBER MANAGEMENT PLATFORM</p>
             <h2 className="text-3xl font-bold text-primary-ui mb-3 leading-snug">
               Manage your entire<br />freelance operation<br />in one place
             </h2>
@@ -132,7 +132,7 @@ export default function LoginPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-theme">
-              {[{ val: '50+', label: 'Projects' }, { val: '100+', label: 'Freelancers' }, { val: '99%', label: 'Uptime' }].map(({ val, label }) => (
+              {[{ val: '50+', label: 'Projects' }, { val: '100+', label: 'Team members' }, { val: '99%', label: 'Uptime' }].map(({ val, label }) => (
                 <div key={label}>
                   <div className="text-xl font-bold text-primary-ui mb-0.5">{val}</div>
                   <div className="text-xs text-muted-ui">{label}</div>

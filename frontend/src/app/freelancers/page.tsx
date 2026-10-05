@@ -85,7 +85,7 @@ export default function FreelancersPage() {
           <div className="max-w-3xl">
             <p className="text-mono-label text-[var(--fg)] text-xs tracking-widest mb-6 flex items-center gap-2">
               <span className="w-8 h-px bg-[var(--fg)] inline-block" />
-              FOR ELITE FREELANCERS
+              FOR ELITE TEAM MEMBERS
             </p>
             <h1 className="text-display-xl mb-6">
               <span className="block text-gradient">YOUR SKILLS.</span>
@@ -104,7 +104,7 @@ export default function FreelancersPage() {
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-8">
-              {[{ num: '100+', label: 'ACTIVE FREELANCERS' }, { num: `${curr}2.4M`, label: 'PAID OUT' }, { num: '94%', label: 'ON-TIME RATE' }].map(({ num, label }) => (
+              {[{ num: '100+', label: 'ACTIVE TEAM MEMBERS' }, { num: `${curr}2.4M`, label: 'PAID OUT' }, { num: '94%', label: 'ON-TIME RATE' }].map(({ num, label }) => (
                 <div key={label}>
                   <p className="text-primary-ui text-2xl font-bold text-display">{num}</p>
                   <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</p>

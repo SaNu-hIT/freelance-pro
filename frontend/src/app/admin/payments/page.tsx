@@ -79,7 +79,7 @@ export default function AdminPaymentsPage() {
       const fData: FreelancerProfile[] = fRes.data?.data ?? fRes.data ?? []
       setFreelancers(fData.filter(f => f.onboardingStage === 'approved'))
     } catch (err) {
-      setCreateError(apiError(err, 'Could not load projects and freelancers'))
+      setCreateError(apiError(err, 'Could not load projects and team members'))
     } finally {
       setOptionsLoading(false)
     }
@@ -89,7 +89,7 @@ export default function AdminPaymentsPage() {
     const amount = parseFloat(createForm.amount)
     const deductions = parseFloat(createForm.deductions) || 0
     if (!createForm.projectId || !createForm.freelancerId) {
-      setCreateError('Choose a project and a freelancer')
+      setCreateError('Choose a project and a team member')
       return
     }
     if (!(amount > 0)) {
@@ -253,7 +253,7 @@ export default function AdminPaymentsPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Freelancer</th>
+                  <th>Team member</th>
                   <th>Project</th>
                   <th>Amount</th>
                   <th>Deductions</th>
@@ -455,7 +455,7 @@ export default function AdminPaymentsPage() {
               </div>
 
               <div>
-                <label className="label-field">Freelancer</label>
+                <label className="label-field">Team member</label>
                 <div className="relative">
                   <select
                     className="input-field appearance-none pr-8"
@@ -463,7 +463,7 @@ export default function AdminPaymentsPage() {
                     disabled={optionsLoading}
                     onChange={e => setCreateForm(f => ({ ...f, freelancerId: e.target.value }))}
                   >
-                    <option value="">{optionsLoading ? 'Loading…' : 'Select a freelancer'}</option>
+                    <option value="">{optionsLoading ? 'Loading…' : 'Select a team member'}</option>
                     {freelancers.map(f => <option key={f.id} value={f.id}>{f.user.name}</option>)}
                   </select>
                   <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />

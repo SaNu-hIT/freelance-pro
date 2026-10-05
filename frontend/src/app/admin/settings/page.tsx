@@ -347,8 +347,8 @@ export default function AdminSettingsPage() {
                   {(Object.entries(notifs) as [keyof typeof notifs, boolean][]).map(([key, val]) => {
                     const labels: Record<keyof typeof notifs, { title: string; desc: string }> = {
                       newProject: { title: 'New project created', desc: 'When a client creates a new project' },
-                      newFreelancer: { title: 'New freelancer registration', desc: 'When a freelancer registers and needs approval' },
-                      worklogSubmit: { title: 'Worklog submitted', desc: 'When a freelancer submits a worklog' },
+                      newFreelancer: { title: 'New team member registration', desc: 'When a team member registers and needs approval' },
+                      worklogSubmit: { title: 'Worklog submitted', desc: 'When a team member submits a worklog' },
                       paymentAlert: { title: 'Payment activity', desc: 'When payments are made or pending' },
                       weeklyReport: { title: 'Weekly summary report', desc: 'Digest of platform activity every Monday' },
                       systemAlerts: { title: 'System alerts', desc: 'Critical system notifications and errors' },
@@ -388,8 +388,8 @@ export default function AdminSettingsPage() {
                 </h2>
                 <div className="space-y-4">
                   {([
-                    { key: 'newRegistrations' as const, title: 'Allow new registrations', desc: 'Let new freelancers and clients sign up' },
-                    { key: 'requireApproval' as const, title: 'Require freelancer approval', desc: 'New freelancers must be approved before accessing projects' },
+                    { key: 'newRegistrations' as const, title: 'Allow new registrations', desc: 'Let new team members and clients sign up' },
+                    { key: 'requireApproval' as const, title: 'Require team member approval', desc: 'New team members must be approved before accessing projects' },
                     { key: 'maintenanceMode' as const, title: 'Maintenance mode', desc: 'Take the platform offline for maintenance' },
                   ]).map(({ key, title, desc }) => {
                     const val = { newRegistrations, requireApproval, maintenanceMode }[key]
@@ -647,7 +647,7 @@ export default function AdminSettingsPage() {
               <div className="space-y-3">
                 {[
                   { title: 'Clear all worklogs', desc: 'Permanently delete all worklog records from the platform', btn: 'Clear Worklogs' },
-                  { title: 'Reset platform data', desc: 'Wipe all projects, freelancers, and payments. Cannot be undone.', btn: 'Reset Data' },
+                  { title: 'Reset platform data', desc: 'Wipe all projects, team members, and payments. Cannot be undone.', btn: 'Reset Data' },
                 ].map(({ title, desc, btn }) => (
                   <div key={title} className="flex items-center justify-between p-4 rounded-xl"
                     style={{ background: 'rgb(var(--fg-rgb) / 0.04)', border: '1px solid rgb(var(--fg-rgb) / 0.15)' }}>

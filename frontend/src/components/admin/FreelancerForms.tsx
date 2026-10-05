@@ -120,7 +120,7 @@ export function NewFreelancerForm({ onCreated }: { onCreated: (profile: Freelanc
       setForm(initial)
       onCreated(data)
     } catch (err) {
-      setSaveError(apiError(err, 'Could not add the freelancer.'))
+      setSaveError(apiError(err, 'Could not add the team member.'))
     } finally {
       setSaving(false)
     }
@@ -128,7 +128,7 @@ export function NewFreelancerForm({ onCreated }: { onCreated: (profile: Freelanc
 
   return (
     <div className="space-y-3">
-      {saveError && <ErrorBanner title="Freelancer not added" message={saveError} onClose={() => setSaveError('')} />}
+      {saveError && <ErrorBanner title="Team member not added" message={saveError} onClose={() => setSaveError('')} />}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="fl-name" className="label-field">Name *</label>
@@ -160,7 +160,7 @@ export function NewFreelancerForm({ onCreated }: { onCreated: (profile: Freelanc
       <ProfileFields form={form} errors={errors} setField={setField} />
       <button type="button" onClick={handleCreate} disabled={saving}
         className="btn-primary flex items-center gap-2 px-4 py-2 rounded text-sm disabled:opacity-50">
-        {saving ? <><Clock size={13} className="animate-spin" /> Adding…</> : <><UserPlus size={13} /> Add freelancer</>}
+        {saving ? <><Clock size={13} className="animate-spin" /> Adding…</> : <><UserPlus size={13} /> Add team member</>}
       </button>
     </div>
   )

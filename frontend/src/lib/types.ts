@@ -12,6 +12,8 @@ export interface User {
   phone?: string | null
   company?: string | null
   notificationPrefs?: Record<string, boolean> | null
+  // An admin reset the password; the user must choose their own before using the app
+  mustChangePassword?: boolean
   projectCount?: number
   createdAt: string
 }

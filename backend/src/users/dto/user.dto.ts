@@ -101,10 +101,12 @@ export class AdminUpdateUserDto {
   company?: string;
 }
 
+// Without newPassword the server generates a temporary one and returns it once
 export class AdminResetPasswordDto {
+  @IsOptional()
   @IsString()
   @MinLength(8)
-  newPassword: string;
+  newPassword?: string;
 }
 
 export class ChangePasswordDto {

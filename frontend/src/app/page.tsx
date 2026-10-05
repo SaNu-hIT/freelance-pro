@@ -53,7 +53,7 @@ export default function HomePage() {
             <source src="/brand/hero-loop.mp4" type="video/mp4" />
           </video>
           <div className="bg-scrim" aria-hidden="true" />
-          <p className="hero-meta hidden md:block" style={{ top: '6.5rem', left: 'clamp(1.2rem,4vw,3.5rem)' }}>For elite freelancers</p>
+          <p className="hero-meta hidden md:block" style={{ top: '6.5rem', left: 'clamp(1.2rem,4vw,3.5rem)' }}>For elite team members</p>
           <p className="hero-meta hidden md:block" style={{ top: '6.5rem', right: 'clamp(1.2rem,4vw,3.5rem)' }}>Vetted network</p>
           <p className="hero-meta hidden md:block" style={{ bottom: '2.4rem', left: 'clamp(1.2rem,4vw,3.5rem)' }}>Kerala / India — Global</p>
           <p className="hero-meta hidden md:block" style={{ bottom: '2.4rem', right: 'clamp(1.2rem,4vw,3.5rem)' }}>Est. 2026</p>
@@ -76,7 +76,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-10 mt-14">
               {[
-                { num: '100+',        label: 'Active Freelancers' },
+                { num: '100+',        label: 'Active Team Members' },
                 { num: `${curr}2.4M`, label: 'Paid Out' },
                 { num: '94%',         label: 'On-Time Rate' },
               ].map(({ num, label }) => (
@@ -104,7 +104,7 @@ export default function HomePage() {
           <div className="max-w-5xl mb-14">
             <span className="chapter-no">02 — Why join</span>
             <h2 className="text-display-xl">Built for<br />professionals.</h2>
-            <p className="lede mt-6 measure">Everything a serious freelancer needs, and nothing that gets in the way.</p>
+            <p className="lede mt-6 measure">Everything a serious team member needs, and nothing that gets in the way.</p>
           </div>
           <div className="border-t border-theme">
             {benefits.map((b, i) => (
@@ -171,7 +171,7 @@ export default function HomePage() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
             <div className="lg:max-w-2xl">
               <span className="chapter-no">06 — For clients</span>
-              <h2 className="text-display text-4xl md:text-6xl">Looking to hire<br />freelancers?</h2>
+              <h2 className="text-display text-4xl md:text-6xl">Looking to hire<br />team members?</h2>
               <p className="lede mt-6">
                 Submit your idea or request a callback. We&apos;ll match you with the right
                 specialists from our vetted network within 48 hours.

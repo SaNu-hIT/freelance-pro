@@ -32,14 +32,14 @@ type CallbackForm = {
 
 const howItWorks = [
   { num: '01', icon: <Send size={20} />, title: 'Submit Your Idea', desc: 'Describe your project in plain language. No technical jargon needed — we handle the translation.' },
-  { num: '02', icon: <Users size={20} />, title: 'Get Matched', desc: 'We curate the right freelancers from our network based on your project requirements and budget.' },
+  { num: '02', icon: <Users size={20} />, title: 'Get Matched', desc: 'We curate the right team members from our network based on your project requirements and budget.' },
   { num: '03', icon: <FolderKanban size={20} />, title: 'Track Progress', desc: 'Real-time updates, daily worklogs, and milestone reports — full visibility at every stage.' },
   { num: '04', icon: <CheckCircle size={20} />, title: 'Ship & Scale', desc: 'Receive your deliverable, approve payment, and scale up with the same team if needed.' },
 ]
 
 const valueProps = [
-  { icon: <Zap size={22} />, title: 'Fast Matching', desc: 'Get matched with the right freelancers within 24-48 hours of submitting your brief.' },
-  { icon: <ShieldCheck size={22} />, title: 'Vetted Talent', desc: 'Every freelancer is manually reviewed and verified before joining our network.' },
+  { icon: <Zap size={22} />, title: 'Fast Matching', desc: 'Get matched with the right team members within 24-48 hours of submitting your brief.' },
+  { icon: <ShieldCheck size={22} />, title: 'Vetted Talent', desc: 'Every team member is manually reviewed and verified before joining our network.' },
   { icon: <BarChart3 size={22} />, title: 'Full Transparency', desc: 'Live dashboards, worklog tracking, and milestone updates — no black boxes.' },
   { icon: <Clock size={22} />, title: 'On-Time Delivery', desc: '94% on-time delivery rate. We monitor timelines and flag risks before they become problems.' },
 ]
@@ -100,7 +100,7 @@ export default function ClientsPage() {
     <div className="site-main min-h-screen" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
       <SiteHeader
-        links={[{ label: 'Home', href: '/' }, { label: 'For freelancers', href: '/freelancers' }]}
+        links={[{ label: 'Home', href: '/' }, { label: 'For team members', href: '/freelancers' }]}
         cta={{ label: 'Get started', href: '#get-started' }}
       />
 
@@ -530,7 +530,7 @@ export default function ClientsPage() {
           <p className="text-mono-label text-xs tracking-widest" style={{ color: 'var(--text-muted)' }}>© 2026 BLACKORWHITE. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
             <Link href="/" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>HOME</Link>
-            <Link href="/freelancers" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>FOR FREELANCERS</Link>
+            <Link href="/freelancers" className="text-mono-label text-xs tracking-widest hover:text-primary-ui transition-colors" style={{ color: 'var(--text-muted)' }}>FOR TEAM MEMBERS</Link>
           </div>
         </div>
       </footer>

@@ -69,7 +69,7 @@ export default function RegisterPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl font-bold text-primary-ui">Freelancer</h2>
+                  <h2 className="text-xl font-bold text-primary-ui">Team member</h2>
                   <span className="text-[9px] px-2 py-0.5 rounded-full font-bold tracking-widest"
                     style={{ fontFamily: 'var(--font-mono)', background: 'var(--crimson-dim)', border: '1px solid var(--border-crimson)', color: 'var(--fg)' }}>
                     PROFESSIONAL

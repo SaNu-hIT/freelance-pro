@@ -240,7 +240,7 @@ export default function AdminWorklogsPage() {
         </div>
         <div className="relative">
           <select value={freelancerFilter} onChange={e => setFreelancerFilter(e.target.value)} className="input-field py-2.5 text-sm pr-8 appearance-none" style={{ width: 180 }}>
-            <option value="all">All Freelancers</option>
+            <option value="all">All team members</option>
             {(freelancers.length > 0 ? freelancers : uniqueFreelancers).map(f => (
               <option key={f.id} value={f.id}>{f.user.name}</option>
             ))}
@@ -273,7 +273,7 @@ export default function AdminWorklogsPage() {
             {dateFilter === 'today' ? 'NO LOGS SUBMITTED TODAY' : 'NO WORKLOGS FOUND'}
           </p>
           <p className="text-mono-label mt-2" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-            {dateFilter === 'today' ? 'Freelancers haven\'t submitted their standup yet.' : 'Try adjusting your filters.'}
+            {dateFilter === 'today' ? 'Team members haven\'t submitted their standup yet.' : 'Try adjusting your filters.'}
           </p>
         </div>
       ) : dateFilter === 'today' || dateFilter === 'week' ? (
@@ -321,7 +321,7 @@ export default function AdminWorklogsPage() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Freelancer</th>
+                  <th>Team member</th>
                   <th>Project</th>
                   <th>Hours</th>
                   <th>Progress</th>

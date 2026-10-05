@@ -98,7 +98,7 @@ export function HoursSummary({ linkFor, showFreelancers }: {
                       <p className="text-sm font-semibold text-primary-ui truncate">{p.title}</p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         {fmt(p.weekHours + p.live)} this week
-                        {showFreelancers ? ` · ${p.freelancers} freelancer${p.freelancers === 1 ? '' : 's'}` : ''}
+                        {showFreelancers ? ` · ${p.freelancers} team member${p.freelancers === 1 ? '' : 's'}` : ''}
                       </p>
                     </div>
                     <span className="text-sm font-bold font-mono tabular-nums" style={{ color: 'var(--fg)' }}>{fmt(p.hours + p.live)}</span>

@@ -20,14 +20,14 @@ import { useAuthStore } from '@/lib/store'
 const DELIVERY_STEPS = [
   { num: '01', icon: ClipboardList, title: 'Submit Your Enquiry', desc: 'Scope, timeline, and goals — no commitment needed.', color: 'var(--fg)' },
   { num: '02', icon: Users, title: 'Manager & Tech Lead Review', desc: 'We analyse requirements and identify the exact resources.', color: 'var(--fg)' },
-  { num: '03', icon: UserCheck, title: 'Freelancer Onboarding', desc: 'Right specialists are hand-picked from our vetted pool.', color: 'var(--fg)' },
+  { num: '03', icon: UserCheck, title: 'Team Member Onboarding', desc: 'Right specialists are hand-picked from our vetted pool.', color: 'var(--fg)' },
   { num: '04', icon: FlaskConical, title: 'QA on Every Deliverable', desc: 'Dedicated QA review before anything reaches you.', color: 'var(--fg)' },
   { num: '05', icon: PackageCheck, title: 'Delivery & Sign-off', desc: 'Deliverables handed off with docs — you sign off each milestone.', color: 'var(--fg)' },
   { num: '06', icon: BarChart3, title: 'Track Progress in Real Time', desc: 'Live worklogs, tasks, and sprint status in your dashboard.', color: 'var(--fg)' },
 ]
 
 const CLIENT_PERKS = [
-  { icon: ShieldCheck, text: 'Vetted freelancers — manager-approved before assignment' },
+  { icon: ShieldCheck, text: 'Vetted team members — manager-approved before assignment' },
   { icon: FlaskConical, text: 'QA on every deliverable before handoff' },
   { icon: BarChart3, text: 'Live dashboard: worklogs, tasks & progress' },
   { icon: Headphones, text: 'Dedicated account manager throughout the project' },
@@ -296,7 +296,7 @@ export default function ClientRegisterPage() {
                 <p className="text-mono-label" style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.3em' }}>WHAT HAPPENS AFTER YOU REGISTER</p>
                 {[
                   { icon: Users, text: 'Managers & tech leads review your brief and scope resources', color: 'var(--fg)' },
-                  { icon: UserCheck, text: 'Right freelancers are onboarded and assigned to your project', color: 'var(--fg)' },
+                  { icon: UserCheck, text: 'Right team members are onboarded and assigned to your project', color: 'var(--fg)' },
                   { icon: FlaskConical, text: 'Every deliverable passes QA before it reaches you', color: 'var(--fg)' },
                   { icon: BarChart3, text: 'Track everything live in your client dashboard', color: 'var(--fg)' },
                 ].map(({ icon: Icon, text, color }) => (
@@ -312,7 +312,7 @@ export default function ClientRegisterPage() {
                 style={{ background: 'rgb(var(--fg-rgb) / 0.06)', border: '1px solid rgb(var(--fg-rgb) / 0.2)' }}>
                 <BarChart3 size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--fg)' }} />
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  After registration you'll have access to a <strong style={{ color: 'var(--fg)' }}>live client dashboard</strong> — view freelancer worklogs, task status, sprint progress, QA reports, and payment history all in one place.
+                  After registration you'll have access to a <strong style={{ color: 'var(--fg)' }}>live client dashboard</strong> — view team member worklogs, task status, sprint progress, QA reports, and payment history all in one place.
                 </p>
               </div>
 
