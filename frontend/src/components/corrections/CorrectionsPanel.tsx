@@ -39,11 +39,20 @@ export type CorrectionBoard = {
   // Reload the board's tasks after a correction creates or reopens one
   onTasksChanged: () => void
 }
+// Set from the Website links card: show one page's corrections, or start a new one on it.
+// n changes on every click, so clicking the same page again still opens the form.
+export type CorrectionFocus = { pageId: string; compose: boolean; n: number }
 const fmtWhen = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 
 // Corrections the client asks for on the delivered website, with screenshots and a thread per correction.
 // The same panel serves the team (triage, status, questions) and the client (report, answer, confirm).
-export function CorrectionsPanel({ projectId, board }: { projectId: string; board?: CorrectionBoard }) {
+export function CorrectionsPanel({ projectId, board, focus, onItems }: {
+  projectId: string
+  board?: CorrectionBoard
+  focus?: CorrectionFocus | null
+  // Hears the current corrections, e.g. to count them per page on the links card
+  onItems?: (items: Correction[]) => void
+}) {
   const user = useAuthStore(s => s.user)
   const isClient = user?.role === 'client'
   const [items, setItems] = useState<Correction[]>([])
@@ -54,6 +63,32 @@ export function CorrectionsPanel({ projectId, board }: { projectId: string; boar
   const [filter, setFilter] = useState(isClient ? 'all' : 'active')
   const [pageFilter, setPageFilter] = useState('')
   const [open, setOpen] = useState<string | null>(null)
+  const root = useRef<HTMLDivElement>(null)
+
+  // A page picked on the links card filters to that page, and opens the form when reporting
+  const [seenFocus, setSeenFocus] = useState(focus)
+  // The page a new correction starts on; a new focus.n restarts the form on that page
+  const [composeOn, setComposeOn] = useState({ pageId: '', n: 0 })
+  if (focus !== seenFocus) {
+    setSeenFocus(focus)
+    if (focus) {
+      setFilter('all')
+      setPageFilter(focus.pageId)
+      if (focus.compose) {
+        setComposing(true)
+        setComposeOn({ pageId: focus.pageId, n: focus.n })
+      }
+    }
+  }
+  useEffect(() => {
+    if (!focus) return
+    root.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // The page may have been added on the links card since this panel loaded
+    pagesApi.list(projectId)
+      .then(res => setPages((res.data as ProjectPage[]).filter(pg => !pg.archived)))
+      .catch(() => {})
+  }, [focus, projectId])
+  useEffect(() => { onItems?.(items) }, [items, onItems])
 
   useEffect(() => {
     Promise.all([correctionsApi.list(projectId), pagesApi.list(projectId)])
@@ -86,7 +121,7 @@ export function CorrectionsPanel({ projectId, board }: { projectId: string; boar
   const repeats = items.filter(c => c.reopenCount > 0).length
 
   return (
-    <div className="space-y-4">
+    <div ref={root} className="space-y-4 scroll-mt-4">
       <div className="flex items-center gap-3 flex-wrap">
         <ClipboardList size={15} style={{ color: 'var(--fg)' }} />
         <h2 className="text-sm font-bold text-primary-ui">Corrections</h2>
@@ -105,7 +140,7 @@ export function CorrectionsPanel({ projectId, board }: { projectId: string; boar
       {items.length > 0 && <CorrectionStats items={items} isClient={isClient} />}
 
       {composing && (
-        <NewCorrection projectId={projectId} pages={pages} onCancel={() => setComposing(false)} onError={setError}
+        <NewCorrection key={composeOn.n} projectId={projectId} pages={pages} initialPageId={composeOn.pageId} onCancel={() => setComposing(false)} onError={setError}
           onCreated={c => { setItems(prev => [c, ...prev]); setComposing(false); setOpen(c.id) }} />
       )}
 
@@ -243,14 +278,15 @@ function StatusBadge({ status }: { status: CorrectionStatus }) {
   )
 }
 
-function NewCorrection({ projectId, pages, onCancel, onCreated, onError }: {
+function NewCorrection({ projectId, pages, initialPageId, onCancel, onCreated, onError }: {
   projectId: string
   pages: ProjectPage[]
+  initialPageId: string
   onCancel: () => void
   onCreated: (c: Correction) => void
   onError: (msg: string) => void
 }) {
-  const [form, setForm] = useState({ pageId: '', title: '', body: '', priority: 'normal' as CorrectionPriority, viewport: '' as CorrectionViewport | '' })
+  const [form, setForm] = useState({ pageId: initialPageId, title: '', body: '', priority: 'normal' as CorrectionPriority, viewport: '' as CorrectionViewport | '' })
   const [files, setFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')

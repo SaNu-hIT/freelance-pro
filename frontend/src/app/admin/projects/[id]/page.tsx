@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -11,13 +11,13 @@ import {
 } from 'lucide-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { projectsApi, tasksApi, sprintsApi, worklogsApi, projectRequestsApi, documentsApi } from '@/lib/api'
-import { Project, ProjectTask, ProjectSprint, Worklog, ProjectStatus, ProjectPriority, ProjectRequest, ProjectDocument, DocumentType } from '@/lib/types'
+import { Project, ProjectTask, ProjectSprint, Worklog, ProjectStatus, ProjectPriority, ProjectRequest, ProjectDocument, DocumentType, Correction } from '@/lib/types'
 import { useCurrencySymbol } from '@/lib/store'
 import { apiError, formatBytes } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 import { SprintTaskBoard } from '@/components/admin/SprintTaskBoard'
-import { ProjectLinks } from '@/components/admin/ProjectLinks'
-import { CorrectionsPanel } from '@/components/corrections/CorrectionsPanel'
+import { ProjectLinks, PageCorrectionCount } from '@/components/admin/ProjectLinks'
+import { CorrectionsPanel, CorrectionFocus } from '@/components/corrections/CorrectionsPanel'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -96,6 +96,19 @@ export default function ProjectDetailPage() {
 
   const [project, setProject]   = useState<Project | null>(null)
   const [tasks, setTasks]       = useState<ProjectTask[]>([])
+  // Links card and corrections panel talk through these: counts per page, and the page picked on the card
+  const [pageCorrections, setPageCorrections] = useState<Record<string, PageCorrectionCount>>({})
+  const [correctionFocus, setCorrectionFocus] = useState<CorrectionFocus | null>(null)
+  const countCorrections = useCallback((items: Correction[]) => {
+    const counts: Record<string, PageCorrectionCount> = {}
+    items.forEach(c => {
+      if (!c.pageId) return
+      const t = counts[c.pageId] ?? { total: 0, active: 0 }
+      const active = ['open', 'triaged', 'in_progress', 'reopened'].includes(c.status)
+      counts[c.pageId] = { total: t.total + 1, active: t.active + (active ? 1 : 0) }
+    })
+    setPageCorrections(counts)
+  }, [])
   const [sprints, setSprints]   = useState<ProjectSprint[]>([])
   const [worklogs, setWorklogs] = useState<Worklog[]>([])
   const [loading, setLoading]   = useState(true)
@@ -496,11 +509,13 @@ export default function ProjectDetailPage() {
           </div>
 
           <div style={card}>
-            <ProjectLinks projectId={id} liveUrl={project.liveUrl ?? null} />
+            <ProjectLinks projectId={id} liveUrl={project.liveUrl ?? null} corrections={pageCorrections}
+              onShowCorrections={pageId => setCorrectionFocus(f => ({ pageId, compose: false, n: (f?.n ?? 0) + 1 }))}
+              onReport={pageId => setCorrectionFocus(f => ({ pageId, compose: true, n: (f?.n ?? 0) + 1 }))} />
           </div>
 
           <div style={card}>
-            <CorrectionsPanel projectId={id} board={{
+            <CorrectionsPanel projectId={id} focus={correctionFocus} onItems={countCorrections} board={{
               team, sprints, tasks,
               onTasksChanged: () => {
                 tasksApi.getByProject(id)

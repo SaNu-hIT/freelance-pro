@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Link2, Radar, Plus, Search, ChevronDown, ExternalLink, Archive, ArchiveRestore, Trash2, MessageSquare, Lock, Eye,
+  Link2, Radar, Plus, Search, ExternalLink, Archive, ArchiveRestore, Trash2, ClipboardList,
 } from 'lucide-react'
 import { pagesApi } from '@/lib/api'
-import { NoteVisibility, PageNote, ProjectPage } from '@/lib/types'
+import { ProjectPage } from '@/lib/types'
 import { apiError } from '@/lib/utils'
 import ErrorBanner from '@/components/ui/ErrorBanner'
 
@@ -14,10 +14,17 @@ const SOURCE_LABEL: Record<ProjectPage['source'], string> = { sitemap: 'Sitemap'
 // A web address (full, or a host like site.com/about) rather than a page path like /about
 const isAddress = (s: string) => /^[a-z][a-z\d+.-]*:\/\//i.test(s.trim()) || /^[^/]+\.[^/]+/.test(s.trim())
 
-const fmtWhen = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+// Corrections on one page: all of them, and those still with the team
+export type PageCorrectionCount = { total: number; active: number }
 
-// Every page of the project's website, each with its own notes
-export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUrl: string | null }) {
+// Every page of the project's website; corrections are reported and listed per page
+export function ProjectLinks({ projectId, liveUrl, corrections, onShowCorrections, onReport }: {
+  projectId: string
+  liveUrl: string | null
+  corrections: Record<string, PageCorrectionCount>
+  onShowCorrections: (pageId: string) => void
+  onReport: (pageId: string) => void
+}) {
   // The site Discover reads; a project without a live URL takes the first site discovered
   const [site, setSite] = useState(liveUrl)
   const [pages, setPages] = useState<ProjectPage[]>([])
@@ -29,7 +36,6 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
   const [adding, setAdding] = useState(false)
   const [query, setQuery] = useState('')
   const [showArchived, setShowArchived] = useState(false)
-  const [open, setOpen] = useState<string | null>(null)
 
   useEffect(() => {
     pagesApi.list(projectId)
@@ -166,10 +172,9 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
       ) : (
         <div className="rounded-xl overflow-hidden divide-y" style={{ border: '1px solid var(--border)', borderColor: 'var(--border)' }}>
           {visible.map(page => (
-            <PageRow key={page.id} page={page} expanded={open === page.id}
-              onToggle={() => setOpen(o => (o === page.id ? null : page.id))}
-              onArchive={() => setArchived(page, !page.archived)} onDelete={() => remove(page)}
-              onNotes={notes => patchPage(page.id, { notes })} onError={setError} />
+            <PageRow key={page.id} page={page} count={corrections[page.id]}
+              onShow={() => onShowCorrections(page.id)} onReport={() => onReport(page.id)}
+              onArchive={() => setArchived(page, !page.archived)} onDelete={() => remove(page)} />
           ))}
         </div>
       )}
@@ -177,36 +182,42 @@ export function ProjectLinks({ projectId, liveUrl }: { projectId: string; liveUr
   )
 }
 
-function PageRow({ page, expanded, onToggle, onArchive, onDelete, onNotes, onError }: {
+function PageRow({ page, count, onShow, onReport, onArchive, onDelete }: {
   page: ProjectPage
-  expanded: boolean
-  onToggle: () => void
+  count?: PageCorrectionCount
+  onShow: () => void
+  onReport: () => void
   onArchive: () => void
   onDelete: () => void
-  onNotes: (notes: PageNote[]) => void
-  onError: (msg: string) => void
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const count = page.notes.length
+  const name = page.path === '/' ? 'Home' : page.path
 
   return (
     <div style={{ borderColor: 'var(--border)', opacity: page.archived ? 0.55 : 1 }}>
       <div className="group flex items-center gap-2 px-3 py-2 hover:bg-[var(--row-hover-bg)] transition-colors">
-        <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex items-center gap-2 min-w-0 flex-1 text-left">
-          <ChevronDown size={13} className="shrink-0 transition-transform"
-            style={{ color: 'var(--text-muted)', transform: expanded ? 'none' : 'rotate(-90deg)' }} />
-          <span className="text-sm font-mono truncate text-primary-ui">{page.path === '/' ? 'Home' : page.path}</span>
+        <a href={page.url} target="_blank" rel="noopener noreferrer" title={`Open ${page.url}`}
+          className="flex items-center gap-2 min-w-0 flex-1 hover:underline">
+          <span className="text-sm font-mono truncate text-primary-ui">{name}</span>
           {page.title && <span className="hidden md:block text-xs truncate" style={{ color: 'var(--text-muted)' }}>{page.title}</span>}
-        </button>
+          <ExternalLink size={11} className="shrink-0" style={{ color: 'var(--text-muted)' }} />
+        </a>
         {page.archived && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>Archived</span>}
         <span className="hidden sm:block text-[10px] font-mono px-1.5 py-0.5 rounded shrink-0"
           style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>{SOURCE_LABEL[page.source]}</span>
-        <button type="button" onClick={onToggle} className="flex items-center gap-1 text-xs shrink-0 tabular-nums"
-          style={{ color: count ? 'var(--fg)' : 'var(--text-muted)' }} aria-label={`${count} notes`}>
-          <MessageSquare size={12} /> {count}
-        </button>
-        <a href={page.url} target="_blank" rel="noopener noreferrer" title="Open page" aria-label={`Open ${page.path}`}
-          className="p-1.5 rounded shrink-0" style={{ color: 'var(--text-muted)' }}><ExternalLink size={12} /></a>
+        {count && (
+          <button type="button" onClick={onShow} className="flex items-center gap-1 text-xs shrink-0 tabular-nums"
+            title={`${count.total} correction${count.total === 1 ? '' : 's'}, ${count.active} with the team. Show them.`}
+            style={{ color: count.active ? 'var(--fg)' : 'var(--text-muted)' }}>
+            <ClipboardList size={12} /> {count.total}
+          </button>
+        )}
+        {!page.archived && (
+          <button type="button" onClick={onReport} title={`Report a correction on ${name}`}
+            className="btn-ghost flex items-center gap-1 px-2 py-1 rounded text-[11px] shrink-0">
+            <Plus size={11} /> Correction
+          </button>
+        )}
         {confirmDelete ? (
           <span className="flex items-center gap-2 text-xs shrink-0">
             <button type="button" onClick={onDelete} className="font-bold" style={{ color: 'var(--fg)' }}>Delete</button>
@@ -220,75 +231,6 @@ function PageRow({ page, expanded, onToggle, onArchive, onDelete, onNotes, onErr
             <IconButton label={`Delete ${page.path}`} onClick={() => setConfirmDelete(true)}><Trash2 size={12} /></IconButton>
           </span>
         )}
-      </div>
-      {expanded && <Notes page={page} onNotes={onNotes} onError={onError} />}
-    </div>
-  )
-}
-
-function Notes({ page, onNotes, onError }: { page: ProjectPage; onNotes: (n: PageNote[]) => void; onError: (msg: string) => void }) {
-  const [body, setBody] = useState('')
-  const [visibility, setVisibility] = useState<NoteVisibility>('internal')
-  const [saving, setSaving] = useState(false)
-
-  const add = async () => {
-    if (!body.trim() || saving) return
-    setSaving(true)
-    onError('')
-    try {
-      const res = await pagesApi.addNote(page.id, { body: body.trim(), visibility })
-      onNotes([...page.notes, res.data])
-      setBody('')
-    } catch (err) {
-      onError(apiError(err, 'Could not add the note.'))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const remove = async (note: PageNote) => {
-    onError('')
-    try {
-      await pagesApi.deleteNote(note.id)
-      onNotes(page.notes.filter(n => n.id !== note.id))
-    } catch (err) {
-      onError(apiError(err, 'Could not delete the note.'))
-    }
-  }
-
-  return (
-    <div className="px-4 pb-3 pt-1 space-y-2" style={{ background: 'var(--bg-elevated)' }}>
-      {page.notes.length === 0 && <p className="text-xs pt-2" style={{ color: 'var(--text-muted)' }}>No notes on this page yet.</p>}
-      {page.notes.map(note => (
-        <div key={note.id} className="group flex items-start gap-2 pt-2">
-          <span className="mt-0.5 shrink-0" title={note.visibility === 'client' ? 'Visible to the client' : 'Team only'}
-            style={{ color: note.visibility === 'client' ? 'var(--fg)' : 'var(--text-muted)' }}>
-            {note.visibility === 'client' ? <Eye size={12} /> : <Lock size={12} />}
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm whitespace-pre-wrap break-words" style={{ color: 'var(--text-primary)' }}>{note.body}</p>
-            <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {note.author?.name ?? 'Former user'}{note.author?.role === 'client' && ' (client)'} · {fmtWhen(note.createdAt)}
-            </p>
-          </div>
-          <span className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-            <IconButton label="Delete note" onClick={() => remove(note)}><Trash2 size={12} /></IconButton>
-          </span>
-        </div>
-      ))}
-      <div className="flex items-start gap-2 pt-2 flex-wrap sm:flex-nowrap">
-        <textarea className="input-field flex-1 min-w-[180px] py-2 text-sm" rows={2} aria-label={`Note for ${page.path}`}
-          placeholder="Add a note…" value={body} disabled={saving} onChange={e => setBody(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) add() }} />
-        <div className="flex flex-col gap-1.5">
-          <select className="input-field py-1.5 text-xs" aria-label="Who can see this note" value={visibility}
-            onChange={e => setVisibility(e.target.value as NoteVisibility)}>
-            <option value="internal">Team only</option>
-            <option value="client">Client can see</option>
-          </select>
-          <button type="button" onClick={add} disabled={!body.trim() || saving}
-            className="btn-primary px-3 py-1.5 rounded text-xs disabled:opacity-40">{saving ? 'Saving…' : 'Add note'}</button>
-        </div>
       </div>
     </div>
   )

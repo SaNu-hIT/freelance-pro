@@ -185,8 +185,6 @@ export const pagesApi = {
   delete: (id: string) => api.delete(`/pages/${id}`),
   // Reads a site's sitemap and links (url, else the project's live URL); can take up to ~40s
   discover: (projectId: string, url?: string) => api.post('/pages/discover', { projectId, ...(url && { url }) }, { timeout: 60000 }),
-  addNote: (id: string, data: { body: string; visibility?: 'internal' | 'client' }) => api.post(`/pages/${id}/notes`, data),
-  deleteNote: (noteId: string) => api.delete(`/pages/notes/${noteId}`),
 }
 
 export const correctionsApi = {

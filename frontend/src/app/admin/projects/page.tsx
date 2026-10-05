@@ -54,8 +54,8 @@ function DaysChip({ deadline }: { deadline: string }) {
 }
 
 // Client corrections on a project: who they wait on, how many are closed, how often fixes were sent back
-function CorrectionsCell({ s }: { s?: CorrectionSummary }) {
-  if (!s) return <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>—</span>
+function CorrectionsCell({ s, loaded }: { s?: CorrectionSummary; loaded: boolean }) {
+  if (!s) return <span className="text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{loaded ? 'No corrections yet' : '—'}</span>
   return (
     <div className="flex flex-col gap-0.5 text-xs whitespace-nowrap">
       <span className="text-primary-ui">
@@ -160,6 +160,7 @@ function AdminProjectsPageInner() {
   const [deleteError, setDeleteError] = useState('')
   const [drawerError, setDrawerError] = useState('')
   const [corrections, setCorrections] = useState<Record<string, CorrectionSummary>>({})
+  const [correctionsLoaded, setCorrectionsLoaded] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -177,7 +178,10 @@ function AdminProjectsPageInner() {
     load()
     // Extra detail for the list; the page works without it
     correctionsApi.summary()
-      .then(res => setCorrections(Object.fromEntries((res.data as CorrectionSummary[]).map(c => [c.projectId, c]))))
+      .then(res => {
+        setCorrections(Object.fromEntries((res.data as CorrectionSummary[]).map(c => [c.projectId, c])))
+        setCorrectionsLoaded(true)
+      })
       .catch(() => {})
   }, [])
 
@@ -409,7 +413,7 @@ function AdminProjectsPageInner() {
                         <span className="text-crimson text-xs">{p.progress ?? 0}%</span>
                       </div>
                     </td>
-                    <td><CorrectionsCell s={corrections[p.id]} /></td>
+                    <td><CorrectionsCell s={corrections[p.id]} loaded={correctionsLoaded} /></td>
                     <td>
                       <span className="text-mono-label px-2 py-1 rounded" style={{ fontSize: '10px', color: PRIORITY_COLORS[p.priority], background: `color-mix(in srgb, ${PRIORITY_COLORS[p.priority]} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${PRIORITY_COLORS[p.priority]} 25%, transparent)` }}>
                         {p.priority.toUpperCase()}
@@ -485,10 +489,10 @@ function AdminProjectsPageInner() {
                     <DaysChip deadline={p.deadline} />
                   </div>
                 </div>
-                {corrections[p.id] && (
+                {correctionsLoaded && (
                   <div className="rounded-lg px-2.5 py-2 mb-3" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                     <p className="text-mono-label text-[9px] mb-0.5" style={{ color: 'var(--text-muted)' }}>CORRECTIONS</p>
-                    <CorrectionsCell s={corrections[p.id]} />
+                    <CorrectionsCell s={corrections[p.id]} loaded />
                   </div>
                 )}
                 {/* Footer */}
