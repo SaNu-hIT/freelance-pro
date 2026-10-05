@@ -448,7 +448,7 @@ export default function OnboardingPipelinePage() {
             className="onb-grid"
             style={{
               display: 'grid',
-              gridTemplateColumns: selected ? 'minmax(300px, 2fr) 3fr' : '1fr',
+              gridTemplateColumns: selected ? 'minmax(260px, 1fr) minmax(0, 2.6fr)' : '1fr',
               gap: 16,
               alignItems: 'start',
             }}
@@ -560,11 +560,12 @@ export default function OnboardingPipelinePage() {
                 className="onb-panel"
                 style={{
                   position: 'sticky',
-                  top: 0,
-                  maxHeight: 'calc(100vh - 120px)',
+                  top: 16,
+                  maxHeight: 'calc(100vh - 96px)',
                   overflowY: 'auto',
                   background: 'var(--bg-base)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid rgb(var(--fg-rgb) / 0.35)',
+                  boxShadow: '0 12px 40px rgb(0 0 0 / 0.12)',
                   borderRadius: 12,
                   minWidth: 0,
                 }}
@@ -608,11 +609,15 @@ export default function OnboardingPipelinePage() {
                   </button>
                 </div>
 
-                <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-
+                {/* Two columns on wide screens: decide (stage, checklist) | know (profile, availability, notes) */}
+                <div className="onb-detail">
                 {actionError && (
-                  <ErrorBanner message={actionError} onClose={() => setActionError('')} />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <ErrorBanner message={actionError} onClose={() => setActionError('')} />
+                  </div>
                 )}
+
+                <div className="onb-col">
 
                 {/* ── Section 1: Stage and next step ── */}
                 <div>
@@ -891,9 +896,9 @@ export default function OnboardingPipelinePage() {
                   </div>
                 </div>
 
-                {/* Divider */}
-                <div style={{ borderTop: '1px solid var(--border)' }} />
+                </div>
 
+                <div className="onb-col">
                 {/* ── Section 3: Profile ── */}
                 <div>
                   <h3 style={sectionTitle}>Profile</h3>
@@ -989,6 +994,7 @@ export default function OnboardingPipelinePage() {
                     {notesSaved ? '✓ Saved' : 'Saves when you click outside the box'}
                   </p>
                 </div>
+                </div>
 
                 </div>
               </div>
@@ -1000,6 +1006,14 @@ export default function OnboardingPipelinePage() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        .onb-detail { padding: 20px 24px 24px; display: grid; grid-template-columns: 1fr; gap: 24px; }
+        .onb-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+        .onb-col + .onb-col { border-top: 1px solid var(--border); padding-top: 24px; }
+        @media (min-width: 1280px) {
+          .onb-detail { grid-template-columns: 1fr 1fr; column-gap: 0; }
+          .onb-col + .onb-col { border-top: none; padding-top: 0; border-left: 1px solid var(--border); padding-left: 28px; }
+          .onb-col:has(+ .onb-col) { padding-right: 28px; }
+        }
         @media (max-width: 900px) {
           .onb-grid { grid-template-columns: 1fr !important; }
           .onb-panel { position: static !important; max-height: none !important; order: -1; }
