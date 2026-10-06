@@ -102,6 +102,7 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [emailed, setEmailed] = useState(false)
 
   const handleReset = async () => {
     setSaveError('')
@@ -109,6 +110,7 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
     try {
       const { data } = await usersApi.resetPassword(userId)
       setTemporary(data.temporaryPassword)
+      setEmailed(!!data.emailed)
       setConfirming(false)
       setCopied(false)
     } catch (err) {
@@ -135,7 +137,10 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
             </button>
           </div>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Give this to them. They will be asked to choose their own password when they sign in. It will not be shown again.
+            {emailed
+              ? 'We also emailed it to them. '
+              : 'The email could not be sent, so give this to them yourself. '}
+            They will be asked to choose their own password when they sign in. It will not be shown again.
           </p>
           <button type="button" onClick={() => setTemporary('')} className="text-mono-label text-[10px] underline" style={{ color: 'var(--text-muted)' }}>
             DONE, HIDE IT

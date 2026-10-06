@@ -6,6 +6,7 @@ describe('UsersService', () => {
   let users: any;
   let projects: any;
   let profiles: any;
+  let mail: any;
   let service: UsersService;
   let stored: any;
 
@@ -38,7 +39,8 @@ describe('UsersService', () => {
       save: jest.fn((x: any) => Promise.resolve({ ...x, id: 'p9' })),
       findOne: jest.fn((q: any) => Promise.resolve({ id: q.where.id, user: { id: 'f9' } })),
     };
-    service = new UsersService(users, projects, profiles);
+    mail = { accountCreated: jest.fn().mockResolvedValue(true), passwordReset: jest.fn().mockResolvedValue(true) };
+    service = new UsersService(users, projects, profiles, mail);
   });
 
   it('lists users with their project counts', async () => {
@@ -78,7 +80,8 @@ describe('UsersService', () => {
     expect(savedArg.name).toBe('Acme');
     expect(savedArg.company).toBeNull();
     expect(await bcrypt.compare('temppass1', savedArg.password)).toBe(true);
-    expect(out).toEqual({ id: 'c9', role: 'client', projectCount: 0 });
+    expect(out).toEqual({ id: 'c9', role: 'client', projectCount: 0, emailed: true });
+    expect(mail.accountCreated).toHaveBeenCalledWith({ id: 'c9', role: 'client' }, 'temppass1', 'client');
   });
 
   it('refuses a client email that is already registered', async () => {
@@ -93,7 +96,8 @@ describe('UsersService', () => {
     expect(users.save.mock.calls[0][0].role).toBe('freelancer');
     const profile = profiles.save.mock.calls[0][0];
     expect(profile).toMatchObject({ userId: 'f9', status: 'active', onboardingStage: 'approved', skills: ['React'], hourlyRate: 40, track: 'professional' });
-    expect(out).toEqual({ id: 'p9', user: { id: 'f9' } });
+    expect(out).toEqual({ id: 'p9', user: { id: 'f9' }, emailed: true });
+    expect(mail.accountCreated).toHaveBeenCalledWith({ id: 'f9' }, 'temppass1', 'freelancer');
   });
 
   it('resets a password for an existing user only', async () => {
@@ -105,7 +109,10 @@ describe('UsersService', () => {
 
   it('generates a temporary password when none is given and makes the user change it', async () => {
     users.findOne.mockResolvedValue({ id: 'c1' });
-    const { temporaryPassword } = await service.resetPassword('c1');
+    mail.passwordReset.mockResolvedValue(false);
+    const { temporaryPassword, emailed } = await service.resetPassword('c1');
+    expect(emailed).toBe(false);
+    expect(mail.passwordReset).toHaveBeenCalledWith({ id: 'c1' }, temporaryPassword);
     expect(temporaryPassword).toMatch(/^[A-HJ-NP-Za-km-np-z2-9]{12}$/);
     const saved = users.update.mock.calls[0][1];
     expect(saved.mustChangePassword).toBe(true);

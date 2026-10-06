@@ -9,6 +9,7 @@ import { Project } from './entities/project.entity';
 import { Worklog } from './entities/worklog.entity';
 import { Payment } from './entities/payment.entity';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { WorklogsModule } from './worklogs/worklogs.module';
@@ -56,6 +57,7 @@ import { CorrectionsModule } from './corrections/corrections.module';
       }),
       inject: [ConfigService],
     }),
+    MailModule,
     AuthModule,
     UsersModule,
     ProjectsModule,

@@ -72,7 +72,7 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   async resetPassword(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AdminResetPasswordDto) {
-    const { temporaryPassword } = await this.usersService.resetPassword(id, dto.newPassword);
-    return { message: 'Password reset', temporaryPassword };
+    const { temporaryPassword, emailed } = await this.usersService.resetPassword(id, dto.newPassword);
+    return { message: 'Password reset', temporaryPassword, emailed };
   }
 }

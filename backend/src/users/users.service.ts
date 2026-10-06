@@ -17,6 +17,7 @@ import { Payment } from '../entities/payment.entity';
 import { ProjectTask } from '../entities/project-task.entity';
 import { ProjectRequest } from '../entities/project-request.entity';
 import { ProjectDocument } from '../entities/project-document.entity';
+import { MailService } from '../mail/mail.service';
 import { AdminUpdateUserDto, CreateClientDto, CreateFreelancerDto, UpdateMeDto } from './dto/user.dto';
 
 // 12 characters from an alphabet without look-alikes (0/O, 1/l/I), easy to read out or type
@@ -34,6 +35,7 @@ export class UsersService {
     private projectsRepository: Repository<Project>,
     @InjectRepository(FreelancerProfile)
     private profilesRepository: Repository<FreelancerProfile>,
+    private mail: MailService,
   ) {}
 
   async findById(id: string): Promise<User | null> {
@@ -55,15 +57,16 @@ export class UsersService {
     return this.findById(id);
   }
 
-  async createClient(dto: CreateClientDto): Promise<User & { projectCount: number }> {
+  async createClient(dto: CreateClientDto): Promise<User & { projectCount: number; emailed: boolean }> {
     const saved = await this.createAccount(dto, 'client');
     // Reload so the password hash never leaves the server
     const user = (await this.usersRepository.findOne({ where: { id: saved.id } }))!;
-    return { ...user, projectCount: 0 };
+    const emailed = await this.mail.accountCreated(user, dto.password, 'client');
+    return { ...user, projectCount: 0, emailed };
   }
 
   // An admin-created freelancer is already vetted, so the profile starts approved and active
-  async createFreelancer(dto: CreateFreelancerDto): Promise<FreelancerProfile> {
+  async createFreelancer(dto: CreateFreelancerDto): Promise<FreelancerProfile & { emailed: boolean }> {
     const saved = await this.createAccount(dto, 'freelancer');
     const profile = await this.profilesRepository.save(
       this.profilesRepository.create({
@@ -78,7 +81,9 @@ export class UsersService {
         track: dto.track ?? 'professional',
       }),
     );
-    return (await this.profilesRepository.findOne({ where: { id: profile.id }, relations: { user: true } }))!;
+    const full = (await this.profilesRepository.findOne({ where: { id: profile.id }, relations: { user: true } }))!;
+    const emailed = await this.mail.accountCreated(full.user, dto.password, 'freelancer');
+    return Object.assign(full, { emailed });
   }
 
   private async createAccount(dto: CreateClientDto, role: 'client' | 'freelancer'): Promise<User> {
@@ -141,11 +146,13 @@ export class UsersService {
   }
 
   // Admin reset: the old password stops working and the user must pick their own at next login
-  async resetPassword(id: string, newPassword?: string): Promise<{ temporaryPassword: string }> {
-    if (!(await this.usersRepository.findOne({ where: { id } }))) throw new NotFoundException('User not found');
+  async resetPassword(id: string, newPassword?: string): Promise<{ temporaryPassword: string; emailed: boolean }> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
     const temporaryPassword = newPassword ?? generateTemporaryPassword();
     await this.usersRepository.update(id, { password: await bcrypt.hash(temporaryPassword, 10), mustChangePassword: true });
-    return { temporaryPassword };
+    const emailed = await this.mail.passwordReset(user, temporaryPassword);
+    return { temporaryPassword, emailed };
   }
 
   // Users of a role with how many projects they own as client
