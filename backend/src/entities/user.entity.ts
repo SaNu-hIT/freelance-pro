@@ -30,6 +30,13 @@ export class User {
   @Column({ default: false })
   mustChangePassword: boolean;
 
+  // Self-service reset: the SHA-256 of the emailed token (never the token itself) and when it stops working
+  @Column({ type: 'varchar', nullable: true, select: false })
+  resetTokenHash: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true, select: false })
+  resetTokenExpiresAt: Date | null;
+
   @Column({ nullable: true })
   profileImage: string;
 

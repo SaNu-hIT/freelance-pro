@@ -33,6 +33,9 @@ export const authApi = {
     api.post('/auth/login', { email, password }),
   register: (data: Record<string, unknown>) =>
     api.post('/auth/register', data),
+  // Emails a one-time link; answers the same whether or not the email has an account
+  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) => api.post('/auth/reset-password', { token, password }),
 }
 
 export const projectsApi = {

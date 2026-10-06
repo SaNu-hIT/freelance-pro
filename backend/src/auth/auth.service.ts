@@ -1,4 +1,10 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { createHash, randomBytes } from 'crypto';
+import {
+  Injectable,
+  ConflictException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -6,6 +12,13 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { FreelancerProfile } from '../entities/freelancer-profile.entity';
 import { RegisterDto } from './dto/auth.dto';
+import { MailService } from '../mail/mail.service';
+
+export const RESET_LINK_MINUTES = 60;
+// One email per account per this many minutes, so the form cannot flood an inbox
+const RESET_RESEND_MINUTES = 2;
+const hashToken = (token: string) =>
+  createHash('sha256').update(token).digest('hex');
 
 @Injectable()
 export class AuthService {
@@ -15,7 +28,58 @@ export class AuthService {
     @InjectRepository(FreelancerProfile)
     private freelancerProfileRepository: Repository<FreelancerProfile>,
     private jwtService: JwtService,
+    private mail: MailService,
   ) {}
+
+  private readonly logger = new Logger(AuthService.name);
+
+  // Emails a one-time link to choose a new password. Says nothing about whether the email has an account.
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .addSelect('user.resetTokenExpiresAt')
+      .where('LOWER(user.email) = LOWER(:email)', { email: email.trim() })
+      .getOne();
+    if (!user) return;
+    const now = Date.now();
+    const issuedAt = user.resetTokenExpiresAt
+      ? user.resetTokenExpiresAt.getTime() - RESET_LINK_MINUTES * 60_000
+      : 0;
+    if (now - issuedAt < RESET_RESEND_MINUTES * 60_000) {
+      this.logger.warn(`Reset link for ${user.email} asked again too soon`);
+      return;
+    }
+    const token = randomBytes(32).toString('base64url');
+    await this.usersRepository.update(user.id, {
+      resetTokenHash: hashToken(token),
+      resetTokenExpiresAt: new Date(now + RESET_LINK_MINUTES * 60_000),
+    });
+    await this.mail.passwordResetLink(user, token, RESET_LINK_MINUTES);
+  }
+
+  // Sets the new password from a reset link; the link then stops working
+  async resetPassword(token: string, password: string): Promise<void> {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .addSelect('user.resetTokenExpiresAt')
+      .where('user.resetTokenHash = :hash', { hash: hashToken(token) })
+      .getOne();
+    if (
+      !user ||
+      !user.resetTokenExpiresAt ||
+      user.resetTokenExpiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException(
+        'This reset link is invalid or has expired. Ask for a new one.',
+      );
+    }
+    await this.usersRepository.update(user.id, {
+      password: await bcrypt.hash(password, 10),
+      mustChangePassword: false,
+      resetTokenHash: null,
+      resetTokenExpiresAt: null,
+    });
+  }
 
   async register(dto: RegisterDto): Promise<{ user: User; token: string }> {
     const existing = await this.usersRepository.findOne({

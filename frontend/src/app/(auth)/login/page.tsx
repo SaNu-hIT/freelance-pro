@@ -178,7 +178,10 @@ export default function LoginPage() {
                   className="input-field" placeholder="you@example.com" required autoComplete="email" />
               </div>
               <div>
-                <label htmlFor="login-password" className="block text-xs font-semibold text-secondary-ui mb-1.5 tracking-wide">Password</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="login-password" className="block text-xs font-semibold text-secondary-ui tracking-wide">Password</label>
+                  <Link href="/forgot-password" className="text-xs text-muted-ui hover:text-[var(--fg)] underline-offset-2 hover:underline">Forgot password?</Link>
+                </div>
                 <input id="login-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
                   className="input-field" placeholder="••••••••" required autoComplete="current-password" />
               </div>
