@@ -3,7 +3,7 @@ import "./globals.css";
 import { RevealOnScroll } from "@/components/brand/RevealOnScroll";
 
 export const metadata: Metadata = {
-  title: "BLACKORWHITE — Freelance Pro",
+  title: "BLACKORWHITE — WorkAI",
   description: "Centralized platform for managing team members, client projects, worklogs, timelines, and remuneration.",
   keywords: "team member management, project management, worklog, remuneration",
 };
