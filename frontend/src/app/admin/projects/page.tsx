@@ -23,7 +23,7 @@ import { SprintTaskBoard } from '@/components/admin/SprintTaskBoard'
 
 const VIEW_MODES = ['table', 'grid'] as const
 
-const ALL_STATUSES: ProjectStatus[] = ['new', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed']
+const ALL_STATUSES: ProjectStatus[] = ['new', 'reviewed', 'onboarded', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed']
 const ALL_PRIORITIES: ProjectPriority[] = ['low', 'medium', 'high', 'critical']
 
 const PRIORITY_COLORS: Record<ProjectPriority, string> = {

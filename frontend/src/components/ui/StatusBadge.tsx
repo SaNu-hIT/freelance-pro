@@ -4,6 +4,8 @@ import { ProjectStatus } from '@/lib/types'
 // to do = outline · in progress = solid · blocked = hatched · done = struck at .55
 const statusMap: Record<ProjectStatus, { cls: string; label: string }> = {
   new: { cls: 'status-new', label: 'New' },
+  reviewed: { cls: 'status-assigned', label: 'Reviewed' },
+  onboarded: { cls: 'status-assigned', label: 'Onboarded' },
   assigned: { cls: 'status-assigned', label: 'Assigned' },
   in_progress: { cls: 'status-progress', label: 'In Progress' },
   blocked: { cls: 'status-blocked', label: 'Blocked' },

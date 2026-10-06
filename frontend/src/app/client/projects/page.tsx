@@ -28,7 +28,7 @@ function isOverdue(iso: string) { return iso && new Date(iso) < new Date() }
 
 const PRIORITY_COLOR: Record<string, string> = { low: 'var(--fg)', medium: 'var(--fg)', high: 'var(--fg)', critical: 'var(--fg)' }
 const STATUS_LABEL: Record<string, string> = {
-  new: 'New', assigned: 'Assigned', in_progress: 'In Progress',
+  new: 'New', reviewed: 'Reviewed', onboarded: 'Onboarded', assigned: 'Assigned', in_progress: 'In Progress',
   blocked: 'Blocked', pending_approval: 'Pending Approval', completed: 'Completed', delayed: 'Delayed',
 }
 

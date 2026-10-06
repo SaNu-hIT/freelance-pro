@@ -137,7 +137,7 @@ export default function FreelancerDashboardPage() {
   // Open tasks first
   const myTasks = [...tasks].sort((a, b) => Number(a.completed) - Number(b.completed))
 
-  const assignedCount = projects.filter(p => ['assigned', 'in_progress'].includes(p.status)).length
+  const assignedCount = projects.filter(p => ['onboarded', 'assigned', 'in_progress'].includes(p.status)).length
 
   const stats = [
     { label: 'Assigned Projects', value: assignedCount, icon: <Briefcase size={20} className="text-[var(--fg)]" /> },

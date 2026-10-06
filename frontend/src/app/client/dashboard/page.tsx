@@ -90,7 +90,7 @@ export default function ClientDashboardPage() {
   }, []) // eslint-disable-line
 
   const totalProjects = projects.length
-  const activeProjects = projects.filter(p => ['in_progress', 'assigned'].includes(p.status)).length
+  const activeProjects = projects.filter(p => ['in_progress', 'onboarded', 'assigned'].includes(p.status)).length
   const completedProjects = projects.filter(p => p.status === 'completed').length
   const pendingApproval = projects.filter(p => p.status === 'pending_approval').length
 
@@ -128,7 +128,7 @@ export default function ClientDashboardPage() {
   }
 
   const pendingProjects = projects.filter(p => p.status === 'pending_approval')
-  const activeList = projects.filter(p => ['in_progress', 'assigned', 'blocked', 'delayed'].includes(p.status))
+  const activeList = projects.filter(p => ['in_progress', 'onboarded', 'assigned', 'blocked', 'delayed'].includes(p.status))
 
   return (
     <DashboardLayout allowedRoles={['client']}>

@@ -35,7 +35,7 @@ export class Project {
 
   @Column({
     type: 'enum',
-    enum: ['new', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed'],
+    enum: ['new', 'reviewed', 'onboarded', 'assigned', 'in_progress', 'blocked', 'pending_approval', 'completed', 'delayed'],
     default: 'new',
   })
   status: string;

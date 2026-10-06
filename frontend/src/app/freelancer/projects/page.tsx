@@ -14,6 +14,7 @@ import ErrorBanner from '@/components/ui/ErrorBanner'
 const STATUS_FILTERS: { label: string; value: 'all' | ProjectStatus }[] = [
   { label: 'All', value: 'all' },
   { label: 'New', value: 'new' },
+  { label: 'Onboarded', value: 'onboarded' },
   { label: 'Assigned', value: 'assigned' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Blocked', value: 'blocked' },

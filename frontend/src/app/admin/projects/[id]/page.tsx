@@ -51,6 +51,8 @@ function getInitials(name: string) {
 
 const STATUS_META: Record<ProjectStatus, { label: string; color: string; bg: string; border: string }> = {
   new:              { label: 'New',            color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',   border: 'rgb(var(--fg-rgb) / 0.25)'  },
+  reviewed:         { label: 'Reviewed',       color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',  border: 'rgb(var(--fg-rgb) / 0.25)' },
+  onboarded:        { label: 'Onboarded',      color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',  border: 'rgb(var(--fg-rgb) / 0.25)' },
   assigned:         { label: 'Assigned',       color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',  border: 'rgb(var(--fg-rgb) / 0.25)' },
   in_progress:      { label: 'In Progress',    color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',   border: 'rgb(var(--fg-rgb) / 0.25)'  },
   blocked:          { label: 'Blocked',        color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.1)',  border: 'rgb(var(--fg-rgb) / 0.25)' },
@@ -85,6 +87,81 @@ const card: React.CSSProperties = {
   border: '1px solid var(--border)',
   borderRadius: 14,
   padding: 20,
+}
+
+// Where a project is between intake and sign-off. Blocked and delayed sit outside the line.
+const STEPS: { status: ProjectStatus; label: string }[] = [
+  { status: 'new',              label: 'New' },
+  { status: 'reviewed',         label: 'Reviewed' },
+  { status: 'onboarded',        label: 'Onboarded' },
+  { status: 'in_progress',      label: 'In progress' },
+  { status: 'pending_approval', label: 'Client review' },
+  { status: 'completed',        label: 'Completed' },
+]
+// The admin moves a project forward one step at a time; client review and completion come from their own actions
+const NEXT_STEP: Partial<Record<ProjectStatus, { to: ProjectStatus; label: string }>> = {
+  new:       { to: 'reviewed',    label: 'Mark reviewed' },
+  reviewed:  { to: 'onboarded',   label: 'Mark onboarded' },
+  onboarded: { to: 'in_progress', label: 'Kick off work' },
+  assigned:  { to: 'in_progress', label: 'Kick off work' },
+  blocked:   { to: 'in_progress', label: 'Resume work' },
+  delayed:   { to: 'in_progress', label: 'Resume work' },
+}
+
+function OnboardingSteps({ project, onChange }: { project: Project; onChange: (p: Project) => void }) {
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  // Older projects marked 'assigned' count as onboarded
+  const at = STEPS.findIndex(s => s.status === (project.status === 'assigned' ? 'onboarded' : project.status))
+  const next = NEXT_STEP[project.status]
+
+  const advance = async () => {
+    if (!next) return
+    setSaving(true)
+    setError('')
+    try {
+      const res = await projectsApi.update(project.id, { status: next.to })
+      onChange({ ...project, ...res.data })
+    } catch (err) {
+      setError(apiError(err, 'Could not update the status.'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: next ? 10 : 0 }}>
+        {STEPS.map((s, i) => {
+          const done = at >= 0 && i < at
+          const current = i === at
+          return (
+            <div key={s.status} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em', color: done || current ? 'var(--fg)' : 'var(--text-muted)', fontWeight: current ? 800 : 500 }}>
+              <span style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid currentColor', background: done || current ? 'var(--fg)' : 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {done && <CheckCircle2 size={10} style={{ color: 'var(--bg)' }} />}
+              </span>
+              {s.label}
+              {current && <span style={{ ...tag, marginLeft: 'auto' }}>Now</span>}
+            </div>
+          )
+        })}
+        {at < 0 && (
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+            This project is {STATUS_META[project.status]?.label.toLowerCase() ?? project.status}.
+          </div>
+        )}
+      </div>
+      {next && (
+        <button onClick={advance} disabled={saving} style={{ ...smallBtn, width: '100%', justifyContent: 'center', opacity: saving ? 0.6 : 1 }}>
+          <ChevronRight size={13} /> {saving ? 'Saving…' : next.label}
+        </button>
+      )}
+      {project.status === 'pending_approval' && (
+        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Waiting on the client to approve or ask for changes.</div>
+      )}
+      {error && <div style={{ fontSize: 11, color: 'var(--fg)', marginTop: 6 }}>{error}</div>}
+    </div>
+  )
 }
 
 // ── Main page ──────────────────────────────────────────────────────────────────
@@ -340,6 +417,8 @@ export default function ProjectDetailPage() {
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{project.description}</p>
               )}
             </div>
+
+            <OnboardingSteps project={project} onChange={setProject} />
 
             {/* Progress */}
             <div style={{ marginBottom: 14 }}>

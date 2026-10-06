@@ -63,7 +63,7 @@ export class CreateProjectDto {
 export class UpdateProjectDto extends PartialType(CreateProjectDto) {
   @IsOptional()
   @IsIn([
-    'new', 'assigned', 'in_progress', 'blocked',
+    'new', 'reviewed', 'onboarded', 'assigned', 'in_progress', 'blocked',
     'pending_approval', 'completed', 'delayed',
   ])
   status?: string;

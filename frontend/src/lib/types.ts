@@ -1,5 +1,5 @@
 export type UserRole = 'admin' | 'freelancer' | 'client'
-export type ProjectStatus = 'new' | 'assigned' | 'in_progress' | 'blocked' | 'pending_approval' | 'completed' | 'delayed'
+export type ProjectStatus = 'new' | 'reviewed' | 'onboarded' | 'assigned' | 'in_progress' | 'blocked' | 'pending_approval' | 'completed' | 'delayed'
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'critical'
 export type PaymentStatus = 'pending' | 'paid' | 'partial'
 

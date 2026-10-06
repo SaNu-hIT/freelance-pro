@@ -191,7 +191,7 @@ export class ProjectsService {
 
     return {
       totalProjects,
-      activeProjects: total('assigned', 'in_progress'),
+      activeProjects: total('onboarded', 'assigned', 'in_progress'),
       delayedProjects: total('delayed', 'blocked'),
       completedProjects: total('completed'),
       pendingApprovals: total('pending_approval'),

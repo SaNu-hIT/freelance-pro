@@ -64,6 +64,8 @@ function isOverdue(deadline: string) {
 
 const STATUS_META: Record<ProjectStatus, { label: string; color: string; bg: string }> = {
   new:              { label: 'New',            color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
+  reviewed:         { label: 'Reviewed',       color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
+  onboarded:        { label: 'Onboarded',      color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
   assigned:         { label: 'Assigned',       color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
   in_progress:      { label: 'In Progress',    color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)'  },
   blocked:          { label: 'Blocked',        color: 'var(--fg)', bg: 'rgb(var(--fg-rgb) / 0.12)' },
