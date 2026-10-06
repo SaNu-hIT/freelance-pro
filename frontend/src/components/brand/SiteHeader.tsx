@@ -11,7 +11,7 @@ const roleHome: Record<UserRole, string> = { admin: '/admin', freelancer: '/free
 export function Wordmark({ className = '' }: { className?: string }) {
   return (
     <span className={`wordmark ${className}`}>
-      BLACKORWHITE<span className="wordmark-sub">FREELANCE PRO</span>
+      BLACKORWHITE<span className="wordmark-sub">WORKAI</span>
     </span>
   )
 }

@@ -370,7 +370,7 @@ export default function AdminInquiriesPage() {
               </div>
               {selected.email && (
                 <a
-                  href={`mailto:${selected.email}?subject=Re: ${selected.type === 'project_idea' ? selected.projectTitle ?? 'Your Project Idea' : 'Callback Request'} - FreelancePro`}
+                  href={`mailto:${selected.email}?subject=Re: ${selected.type === 'project_idea' ? selected.projectTitle ?? 'Your Project Idea' : 'Callback Request'} - WorkAI`}
                   className="btn-ghost w-full flex items-center justify-center gap-2 text-sm rounded py-2.5"
                 >
                   <Mail size={14} />

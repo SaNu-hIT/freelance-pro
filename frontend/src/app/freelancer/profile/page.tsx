@@ -229,7 +229,7 @@ export default function FreelancerProfilePage() {
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {approvalStatus === 'approved'
-                ? `Welcome to FreelancePro! Your profile is live and you can now be assigned to projects.`
+                ? `Welcome to WorkAI! Your profile is live and you can now be assigned to projects.`
                 : approvalStatus === 'rejected'
                 ? rejectionReason ?? 'Your application was not approved at this time.'
                 : 'Our team is reviewing your profile, portfolio, and skills. You\'ll be notified once a decision is made — typically within 2–3 business days.'}
