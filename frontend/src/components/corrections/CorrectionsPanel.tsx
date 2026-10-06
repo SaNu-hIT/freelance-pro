@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, ClipboardEvent, DragEvent } from 'react'
 import {
   ClipboardList, Plus, ChevronDown, MessageSquare, Image as ImageIcon, RotateCcw, Lock, HelpCircle,
-  CheckCircle2, Trash2, X, Send, Monitor, Smartphone, ListTodo,
+  CheckCircle2, Trash2, X, Send, Monitor, Smartphone, ListTodo, ExternalLink,
 } from 'lucide-react'
 import { correctionsApi, documentsApi, pagesApi } from '@/lib/api'
 import { Correction, CorrectionPriority, CorrectionStatus, CorrectionViewport, ProjectPage, ProjectSprint, ProjectTask } from '@/lib/types'
@@ -137,6 +137,11 @@ export function CorrectionsPanel({ projectId, board, focus, onItems }: {
 
       {error && <ErrorBanner message={error} onClose={() => setError('')} />}
 
+      {isClient && pages.length > 0 && (
+        <ClientPages pages={pages} items={items}
+          onReport={pageId => { setComposing(true); setComposeOn(prev => ({ pageId, n: prev.n + 1 })) }} />
+      )}
+
       {items.length > 0 && <CorrectionStats items={items} isClient={isClient} />}
 
       {composing && (
@@ -192,6 +197,41 @@ export function CorrectionsPanel({ projectId, board, focus, onItems }: {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// The site's pages for the client: open one to look, or report a correction on it
+function ClientPages({ pages, items, onReport }: {
+  pages: ProjectPage[]
+  items: Correction[]
+  onReport: (pageId: string) => void
+}) {
+  return (
+    <div className="rounded-xl" style={{ border: '1px solid var(--border)' }}>
+      <p className="text-mono-label text-[10px] px-4 pt-3 pb-2" style={{ color: 'var(--text-muted)' }}>WEBSITE PAGES · {pages.length}</p>
+      <ul className="divide-y divide-[var(--border)] max-h-72 overflow-y-auto">
+        {pages.map(p => {
+          const n = items.filter(c => c.pageId === p.id).length
+          return (
+            <li key={p.id} className="flex items-center gap-3 px-4 py-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-primary-ui truncate">{pageName(p.path)}</p>
+                {p.title && <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{p.title}</p>}
+              </div>
+              {n > 0 && <span className="text-xs tabular-nums shrink-0" style={{ color: 'var(--text-muted)' }}>{n} correction{n === 1 ? '' : 's'}</span>}
+              <a href={p.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${pageName(p.path)}`}
+                className="shrink-0 p-1.5 rounded hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
+                <ExternalLink size={13} />
+              </a>
+              <button type="button" onClick={() => onReport(p.id)}
+                className="btn-ghost shrink-0 flex items-center gap-1 px-2.5 py-1 rounded text-xs">
+                <Plus size={12} /> Report
+              </button>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }
