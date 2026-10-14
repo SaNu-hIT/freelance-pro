@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Index,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -66,4 +67,37 @@ export class ProjectTask {
   @ManyToOne(() => FreelancerProfile, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'startedById' })
   startedBy: FreelancerProfile | null;
+
+  // Filed by the external assistant (WhatsApp intake). All null on tasks made in the app.
+  @Column({ type: 'text', nullable: true })
+  description: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  type: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  priority: string | null;
+
+  @Column({ type: 'varchar', length: 40, nullable: true })
+  source: string | null;
+
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  customerName: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  customerPhone: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  originalMessage: string | null;
+
+  // One task per source message: a retried delivery finds the task it already made
+  @Index({ unique: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  messageId: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  receivedAt: Date | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  attachments: { url: string; type: 'image' | 'audio' | 'document' }[] | null;
 }

@@ -37,6 +37,7 @@ import { PagesModule } from './pages/pages.module';
 import { Correction } from './entities/correction.entity';
 import { CorrectionComment } from './entities/correction-comment.entity';
 import { CorrectionsModule } from './corrections/corrections.module';
+import { ExternalApiModule } from './external-api/external-api.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { CorrectionsModule } from './corrections/corrections.module';
     DocumentsModule,
     PagesModule,
     CorrectionsModule,
+    ExternalApiModule,
     WorklogsModule,
     FreelancersModule,
     PaymentsModule,
